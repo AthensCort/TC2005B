@@ -18,6 +18,7 @@ export default function SignUpForm() {
     <div className="flex flex-col items-center p-10">
   <h2 className="text-9xl font-dangrek  italic text-white">LEAD</h2>
   <h2 className="text-9xl font-dangrek italic text-blue-500">FLOW</h2>
+  /*  */
 </div>
       <Card className="card">
         <CardContent>
