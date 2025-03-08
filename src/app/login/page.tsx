@@ -1,6 +1,7 @@
 // TSX (React + TypeScript) - SignUpForm.tsx
 'use client'
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,14 +16,15 @@ export default function SignUpForm() {
   return (
     <div>
     <div className="container">
-    <div className="flex flex-col items-center p-10">
-  <h2 className="text-9xl font-dangrek  italic text-white">LEAD</h2>
-  <h2 className="text-9xl font-dangrek italic text-blue-500">FLOW</h2>
-  /*CRISTIAN HAS NO BITCHES*/
+    <div className="flex flex-col items-start p-30  leading-none ml-[-2px]">
+    <h2 className="text-[14rem] font-dangrek italic text-white">LEAD</h2>
+    <h2 className="text-[14rem] font-dangrek italic text-blue-500">FLOW</h2>
+
+
 </div>
       <Card className="card">
         <CardContent>
-          <h2 className="title">Create an account</h2>
+          <h2 className="title">Welcome back!</h2>
           <div className="social-buttons">
             <Button className="google-button">
               <FcGoogle className="icon" /> Google
@@ -32,7 +34,7 @@ export default function SignUpForm() {
             </Button>
           </div>
           <p className="divider">Or</p>
-          <div className="input-group">
+          <div className="input-group space-y-4">
             <div>
               <label className="label">Email</label>
               <Input type="email" placeholder="Enter your email" className="input" />
@@ -53,12 +55,15 @@ export default function SignUpForm() {
                   {showPassword ? <EyeOff /> : <Eye />}
                 </button>
               </div>
-              <div className="forgot-password">Forgot?</div>
+              {/* <div className="forgot-password">Forgot?</div>*/}
             </div>
-            <Button className="submit-button">Create account</Button>
+            <Button className="submit-button text-bold">Log in</Button>
           </div>
           <p className="login-link">
-            Already have an account? <span>Log In</span>
+            Don't have an account?{" "}
+            <Link href="/signup" className="text-blue-500 hover:underline">
+              Register
+            </Link>
           </p>
         </CardContent>
       </Card>
