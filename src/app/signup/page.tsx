@@ -16,7 +16,7 @@ export default function SignUpForm() {
   return (
     <div>
     <div className="container">
-    <div className="flex flex-col items-start p-30  leading-none ml-[-160px]">
+    <div className="flex flex-col items-start p-30  leading-none ">
     <h2 className="text-[14rem] font-dangrek italic text-white">LEAD</h2>
     <h2 className="text-[14rem] font-dangrek italic text-blue-500">FLOW</h2>
 </div>
@@ -32,7 +32,7 @@ export default function SignUpForm() {
             </Button>
           </div>
           <p className="divider">Or</p>
-          <div className="input-group">
+          <div className="input-group space-y-4">
           <div>
               <label className="label">User</label>
               <Input type="email" placeholder="Enter your email" className="input" />
