@@ -57,7 +57,9 @@ export default function SignUpForm() {
               </div>
               {/* <div className="forgot-password">Forgot?</div>*/}
             </div>
-            <Button className="submit-button text-bold">Log in</Button>
+            <Link href="/profile">
+            <Button className="submit-button">Create account</Button>
+            </Link>
           </div>
           <p className="login-link">
             Don't have an account?{" "}
