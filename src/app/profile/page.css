@@ -1,5 +1,5 @@
 body {
-    background-color: #1e1e2e;
+    background-color: #111827;
     color: white;
     font-family: Arial, sans-serif;
   }
@@ -11,11 +11,22 @@ body {
   
   .sidebar {
     width: 250px;
-    background-color: #2a2a3a;
+    background-color:  #1f2937;
     padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+  }
+
+  nav ul li {
+    margin-bottom: 22px; /* Espacio entre elementos */
+  }
+
+
+  
+  /* Si quieres aumentar el tamaño solo para los elementos activos */
+  .sidebar nav ul li.active {
+    font-size: 1.4rem; /* Tamaño mayor para el elemento activo */
   }
   
   .sidebar h2 {
@@ -48,6 +59,9 @@ body {
     text-align: center;
   }
   
+
+
+  
   .user-info img {
     width: 50px;
     border-radius: 50%;
@@ -60,7 +74,7 @@ body {
   }
   
   .profile-details, .profile-preview {
-    background: #29293d;
+    background:  #1f2937;
     padding: 20px;
     border-radius: 10px;
     flex: 1;
@@ -112,6 +126,13 @@ body {
     right: 10px;
     bottom: 10px;
     cursor: pointer;
+  }
+
+  h2 {
+    font-size: 28px; /* Aumenta el tamaño del texto */
+    font-weight: bold; /* Opcional: lo hace más grueso */
+    text-align: center; /* Centra el texto horizontalmente */
+    display: block; /* Asegura que tome todo el ancho disponible */
   }
 
   

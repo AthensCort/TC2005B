@@ -1,31 +1,39 @@
 import React from "react";
 import "./page.css";
-import { FaCalendarAlt, FaPaperPlane } from "react-icons/fa";
+import { FaTachometerAlt, FaTasks, FaUser, FaBoxOpen, FaClipboardList, FaCalendarAlt, FaPaperPlane } from "react-icons/fa";
 
 const Profile = () => {
   return (
     <div className="profile-container">
       <aside className="sidebar">
-        <h2>LEADFLOW</h2>
+        <h2 className="mt-4 text-white">
+          LEAD<span className="text-blue-500">FLOW</span>
+        </h2>
         <nav>
           <ul>
-            <li>Dashboard</li>
-            <li>Analytics</li>
-            <li className="active">Profile</li>
-            <li>Schedule</li>
-            <li>Calendar</li>
-            <li>Notification</li>
-            <li>Settings</li>
+            <li className="flex items-center">
+              <FaTachometerAlt className="icon mr-3" /> Dashboard
+            </li>
+            <li className="flex items-center">
+              <FaTasks className="icon mr-3" /> Kanban
+            </li>
+            <li className="flex items-center active">
+              <FaUser className="icon mr-3" /> Profile
+            </li>
+            <li className="flex items-center">
+              <FaBoxOpen className="icon mr-3" /> Products
+            </li>
+            <li className="flex items-center">
+              <FaClipboardList className="icon mr-3" /> Product Name
+            </li>
           </ul>
         </nav>
-        <button className="upgrade-button">Upgrade Now</button>
         <div className="user-info">
           <img src="/user.jpg" alt="User" />
           <p>João Ferreira</p>
           <span>Free Account</span>
         </div>
       </aside>
-
       <main className="profile-content">
         <section className="profile-details">
           <h2>Your Profile</h2>
