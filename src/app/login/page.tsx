@@ -71,7 +71,7 @@ export default function SignUpForm() {
               </Link>
             </div>
             <p className="login-link">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/signup" className="text-blue-500 hover:underline">
                 Register
               </Link>
