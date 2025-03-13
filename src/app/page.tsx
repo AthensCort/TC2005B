@@ -1,5 +1,4 @@
 import Login from "./login/page";
-import Background from "./background/page";
 
 
 export default function Home() {
