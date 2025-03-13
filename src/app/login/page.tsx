@@ -21,7 +21,7 @@ export default function SignUpForm() {
       <div className="container">
         <div className="flex flex-col items-start p-30 leading-none">
           <h2 className="text-[14rem] font-dangrek italic text-white">
-            LEAD
+            LEADd
           </h2>
           <h2 className="text-[14rem] font-dangrek italic text-blue-500">
             FLOW
