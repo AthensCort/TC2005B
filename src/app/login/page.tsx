@@ -21,7 +21,7 @@ export default function SignUpForm() {
       <div className="container">
         <div className="flex flex-col items-start p-30 leading-none">
           <h2 className="text-[14rem] font-dangrek italic text-white">
-            LEADd
+            LEAD
           </h2>
           <h2 className="text-[14rem] font-dangrek italic text-blue-500">
             FLOW
@@ -30,7 +30,7 @@ export default function SignUpForm() {
 
         <Card className="card">
           <CardContent>
-            <h2 className="title">Welcome back!</h2>
+            <h2 className="title text-[2rem]">Welcome back!</h2>
             <div className="social-buttons">
               <Button className="google-button">
                 <FcGoogle className="icon" /> Google
@@ -66,7 +66,7 @@ export default function SignUpForm() {
                   </button>
                 </div>
               </div>
-              <Link href="/profile">
+              <Link href="/dashboard">
                 <Button className="submit-button">Create account</Button>
               </Link>
             </div>
