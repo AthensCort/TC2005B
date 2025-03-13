@@ -10,7 +10,7 @@ const Profile = () => {
           LEAD<span className="text-blue-500">FLOW</span>
         </h2>
         <nav>
-          <ul>
+          <ul> 
             <li className="flex items-center">
               <FaTachometerAlt className="icon mr-3" /> Dashboard
             </li>
