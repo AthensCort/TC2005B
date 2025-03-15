@@ -20,10 +20,10 @@ export default function SignUpForm() {
 
       <div className="container">
         <div className="flex flex-col items-start p-30 leading-none">
-          <h2 className="text-[14rem] font-dangrek italic text-white">
-            LEADd
+          <h2 className="select-none text-[14rem] font-dangrek italic text-white">
+            LEAD
           </h2>
-          <h2 className="text-[14rem] font-dangrek italic text-blue-500">
+          <h2 className="select-none text-[14rem] font-dangrek italic text-blue-500">
             FLOW
           </h2>
         </div>
