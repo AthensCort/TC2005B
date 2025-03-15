@@ -58,11 +58,11 @@ export default function SignUpForm() {
               {/* <div className="forgot-password">Forgot?</div>*/}
             </div>
             <Link href="/profile">
-            <Button className="submit-button">Create account</Button>
+            <Button className="submit-button">Creates account</Button>
             </Link>
           </div>
           <p className="login-link">
-            Don't have an account?{" "}
+            Dont have an account?
             <Link href="/signup" className="text-blue-500 hover:underline">
               Register
             </Link>
