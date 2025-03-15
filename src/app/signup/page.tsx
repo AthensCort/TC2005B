@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { Eye, EyeOff } from "lucide-react";
+import Background from "../background/page"; // Importación del nuevo fondo
 import "./page.css";
 
 export default function SignUpForm() {
@@ -15,6 +16,7 @@ export default function SignUpForm() {
 
   return (
     <div>
+    <Background/>
     <div className="container">
     <div className="flex flex-col items-start p-30  leading-none ">
     <h2 className="text-[14rem] font-dangrek italic text-white">LEAD</h2>
