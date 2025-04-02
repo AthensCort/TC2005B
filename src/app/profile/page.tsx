@@ -10,34 +10,34 @@ const Profile = () => {
       <main className={styles.profileContent}>
         {/* Profile Details */}
         <section className={styles.profileDetails}>
-          <h2>Your Profile</h2>
+          <h2 className={styles.titles}>Your Profile </h2>
           <div className={styles.profileCard}>
             <img className={styles.profilePic} src="/user.jpg" alt="Profile" />
             <div className={styles.infoGroup}>
               <label>Name</label>
-              <input type="text" value="João Ferreira" readOnly />
+              <input type="text" className={styles.input} value="João Ferreira" readOnly />
             </div>
             <div className={styles.infoGroup}>
               <label>Birth</label>
               <div className={styles.datePicker}>
-                <input type="text" value="Title" readOnly />
+                <input type="text" className={styles.input} value="Title" readOnly />
                 <FaCalendarAlt className={styles.icon} />
               </div>
             </div>
             <div className={styles.infoGroup}>
               <label>Email</label>
-              <input type="email" value="Example@gmail.com" readOnly />
+              <input type="email" className={styles.input} value="Example@gmail.com" readOnly />
             </div>
             <div className={styles.infoGroup}>
               <label>Phone Number</label>
-              <input type="text" value="+52 81 1234 5678" readOnly />
+              <input type="text" className={styles.input} value="+52 81 1234 5678" readOnly />
             </div>
             <div className={styles.infoGroup}>
               <label>Age</label>
-              <input type="text" value="42" readOnly />
+              <input type="text" className={styles.input} value="42" readOnly />
             </div>
             <div className={styles.messageBox}>
-              <textarea placeholder="Type message..." />
+              <textarea className={styles.textarea}  placeholder="Type message..." />
               <FaPaperPlane className={styles.sendIcon} />
             </div>
           </div>
@@ -45,7 +45,7 @@ const Profile = () => {
 
         {/* Profile Preview */}
         <section className={styles.profilePreview}>
-          <h2>Preview</h2>
+        <h2 className={styles.titles}>Preview</h2>
           <div className={styles.previewCard}>
             <div className={styles.previewHeader}>
               <div className={styles.logo}>J</div>
