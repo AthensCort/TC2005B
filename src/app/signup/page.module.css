@@ -116,7 +116,7 @@ border: none; /* Asegura que no haya borde */
   cursor: pointer;
 }
 
-html, body {
+:global(html), :global(body) {
   width: 100%;
   height: 100%;
   margin: 0;
