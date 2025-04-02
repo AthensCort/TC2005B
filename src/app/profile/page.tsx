@@ -1,72 +1,71 @@
 import Sidebar from "@/components/sidebar/page";
 import { FaCalendarAlt, FaPaperPlane } from "react-icons/fa";
-import "./page.css";
-
+import styles from "./page.module.css";
 
 const Profile = () => {
   return (
-    <div className={"profile-container"}>
+    <div className={styles.profileContainer}>
       <Sidebar />
 
-      <main className="profile-content">
+      <main className={styles.profileContent}>
         {/* Profile Details */}
-        <section className="profile-details">
+        <section className={styles.profileDetails}>
           <h2>Your Profile</h2>
-          <div className="profile-card">
-            <img className="profile-pic" src="/user.jpg" alt="Profile" />
-            <div className="info-group">
+          <div className={styles.profileCard}>
+            <img className={styles.profilePic} src="/user.jpg" alt="Profile" />
+            <div className={styles.infoGroup}>
               <label>Name</label>
               <input type="text" value="João Ferreira" readOnly />
             </div>
-            <div className="info-group">
+            <div className={styles.infoGroup}>
               <label>Birth</label>
-              <div className="date-picker">
+              <div className={styles.datePicker}>
                 <input type="text" value="Title" readOnly />
-                <FaCalendarAlt className="icon" />
+                <FaCalendarAlt className={styles.icon} />
               </div>
             </div>
-            <div className="info-group">
+            <div className={styles.infoGroup}>
               <label>Email</label>
               <input type="email" value="Example@gmail.com" readOnly />
             </div>
-            <div className="info-group">
+            <div className={styles.infoGroup}>
               <label>Phone Number</label>
               <input type="text" value="+52 81 1234 5678" readOnly />
             </div>
-            <div className="info-group">
+            <div className={styles.infoGroup}>
               <label>Age</label>
               <input type="text" value="42" readOnly />
             </div>
-            <div className="message-box">
+            <div className={styles.messageBox}>
               <textarea placeholder="Type message..." />
-              <FaPaperPlane className="send-icon" />
+              <FaPaperPlane className={styles.sendIcon} />
             </div>
           </div>
         </section>
 
-        {/* 🚀 Aquí está el bloque que faltaba */}
-        <section className="profile-preview">
+        {/* Profile Preview */}
+        <section className={styles.profilePreview}>
           <h2>Preview</h2>
-          <div className="preview-card">
-            <div className="preview-header">
-              <div className="logo">J</div>
-              <div className="actions">
-                <span className="icon">🔄</span>
-                <span className="icon">⚙️</span>
+          <div className={styles.previewCard}>
+            <div className={styles.previewHeader}>
+              <div className={styles.logo}>J</div>
+              <div className={styles.actions}>
+                <span className={styles.icon}>🔄</span>
+                <span className={styles.icon}>⚙️</span>
               </div>
             </div>
-            <p className="recipient">RECIPIENT</p>
+            <p className={styles.recipient}>RECIPIENT</p>
             <p>João Ferreira</p>
             <p>4340 Liberty Avenue</p>
             <p>92880 Tustin, CA</p>
             <p>VAT no.: 123456789</p>
-            <p className="contact">📧 Example@gmail.com</p>
-            <p className="contact">📞 +52 81 1234 5678</p>
+            <p className={styles.contact}>📧 Example@gmail.com</p>
+            <p className={styles.contact}>📞 +52 81 1234 5678</p>
             <h3>Invoice</h3>
             <p>Invoice no. 000123</p>
             <p>Invoice date: January 1, 2021</p>
           </div>
-          <div className="profile-info">
+          <div className={styles.profileInfo}>
             <h3>Work</h3>
             <p>Sales Manager at a technology company in Brazil</p>
             <h3>Needs and preferences:</h3>
