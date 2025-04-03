@@ -20,7 +20,7 @@ export default function SignUpForm() {
       <Background />
 
       <div className={`${styles.container} flex justify-center items-center`}>
-      <div className="relative w-[90%] max-w-[1000px] -mr-30  ml-10">
+      <div className="relative w-[90%] max-w-[1000px] -mr-40  ml-10">
         <Image 
           src="/leadflowW.png"
           alt="Lead Flow Logo"
