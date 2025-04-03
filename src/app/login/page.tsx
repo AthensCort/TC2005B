@@ -20,7 +20,7 @@ export default function SignUpForm() {
       <Background />
 
       <div className={`${styles.container} flex justify-center items-center`}>
-      <div className="relative w-[90%] max-w-[1000px] -mr-20">
+      <div className="relative w-[90%] max-w-[1000px] -mr-30  ml-10">
         <Image 
           src="/leadflowW.png"
           alt="Lead Flow Logo"
@@ -31,7 +31,7 @@ export default function SignUpForm() {
         />
       </div>
 
-        <Card className={styles.card}>
+        <Card className={`${styles.card} w-full max-w-[400px] min-w-[280px] mx-auto p-6 md:p-10`}>
           <CardContent>
             <h2 className={`${styles.title} text-[2rem]`}>Welcome back!</h2>
             <div className={styles["social-buttons"]}>
