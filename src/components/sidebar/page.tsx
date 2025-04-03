@@ -1,37 +1,47 @@
 import React from "react";
-import { FaTachometerAlt, FaTasks, FaUser, FaBoxOpen, FaClipboardList } from "react-icons/fa";
+import { FaTachometerAlt, FaTasks, FaUser, FaBoxOpen, FaClipboardList, FaGamepad} from "react-icons/fa";
+import Image from "next/image";
+import SidebarButton from "../sidebar-buttons/page"; // Import the SidebarButton component
 import styles from "./page.module.css";
 
 const Sidebar = () => {
   return (
-    <aside className={styles.sidebar}>
-      <h2>
-        LEAD<span style={{ color: "#3b82f6" }}>FLOW</span>
-      </h2>
-      <nav>
-        <ul>
-          <li className={styles.listItem}>
-            <FaTachometerAlt className={styles.icon} /> Dashboard
-          </li>
-          <li className={styles.listItem}>
-            <FaTasks className={styles.icon} /> Kanban
-          </li>
-          <li className={`${styles.listItem} ${styles.active}`}>
-            <FaUser className={styles.icon} /> Profile
-          </li>
-          <li className={styles.listItem}>
-            <FaBoxOpen className={styles.icon} /> Products
-          </li>
-          <li className={styles.listItem}>
-            <FaClipboardList className={styles.icon} /> Product Name
-          </li>
-        </ul>
-      </nav>
-      <div className={styles.userInfo}>
-        <img src="/user.jpg" alt="User" className={styles.userImage} />
-        <p>João Ferreira</p>
-        <span>Free Account</span>
+    <aside className="bg-gray-900 text-[#b9b8b8] w-64 min-h-screen p-4 flex flex-col">
+      {/* Logo */}
+      <div className="relative w-full flex justify-center -mb-1  -mt-7">
+        <Image
+          src="/lead-horizontal.png"
+          alt="Lead Flow Logo"
+          width={600}
+          height={200}
+        />
       </div>
+
+      {/* User Info */}
+      <div className="flex flex-col items-center text-center mb-6">
+        <Image
+          src="/profile-test.jpg"
+          alt="Imagen Perfil"
+          width={65} // Match your CSS width
+          height={65} // Match your CSS height
+          className={styles.userImage} // Use your CSS styles
+        />
+        <p className="font-bold mt-3">Alejandra Cepeda</p>
+        <p className="italic mt-1">Empleada</p>
+      </div>
+
+      {/* Navigation */}
+      <nav>
+        <ul className="space-y-10 mt-5">
+      <SidebarButton icon={<FaUser />} text="Profile" href="/profile" active /> {/* Active Page */}
+      <SidebarButton icon={<FaTachometerAlt />} text="Dashboard" href="/dashboard" />
+      <SidebarButton icon={<FaTasks />} text="Kanban" href="/profile" />
+      <SidebarButton icon={<FaBoxOpen />} text="Products" href="/profile" />
+      <SidebarButton icon={<FaGamepad />} text="Game" href="/profile" />
+      <SidebarButton icon={<FaClipboardList />} text="Contacts" href="/profile" />
+    </ul>
+
+      </nav>
     </aside>
   );
 };
