@@ -9,6 +9,7 @@ import { FaFacebook } from "react-icons/fa";*/
 import { Eye, EyeOff } from "lucide-react";
 import Background from "../background/page"; 
 import styles from "./page.module.css";
+import Image from "next/image";
 
 interface UserData {
   nombre: string;
@@ -17,7 +18,8 @@ interface UserData {
   telefono: string;
   empresa: string;
 }
-
+//Veo increibles cantidades de madre que no entiendo pq no puse 
+//Pateemos a cristian
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string>("");
@@ -50,10 +52,15 @@ export default function SignUpForm() {
   return (
     <div className={styles.container}>
       <Background />
-      <div className="flex flex-col items-start p-30 leading-none">
-        <h2 className="select-none text-[14rem] font-dangrek italic text-white">LEAD</h2>
-        <h2 className="select-none text-[14rem] font-dangrek italic text-blue-500">FLOW</h2>
-      </div>
+        <div className="flex items-center w-auto  -mr-26" >  
+          <Image 
+            src="/leadflowW.png" // Make sure the image is accessible in public or adjust the path
+            alt="Lead Flow Logo"
+            width={1300}  // Adjust the width as needed
+            height={700} // Adjust the height as needed
+            className="object-contain"
+          />
+        </div>
       <Card className={styles.card}>
         <CardContent>
           <h2 className={styles.title}>Register</h2>
