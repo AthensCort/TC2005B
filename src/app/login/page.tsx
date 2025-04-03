@@ -10,25 +10,28 @@ import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./login.module.css";
+import Image from "next/image";
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className= "relative h-screen w-full">
+    <div className= "h-screen w-full">
       <Background />
 
-      <div className= {styles.container}>
-        <div className="flex flex-col items-start p-30 leading-none">
-          <h2 className="text-[14rem] font-dangrek italic text-white">
-            LEAD
-          </h2>
-          <h2 className="text-[14rem] font-dangrek italic text-blue-500">
-            FLOW
-          </h2>
-        </div>
+      <div className={`${styles.container} flex justify-center items-center`}>
+      <div className="relative w-[90%] max-w-[1000px] -mr-40  ml-10">
+        <Image 
+          src="/leadflowW.png"
+          alt="Lead Flow Logo"
+          layout="responsive"
+          width={1000}  // Base width for larger screens
+          height={700}  // Base height for larger screens
+          className="w-full h-auto"
+        />
+      </div>
 
-        <Card className={styles.card}>
+        <Card className={`${styles.card} w-full max-w-[400px] min-w-[280px] mx-auto p-6 md:p-10`}>
           <CardContent>
             <h2 className={`${styles.title} text-[2rem]`}>Welcome back!</h2>
             <div className={styles["social-buttons"]}>

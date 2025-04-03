@@ -9,6 +9,7 @@ import { FaFacebook } from "react-icons/fa";*/
 import { Eye, EyeOff } from "lucide-react";
 import Background from "../background/page"; 
 import styles from "./page.module.css";
+import Image from "next/image";
 
 interface UserData {
   nombre: string;
@@ -17,7 +18,8 @@ interface UserData {
   telefono: string;
   empresa: string;
 }
-
+//Veo increibles cantidades de madre que no entiendo pq no puse 
+//Pateemos a cristian
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string>("");
@@ -48,13 +50,21 @@ export default function SignUpForm() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className= "h-screen w-full">
       <Background />
-      <div className="flex flex-col items-start p-30 leading-none">
-        <h2 className="select-none text-[14rem] font-dangrek italic text-white">LEAD</h2>
-        <h2 className="select-none text-[14rem] font-dangrek italic text-blue-500">FLOW</h2>
+
+      <div className={`${styles.container} flex justify-center items-center`}>
+      <div className="relative w-[90%] max-w-[1000px] -mr-10 ">
+        <Image 
+          src="/leadflowW.png"
+          alt="Lead Flow Logo"
+          layout="responsive"
+          width={1000}  // Base width for larger screens
+          height={700}  // Base height for larger screens
+          className="w-full h-auto"
+        />
       </div>
-      <Card className={styles.card}>
+      <Card className={`${styles.card} mr-20`}>
         <CardContent>
           <h2 className={styles.title}>Register</h2>
           <div className="space-y-4">
@@ -102,6 +112,7 @@ export default function SignUpForm() {
           {error && <p className="text-red-500">{error}</p>}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
