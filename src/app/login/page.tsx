@@ -20,7 +20,7 @@ export default function SignUpForm() {
       <Background />
 
       <div className={styles.container}>
-        <div className="flex items-center w-auto">
+        <div className="flex items-center w-auto  -mr-26" >  
           <Image 
             src="/leadflowW.png" // Make sure the image is accessible in public or adjust the path
             alt="Lead Flow Logo"
