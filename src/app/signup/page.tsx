@@ -52,13 +52,13 @@ export default function SignUpForm() {
   return (
     <div className={styles.container}>
       <Background />
-        <div className="flex items-center w-auto  -mr-26" >  
+        <div className="flex items-center -mr-30" >  
           <Image 
             src="/leadflowW.png" // Make sure the image is accessible in public or adjust the path
             alt="Lead Flow Logo"
-            width={1300}  // Adjust the width as needed
-            height={700} // Adjust the height as needed
-            className="object-contain"
+            width={200}  // Adjust the width as needed
+            height={100} // Adjust the height as needed
+            className="object-contain w-[20vw] max-w-[50px] h-auto"  // 50% of the viewport width, auto height
           />
         </div>
       <Card className={styles.card}>

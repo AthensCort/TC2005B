@@ -19,16 +19,17 @@ export default function SignUpForm() {
     <div className= "h-screen w-full">
       <Background />
 
-      <div className={styles.container}>
-        <div className="flex items-center w-auto  -mr-26" >  
-          <Image 
-            src="/leadflowW.png" // Make sure the image is accessible in public or adjust the path
-            alt="Lead Flow Logo"
-            width={1300}  // Adjust the width as needed
-            height={700} // Adjust the height as needed
-            className="object-contain"
-          />
-        </div>
+      <div className={`${styles.container} flex justify-center items-center`}>
+      <div className="relative w-[90%] max-w-[1000px] -mr-20">
+        <Image 
+          src="/leadflowW.png"
+          alt="Lead Flow Logo"
+          layout="responsive"
+          width={1000}  // Base width for larger screens
+          height={700}  // Base height for larger screens
+          className="w-full h-auto"
+        />
+      </div>
 
         <Card className={styles.card}>
           <CardContent>
