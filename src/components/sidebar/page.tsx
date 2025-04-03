@@ -1,34 +1,34 @@
 import React from "react";
 import { FaTachometerAlt, FaTasks, FaUser, FaBoxOpen, FaClipboardList } from "react-icons/fa";
-import "./page.css";
+import styles from "./page.module.css";
 
 const Sidebar = () => {
   return (
-    <aside className="sidebar">
-      <h2 className="mt-4 text-white">
-        LEAD<span className="text-blue-500">FLOW</span>
+    <aside className={styles.sidebar}>
+      <h2>
+        LEAD<span style={{ color: "#3b82f6" }}>FLOW</span>
       </h2>
       <nav>
         <ul>
-          <li className="flex items-center">
-            <FaTachometerAlt className="icon mr-3" /> Dashboard
+          <li className={styles.listItem}>
+            <FaTachometerAlt className={styles.icon} /> Dashboard
           </li>
-          <li className="flex items-center">
-            <FaTasks className="icon mr-3" /> Kanban
+          <li className={styles.listItem}>
+            <FaTasks className={styles.icon} /> Kanban
           </li>
-          <li className="flex items-center active">
-            <FaUser className="icon mr-3" /> Profile
+          <li className={`${styles.listItem} ${styles.active}`}>
+            <FaUser className={styles.icon} /> Profile
           </li>
-          <li className="flex items-center">
-            <FaBoxOpen className="icon mr-3" /> Products
+          <li className={styles.listItem}>
+            <FaBoxOpen className={styles.icon} /> Products
           </li>
-          <li className="flex items-center">
-            <FaClipboardList className="icon mr-3" /> Product Name
+          <li className={styles.listItem}>
+            <FaClipboardList className={styles.icon} /> Product Name
           </li>
         </ul>
       </nav>
-      <div className="user-info">
-        <img src="/user.jpg" alt="User" />
+      <div className={styles.userInfo}>
+        <img src="/user.jpg" alt="User" className={styles.userImage} />
         <p>João Ferreira</p>
         <span>Free Account</span>
       </div>
