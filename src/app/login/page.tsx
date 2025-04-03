@@ -10,22 +10,24 @@ import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { Eye, EyeOff } from "lucide-react";
 import styles from "./login.module.css";
+import Image from "next/image";
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className= "relative h-screen w-full">
+    <div className= "h-screen w-full">
       <Background />
 
-      <div className= {styles.container}>
-        <div className="flex flex-col items-start p-30 leading-none">
-          <h2 className="text-[14rem] font-dangrek italic text-white">
-            LEAD
-          </h2>
-          <h2 className="text-[14rem] font-dangrek italic text-blue-500">
-            FLOW
-          </h2>
+      <div className={styles.container}>
+        <div className="flex items-center w-auto">
+          <Image 
+            src="/leadflowW.png" // Make sure the image is accessible in public or adjust the path
+            alt="Lead Flow Logo"
+            width={1300}  // Adjust the width as needed
+            height={700} // Adjust the height as needed
+            className="object-contain"
+          />
         </div>
 
         <Card className={styles.card}>
