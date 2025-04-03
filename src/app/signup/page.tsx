@@ -50,18 +50,21 @@ export default function SignUpForm() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className= "h-screen w-full">
       <Background />
-        <div className="flex items-center -mr-30" >  
-          <Image 
-            src="/leadflowW.png" // Make sure the image is accessible in public or adjust the path
-            alt="Lead Flow Logo"
-            width={200}  // Adjust the width as needed
-            height={100} // Adjust the height as needed
-            className="object-contain w-[20vw] max-w-[50px] h-auto"  // 50% of the viewport width, auto height
-          />
-        </div>
-      <Card className={styles.card}>
+
+      <div className={`${styles.container} flex justify-center items-center`}>
+      <div className="relative w-[90%] max-w-[1000px] -mr-10 ">
+        <Image 
+          src="/leadflowW.png"
+          alt="Lead Flow Logo"
+          layout="responsive"
+          width={1000}  // Base width for larger screens
+          height={700}  // Base height for larger screens
+          className="w-full h-auto"
+        />
+      </div>
+      <Card className={`${styles.card} mr-20`}>
         <CardContent>
           <h2 className={styles.title}>Register</h2>
           <div className="space-y-4">
@@ -109,6 +112,7 @@ export default function SignUpForm() {
           {error && <p className="text-red-500">{error}</p>}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
