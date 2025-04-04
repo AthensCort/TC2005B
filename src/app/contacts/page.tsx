@@ -33,44 +33,42 @@ export default function Home() {
             </thead>
 
             {/* Table Body */}
-            <div className="space-y-4">
+            <div className="space-y-4 w-full px-2">
   {[
-    { name: "company name", email: "example@gmail.com", location: "New York", gender: "Male" },
-    { name: "company name", email: "example@gmail.com", location: "Monterrey", gender: "Male" },
-    { name: "company name", email: "example@gmail.com", location: "Paris", gender: "Male" },
-    { name: "company name", email: "example@gmail.com", location: "Salvador", gender: "Female" },
-    { name: "company name", email: "example@gmail.com", location: "Venice", gender: "Male" },
-    { name: "company name", email: "example@gmail.com", location: "Lisbon", gender: "Female" },
-    { name: "company name", email: "example@gmail.com", location: "Toronto", gender: "Male" },
-    { name: "company name", email: "example@gmail.com", location: "Schaumburg", gender: "Female" },
+    { name: "company name", email: "example@gmail.com", location: "New York" },
+    { name: "company name", email: "example@gmail.com", location: "Monterrey"},
+    { name: "company name", email: "example@gmail.com", location: "Paris"},
+    { name: "company name", email: "example@gmail.com", location: "Salvador"},
+    { name: "company name", email: "example@gmail.com", location: "Venice"},
+    { name: "company name", email: "example@gmail.com", location: "Lisbon"},
+    { name: "company name", email: "example@gmail.com", location: "Toronto"},
+    { name: "company name", email: "example@gmail.com", location: "Schaumburg"},
   ].map((item, index) => (
-    <div key={index} className="bg-[#161b22] p-4 rounded-lg flex items-center justify-between">
-      {/* Left Side (Name & Email) */}
+    <div
+      key={index}
+      className="bg-[#161b22] p-3 rounded-xl flex items-center justify-between w-[1100px]"
+    >
+      {/* Left Side: Profile + Name/Email */}
       <div className="flex items-center space-x-4">
-        <div className="w-10 h-10 rounded-full bg-purple-500"></div> {/* Profile Pic Placeholder */}
+        <div className="w-12 h-12 rounded-full bg-purple-500"></div>
         <div>
-          <p className="font-medium text-white">{item.name}</p>
+          <p className="font-medium text-white text-lg">{item.name}</p>
           <p className="text-gray-400 text-sm flex items-center">
-            <FaRegEnvelope className="mr-2 text-gray-400" />
+            <FaRegEnvelope className="mr-2" />
             {item.email}
-                    </p>
-                    </div>
-                </div>
+          </p>
+        </div>
+      </div>
 
-                {/* Location */}
-                <p className="text-white">{item.location}</p>
+      {/* Location */}
+      <p className="text-white">{item.location}</p>
 
-                {/* Gender */}
-                <span className={`px-3 py-1 rounded-full text-white text-sm 
-                    ${item.gender === "Male" ? "bg-green-600" : "bg-pink-600"}`}>
-                    {item.gender}
-                </span>
 
-                {/* More Options */}
-                <button className="text-gray-400 text-xl">⋮</button>
-                </div>
-            ))}
-            </div>
+      {/* More Options */}
+      <button className="text-gray-400 text-xl">⋮</button>
+    </div>
+  ))}
+</div>
 
           </table>  
         </div>
