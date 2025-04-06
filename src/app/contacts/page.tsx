@@ -12,9 +12,9 @@ export default function Home() {
       <div className="flex-1 bg-dark p-6 text-white overflow-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Negotiation List</h1>
-          <button className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center">
-            Add Negotiation <span className="ml-2">+</span>
+          <h1 className="text-3xl font-bold pl-8 mt-5">Contacts</h1>
+          <button className="bg-[#1877f2] hover:bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center  mt-5 mr-16">
+            Add Contact <span className="ml-5">+</span>
           </button>
         </div>
 
