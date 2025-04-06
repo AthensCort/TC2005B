@@ -91,6 +91,7 @@ export default function LeadFlow() {
           <div className={styles.filters}>
             <button>Color Filter</button>
             <button>Save changes</button>
+            <button>Generate Report "AI"</button>
           </div>
         </div>
 
