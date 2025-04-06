@@ -8,14 +8,13 @@ export default function Home() {
 
   const [showModal, setShowModal] = useState(false);
   const [contacts, setContacts] = useState([
-    { name: "Alejandra Velazquez", email: "palomitas@hotmail.com", Business: "Bimbo", prefix: 52, phone: 8124300715 },
+    { name: "Alejandra Velazquez", email: "palomitas@hotmail.com", Business: "Bimbo", phone: "+558124300715" },
   ]);
   
   const [form, setForm] = useState({
     name: "",
     email: "",
     Business: "",
-    prefix: "",
     phone: "",
   });
 
@@ -41,8 +40,7 @@ export default function Home() {
           <tr className="text-gray-400 text-mm">
               <th className="p-4 pr-80">Name</th>
               <th className="p-4 pr-45">Email</th>
-              <th className="p-4 pr-20">Business</th>
-              <th className="p-4 pr-15">Prefix</th>
+              <th className="p-4 pr-44">Business</th>
               <th className="p-4">Phone</th>
             </tr>
 
@@ -53,7 +51,7 @@ export default function Home() {
               {contacts.map((item, index) => (
     <div
       key={index}
-      className="grid grid-cols-[300px_250px_150px_80px_150px_30px] bg-gray-800 p-3 rounded-xl flex items-center justify-between w-[1130px]"
+      className="grid grid-cols-[300px_250px_150px_80px_10px_30px] bg-gray-800 p-3 rounded-xl flex items-center justify-between w-[1130px]"
     >
       {/* Left Side: Profile + Name/Email */}
       <div className="flex items-center space-x-4">
@@ -71,9 +69,6 @@ export default function Home() {
 
       {/* Business */}
       <p className="text-white text-sm">{item.Business}</p>
-
-      <p className="text-white text-sm">{item.prefix}</p>
-
       <p className="text-white text-sm">{item.phone}</p>
 
       {/* More Options */}
@@ -114,13 +109,6 @@ export default function Home() {
             />
             <input
               type="number"
-              placeholder="Prefix"
-              value={form.prefix}
-              onChange={(e) => setForm({ ...form, prefix: e.target.value })}
-              className="w-full p-2 rounded bg-dark-600 text-white"
-            />
-            <input
-              type="number"
               placeholder="Phone"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -139,8 +127,7 @@ export default function Home() {
                     ...contacts,
                     {
                       ...form,
-                      prefix: Number(form.prefix),
-                      phone: Number(form.phone),
+                      phone: String(form.phone),
                     },
                   ]);
                   setShowModal(false);
@@ -148,7 +135,6 @@ export default function Home() {
                     name: "",
                     email: "",
                     Business: "",
-                    prefix: "",
                     phone: "",
                   });
                 }}                
