@@ -4,7 +4,7 @@ import { FaRegEnvelope } from "react-icons/fa";
 
 export default function Home() {
   return (
-    <div className="h-screen w-full flex bg-[#0d1117]">
+    <div className="h-screen w-full flex bg-[#07101d]">
       {/* Sidebar */}
       <Sidebar />
 
@@ -20,45 +20,44 @@ export default function Home() {
 
         {/* Table */}
         <div className={`${styles.tableContainer} bg-dark-700 p-4 rounded-lg`}>
-          <table className="w-full text-left">
-            {/* Table Head */}
-            <thead>
-              <tr className="text-gray-400">
-                <th>Name</th>
-                <th>Email</th>
-                <th>Location</th>
-                <th>Preference Gender</th>
-                <th></th>
-              </tr>
-            </thead>
+          <tr className="text-gray-400 text-mm">
+              <th className="p-4  pr-140">Name</th>
+              <th className="p-4 pr-100">Email</th>
+              <th className="p-4">Location</th>
+            </tr>
 
+          <table className="text-left">
+            {/* Table Head */}
             {/* Table Body */}
             <div className="space-y-4 w-full px-2">
   {[
-    { name: "company name", email: "example@gmail.com", location: "New York" },
-    { name: "company name", email: "example@gmail.com", location: "Monterrey"},
-    { name: "company name", email: "example@gmail.com", location: "Paris"},
-    { name: "company name", email: "example@gmail.com", location: "Salvador"},
-    { name: "company name", email: "example@gmail.com", location: "Venice"},
-    { name: "company name", email: "example@gmail.com", location: "Lisbon"},
-    { name: "company name", email: "example@gmail.com", location: "Toronto"},
-    { name: "company name", email: "example@gmail.com", location: "Schaumburg"},
+    { name: "Company name", email: "example@gmail.com", location: "New York" },
+    { name: "Company name", email: "example@gmail.com", location: "Monterrey"},
+    { name: "Company name", email: "example@gmail.com", location: "Paris"},
+    { name: "Company name", email: "example@gmail.com", location: "Salvador"},
+    { name: "Company name", email: "example@gmail.com", location: "Venice"},
+    { name: "Company name", email: "example@gmail.com", location: "Lisbon"},
+    { name: "Company name", email: "example@gmail.com", location: "Toronto"},
+    { name: "Company name", email: "example@gmail.com", location: "Schaumburg"},
   ].map((item, index) => (
     <div
       key={index}
-      className="bg-[#161b22] p-3 rounded-xl flex items-center justify-between w-[1100px]"
+      className="bg-gray-800 p-3 rounded-xl flex items-center justify-between w-[1500px]"
     >
       {/* Left Side: Profile + Name/Email */}
       <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 rounded-full bg-purple-500"></div>
+        <div className="w-12 h-12 rounded-full bg-[#1877f2]"></div>
         <div>
-          <p className="font-medium text-white text-lg">{item.name}</p>
-          <p className="text-gray-400 text-sm flex items-center">
-            <FaRegEnvelope className="mr-2" />
-            {item.email}
-          </p>
+          <p className="text-white text-lg italic ">{item.name}</p>
         </div>
       </div>
+
+      <td className="p-3">
+      <p className="text-gray-400 text-sm flex items-center">
+        <FaRegEnvelope className="mr-2 w-[16px]" />
+        <span>{item.email}</span>
+      </p>
+    </td>
 
       {/* Location */}
       <p className="text-white">{item.location}</p>

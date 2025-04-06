@@ -6,7 +6,7 @@
   
   /* Table Rows */
   .tableRow {
-    background-color: #21262d;
+    background-color: #07101d;
     padding: 12px;
     border-radius: 8px;
     margin-bottom: 8px;
@@ -32,16 +32,6 @@
     font-size: 0.875rem;
     font-weight: bold;
     text-align: center;
-  }
-  
-  .male {
-    background-color: #0aad7d;
-    color: white;
-  }
-  
-  .female {
-    background-color: #ff4081;
-    color: white;
   }
   
   /* More Options Button */
