@@ -18,7 +18,6 @@ export default function SignUpForm() {
   return (
     <div className= "h-screen w-full">
       <Background />
-
       <div className={`${styles.container} flex justify-center items-center`}>
       <div className="relative w-[90%] max-w-[1000px] -mr-40  ml-10">
         <Image 
@@ -30,7 +29,6 @@ export default function SignUpForm() {
           className="w-full h-auto"
         />
       </div>
-
         <Card className={`${styles.card} w-full max-w-[400px] min-w-[280px] mx-auto p-6 md:p-10`}>
           <CardContent>
             <h2 className={`${styles.title} text-[2rem]`}>Welcome back!</h2>
