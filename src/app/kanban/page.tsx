@@ -86,7 +86,7 @@ export default function LeadFlow() {
       <Sidebar />
       <div className={styles.main}>
         <div className={styles.header}>
-          <h2>LEAD FLOW</h2>
+        <h1 className="text-3xl font-bold pl-8 mt-5">Contacts</h1>
           <div className={styles.filters}>
             <button>Private</button>
             <button>Personal</button>
