@@ -50,6 +50,7 @@ export default function SignUpForm() {
   };
 
   return (
+
     <div className= "h-screen w-full">
       <Background />
 
@@ -65,6 +66,7 @@ export default function SignUpForm() {
         />
       </div>
       <Card className={`${styles.card} mr-20`}>
+
         <CardContent>
           <h2 className={styles.title}>Register</h2>
           <div className="space-y-4">
