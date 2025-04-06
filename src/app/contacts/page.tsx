@@ -50,7 +50,7 @@ export default function Home() {
             {/* Table Head */}
             {/* Table Body */}
             <div className="space-y-4 w-full px-2">
-            {contacts.map((item, index) => (
+              {contacts.map((item, index) => (
     <div
       key={index}
       className="grid grid-cols-[300px_250px_150px_80px_150px_30px] bg-gray-800 p-3 rounded-xl flex items-center justify-between w-[1130px]"
