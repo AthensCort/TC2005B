@@ -26,13 +26,21 @@ export default function Home() {
       {/* Main Content */}
       <div className="flex-1 bg-dark p-6 text-white overflow-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex  mb-6">
           <h1 className="text-3xl font-bold pl-8 mt-5">Contacts</h1>
           <button 
           onClick={() => setShowModal(true)}
-          className="bg-[#1877f2] hover:bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center  mt-5 mr-16">
+          className="bg-[#1877f2] hover:bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center  ml-160 mt-5">
             Add Contact <span className="ml-5">+</span>
           </button>
+
+          <button 
+          onClick={() => setShowModal(true)}
+          className="bg-[#1877f2] hover:bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center ml-10 mt-5 mr-16">
+            Save <span className="ml-5">+</span>
+          </button>
+
+          
         </div>
 
         {/* Table */}

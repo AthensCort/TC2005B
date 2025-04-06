@@ -12,6 +12,16 @@
     margin-bottom: 8px;
     transition: background 0.3s;
   }
+
+  .filters button {
+    background: #2e2c4a;
+    color: white;
+    border: none;
+    margin: 0 0.3rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
   
   .tableRow:hover {
     background-color: #30363d;
