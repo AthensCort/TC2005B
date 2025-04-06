@@ -3,14 +3,23 @@ import Sidebar from "@/components/sidebar/page";
 import styles from "./page.module.css";
 import { useState } from "react";
 import {
-    DragDropContext,
-    Droppable,
-    Draggable,
-    DropResult
-  } from "@hello-pangea/dnd";
-  
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
+
 export default function LeadFlow() {
   const [contacts, setContacts] = useState([
+    {
+        user: "Luis Torres",
+        client: "GlobalWare",
+        state: "Finish Stage",
+        affair: "Final Negotiations",
+        description: "Discussing terms before closing",
+        date: "2025-04-12",
+        commission: "$2,000",
+      },
     {
       user: "Carlos Mendoza",
       client: "Tech Solutions",
@@ -18,7 +27,7 @@ export default function LeadFlow() {
       affair: "Initial Contact",
       description: "Reached out to discuss potential collaboration",
       date: "2025-04-10",
-      commission: "$500"
+      commission: "$500",
     },
     {
       user: "Laura García",
@@ -27,17 +36,8 @@ export default function LeadFlow() {
       affair: "Product Presentation",
       description: "Showed platform demo and features",
       date: "2025-04-11",
-      commission: "$1,200"
+      commission: "$1,200",
     },
-    {
-      user: "Luis Torres",
-      client: "GlobalWare",
-      state: "Finish Stage",
-      affair: "Final Negotiations",
-      description: "Discussing terms before closing",
-      date: "2025-04-12",
-      commission: "$2,000"
-    }
   ]);
 
   const [form, setForm] = useState({
@@ -47,7 +47,7 @@ export default function LeadFlow() {
     affair: "",
     description: "",
     date: "",
-    commission: ""
+    commission: "",
   });
 
   const [expandedCard, setExpandedCard] = useState<{ [key: string]: boolean }>({});
@@ -62,7 +62,7 @@ export default function LeadFlow() {
 
   const handleToggleCard = (key: string) => {
     setExpandedCard((prev) => ({
-      ...prev,
+      ...Object.fromEntries(Object.entries(prev).map(([k]) => [k, false])),
       [key]: !prev[key],
     }));
   };
@@ -74,11 +74,10 @@ export default function LeadFlow() {
     const newStage = result.destination.droppableId;
 
     setContacts((prev) =>
-      prev.map((contact, index) =>
-        `${contact.state}-${index}` === draggedId
-          ? { ...contact, state: newStage }
-          : contact
-      )
+      prev.map((contact, i) => {
+        const cardKey = `${contact.client}-${i}`;
+        return cardKey === draggedId ? { ...contact, state: newStage } : contact;
+      })
     );
   };
 
@@ -102,7 +101,7 @@ export default function LeadFlow() {
               <div className={styles.stage} key={stage}>
                 <h3>{stage}</h3>
                 <Droppable droppableId={stage}>
-                  {(provided: any) => (
+                  {(provided) => (
                     <div
                       className={styles.cardList}
                       {...provided.droppableProps}
@@ -111,10 +110,10 @@ export default function LeadFlow() {
                       {contacts
                         .filter((c) => c.state === stage)
                         .map((contact, i) => {
-                          const cardKey = `${stage}-${i}`;
+                          const cardKey = `${contact.client}-${i}`;
                           return (
                             <Draggable draggableId={cardKey} index={i} key={cardKey}>
-                              {(provided: any) => (
+                              {(provided) => (
                                 <div
                                   className={`${styles.card} ${expandedCard[cardKey] ? styles.expanded : ""}`}
                                   onClick={() => handleToggleCard(cardKey)}
@@ -144,6 +143,9 @@ export default function LeadFlow() {
                           );
                         })}
                       {provided.placeholder}
+                      {contacts.filter((c) => c.state === stage).length === 0 && (
+                        <div className={styles.emptyPlaceholder}>Drop here</div>
+                      )}
                     </div>
                   )}
                 </Droppable>
