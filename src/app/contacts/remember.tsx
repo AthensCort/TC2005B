@@ -10,7 +10,7 @@ export default function Home() {
   const [contacts, setContacts] = useState([
     { name: "Alejandra Velazquez", email: "palomitas@hotmail.com", Business: "Bimbo", prefix: 52, phone: 8124300715 },
   ]);
-  
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -23,69 +23,58 @@ export default function Home() {
     <div className="h-screen w-full flex bg-[#07101d]">
       {/* Sidebar */}
       <Sidebar />
-
+  
       {/* Main Content */}
       <div className="flex-1 bg-dark p-6 text-white overflow-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold pl-8 mt-5">Contacts</h1>
-          <button 
-          onClick={() => setShowModal(true)}
-          className="bg-[#1877f2] hover:bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center  mt-5 mr-16">
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-[#1877f2] hover:bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center mt-5 mr-16"
+          >
             Add Contact <span className="ml-5">+</span>
           </button>
         </div>
-
+  
         {/* Table */}
         <div className={`${styles.tableContainer} bg-dark-700 p-4 rounded-lg`}>
-          <tr className="text-gray-400 text-mm">
-              <th className="p-4 pr-80">Name</th>
-              <th className="p-4 pr-45">Email</th>
-              <th className="p-4 pr-20">Business</th>
-              <th className="p-4 pr-15">Prefix</th>
-              <th className="p-4">Phone</th>
-            </tr>
-
-          <table className="text-left">
-            {/* Table Head */}
-            {/* Table Body */}
-            <div className="space-y-4 w-full px-2">
-            {contacts.map((item, index) => (
-    <div
-      key={index}
-      className="grid grid-cols-[300px_250px_150px_80px_150px_30px] bg-gray-800 p-3 rounded-xl flex items-center justify-between w-[1130px]"
-    >
-      {/* Left Side: Profile + Name/Email */}
-      <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 rounded-full bg-[#1877f2]"></div>
-        <div>
-          <p className="text-white text-lg italic text-sm ">{item.name}</p>
+          <table className="w-full text-left table-fixed">
+            <thead>
+              <tr className="text-gray-400 text-sm">
+                <th className="p-4 w-[20%]">Name</th>
+                <th className="p-4 w-[25%]">Email</th>
+                <th className="p-4 w-[20%]">Business</th>
+                <th className="p-4 w-[10%]">Prefix</th>
+                <th className="p-4 w-[20%]">Phone</th>
+                <th className="p-4 w-[5%]"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {contacts.map((item, index) => (
+                <tr
+                  key={index}
+                  className="bg-gray-800 text-white rounded-xl overflow-hidden"
+                >
+                  <td className="p-4 italic flex items-center space-x-4">
+                    <div className="w-4 h-4 rounded-full bg-[#1877f2] mr-3" />
+                    <span>{item.name}</span>
+                  </td>
+                  <td className="p-4 text-sm text-gray-400 flex items-center">
+                    <FaRegEnvelope className="mr-2" />
+                    {item.email}
+                  </td>
+                  <td className="p-4 font-bold">{item.Business}</td>
+                  <td className="p-4">{item.prefix}</td>
+                  <td className="p-4">{item.phone}</td>
+                  <td className="p-4 text-gray-400 text-xl">⋮</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
-
-
-      <p className="text-gray-400 text-sm flex items-center">
-        <FaRegEnvelope className="mr-2 w-[16px]" />
-        <span>{item.email}</span>
-      </p>
-
-      {/* Business */}
-      <p className="text-white text-sm">{item.Business}</p>
-
-      <p className="text-white text-sm">{item.prefix}</p>
-
-      <p className="text-white text-sm">{item.phone}</p>
-
-      {/* More Options */}
-      <button className="text-gray-400 text-xl">⋮</button>
-    </div>
-  ))}
-</div>
-
-          </table>  
-        </div>
-      </div>
-        
+  
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
