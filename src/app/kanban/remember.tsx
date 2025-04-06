@@ -12,6 +12,15 @@ import {
 export default function LeadFlow() {
   const [contacts, setContacts] = useState([
     {
+        user: "Luis Torres",
+        client: "GlobalWare",
+        state: "Finish Stage",
+        affair: "Final Negotiations",
+        description: "Discussing terms before closing",
+        date: "2025-04-12",
+        commission: "$2,000",
+      },
+    {
       user: "Carlos Mendoza",
       client: "Tech Solutions",
       state: "Starting",
@@ -28,15 +37,6 @@ export default function LeadFlow() {
       description: "Showed platform demo and features",
       date: "2025-04-11",
       commission: "$1,200",
-    },
-    {
-      user: "Luis Torres",
-      client: "GlobalWare",
-      state: "Finish Stage",
-      affair: "Final Negotiations",
-      description: "Discussing terms before closing",
-      date: "2025-04-12",
-      commission: "$2,000",
     },
   ]);
 
@@ -74,8 +74,8 @@ export default function LeadFlow() {
     const newStage = result.destination.droppableId;
 
     setContacts((prev) =>
-      prev.map((contact) => {
-        const cardKey = `${contact.client}-${contact.user}-${contact.date}`;
+      prev.map((contact, i) => {
+        const cardKey = `${contact.client}-${i}`;
         return cardKey === draggedId ? { ...contact, state: newStage } : contact;
       })
     );
@@ -110,7 +110,7 @@ export default function LeadFlow() {
                       {contacts
                         .filter((c) => c.state === stage)
                         .map((contact, i) => {
-                          const cardKey = `${contact.client}-${contact.user}-${contact.date}`;
+                          const cardKey = `${contact.client}-${i}`;
                           return (
                             <Draggable draggableId={cardKey} index={i} key={cardKey}>
                               {(provided) => (
