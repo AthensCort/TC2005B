@@ -84,7 +84,7 @@ export default function LeadFlow() {
   };
 
   const generateReport = async () => {
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBycft2U9zo4J4-AUFUeHvKpjRgkSQGjvA';
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=SU-APIKEY';
 
     const payload = {
       contents: [{
@@ -283,7 +283,7 @@ export default function LeadFlow() {
       {/* Report Popup */}
       {reportPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-[400px] space-y-4">
+          <div className="bg-white p-6 rounded-lg w-[600px] h-[500px] space-y-4"> {/* Increased width and added height */}
             <h2 className="text-2xl font-bold mb-4 text-black">AI Report</h2>
             <p className="text-black">{reportPopup}</p> {/* Add the "text-black" class */}
             <div className="flex justify-end">
