@@ -284,8 +284,8 @@ export default function LeadFlow() {
       {reportPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg w-[400px] space-y-4">
-            <h2 className="text-2xl font-bold mb-4">AI Report</h2>
-            <p>{reportPopup}</p>
+            <h2 className="text-2xl font-bold mb-4 text-black">AI Report</h2>
+            <p className="text-black">{reportPopup}</p> {/* Add the "text-black" class */}
             <div className="flex justify-end">
               <button
                 onClick={() => setReportPopup(null)}
