@@ -10,7 +10,7 @@ import {
 } from "@hello-pangea/dnd";
 
 export default function LeadFlow() {
-    const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [contacts, setContacts] = useState([
     {
       user: "Carlos Mendoza",
@@ -52,6 +52,7 @@ export default function LeadFlow() {
   });
 
   const [expandedCard, setExpandedCard] = useState<{ [key: string]: boolean }>({});
+  const [reportPopup, setReportPopup] = useState<string | null>(null);
 
   const stages = [
     "Starting",
@@ -82,16 +83,45 @@ export default function LeadFlow() {
     );
   };
 
+  const generateReport = async () => {
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBycft2U9zo4J4-AUFUeHvKpjRgkSQGjvA';
+
+    const payload = {
+      contents: [{
+        parts: [{
+          text: `Summarize this data: ${JSON.stringify(contacts)}`,
+        }],
+      }],
+    };
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const resp = await response.json();
+      const summary = resp.candidates[0]?.content?.parts[0]?.text || "No summary available.";
+      setReportPopup(summary);
+    } catch (error) {
+      console.error("Error generating report:", error);
+      setReportPopup("Failed to generate report.");
+    }
+  };
+
   return (
     <div className={styles.container}>
       <Sidebar />
       <div className={styles.main}>
         <div className={styles.header}>
-        <h1 className="text-3xl font-bold pl-3 mt-5">KANBAN</h1>
+          <h1 className="text-3xl font-bold pl-3 mt-5">KANBAN</h1>
           <div className={styles.filters}>
             <button>Color Filter</button>
             <button>Save changes</button>
-            <button>Generate Report "AI"</button>
+            <button onClick={generateReport}>Generate Report "AI"</button>
           </div>
         </div>
 
@@ -155,9 +185,8 @@ export default function LeadFlow() {
         </DragDropContext>
       </div>
 
-
-            {/* Floating Plus Button */}
-            <button
+      {/* Floating Plus Button */}
+      <button
         onClick={() => setShowModal(true)}
         className="fixed bottom-6 right-6 w-14 h-14 bg-purple-700 text-white text-3xl rounded-full shadow-lg flex items-center justify-center hover:bg-purple-800 transition-all z-50"
       >
@@ -251,6 +280,23 @@ export default function LeadFlow() {
         </div>
       )}
 
+      {/* Report Popup */}
+      {reportPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-[400px] space-y-4">
+            <h2 className="text-2xl font-bold mb-4">AI Report</h2>
+            <p>{reportPopup}</p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setReportPopup(null)}
+                className="px-4 py-2 bg-purple-700 hover:bg-purple-800 transition rounded text-white"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
