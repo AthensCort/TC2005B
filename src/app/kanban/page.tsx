@@ -84,7 +84,7 @@ export default function LeadFlow() {
   };
 
   const generateReport = async () => {
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=SU-APIKEY';
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBycft2U9zo4J4-AUFUeHvKpjRgkSQGjvA';
 
     const payload = {
       contents: [{
