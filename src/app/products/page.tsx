@@ -1,6 +1,5 @@
 'use client'
 import Sidebar from "@/components/sidebar/page";
-import styles from "./page.module.css";
 import { useState } from "react";
 
 export default function Home() {
