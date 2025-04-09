@@ -1,0 +1,66 @@
+.container {
+    display: flex;
+    background-color: #1a1d2e;
+    color: white;
+    height: 100vh;
+  }
+  
+  .sidebar {
+    width: 250px; /* Ajusta según tu diseño */
+    flex-shrink: 0;
+  }
+  
+  .main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #252a41;
+    border-radius: 10px;
+  }
+  
+  .dateButton {
+    background-color: #3a3f5c;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+  }
+  
+  .statCard {
+    background-color: #252a41;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  
+  .contentGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 15px;
+  }
+  
+  .chart, .analytics, .transactions, .contacts {
+    background-color: #252a41;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  

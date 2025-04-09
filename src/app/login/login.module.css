@@ -3,17 +3,17 @@
     width: 100vw;  /* Ensures full width */
     min-height: 100vh;
     align-items: center;
-    margin-left: 80;
     justify-content: center;
     overflow-x: hidden; /* Prevents extra horizontal space */
+    gap: 0.5rem;
   }
   
 .card {
-  width: 100%;
-  max-width: 400px;
+  width: 90%; /* Allows responsiveness */
+  max-width: 400px; /* Prevents excessive stretching */
+  min-width: 280px; /* Ensures usability on very small screens */
   border-radius: 1rem;
-  margin-left: 100;
-  background-color: #1f2937;
+  background-color: #1f2937; /*Original #1f2937*/ 
   padding: 1.5rem;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.8);
   border: none; /* Asegura que no haya borde */
@@ -118,10 +118,3 @@
     cursor: pointer;
   }
   
-  html, body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden; /* Prevents horizontal scrolling */
-  }
