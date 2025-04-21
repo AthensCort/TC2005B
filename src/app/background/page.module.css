@@ -118,6 +118,47 @@
     animation-duration: 11s;
 }
 
+.circles li:nth-child(11){
+    left: 30%;
+    width: 40px;
+    height: 40px;
+    animation-delay: 5s;
+    animation-duration: 20s;
+}
+
+.circles li:nth-child(12){
+    left: 60%;
+    width: 25px;
+    height: 25px;
+    animation-delay: 8s;
+    animation-duration: 30s;
+}
+
+.circles li:nth-child(13){
+    left: 5%;
+    width: 100px;
+    height: 100px;
+    animation-delay: 3s;
+    animation-duration: 25s;
+}
+
+.circles li:nth-child(14){
+    left: 90%;
+    width: 120px;
+    height: 120px;
+    animation-delay: 1s;
+    animation-duration: 35s;
+}
+
+.circles li:nth-child(15){
+    left: 45%;
+    width: 70px;
+    height: 70px;
+    animation-delay: 10s;
+    animation-duration: 40s;
+}
+
+
 
 
 @keyframes animate {
