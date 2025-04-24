@@ -1,5 +1,5 @@
 import styles from "./page.module.css";
-import Sidebar from "@/components/sidebar/page";
+import Sidebar from "@/components/sidebar_new/page";
 
 const Dashboard = () => {
   return (
