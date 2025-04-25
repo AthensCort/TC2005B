@@ -44,7 +44,7 @@ const Sidebar = () => {
 
       {/* Navigation */}
       <nav className="flex-1">
-        <ul className="space-y-10 mt-5">
+        <ul className="space-y-2">
           <SidebarButton icon={<FaUser />} text="Profile" href="/profile" active={pathname === "/profile"} />
           <SidebarButton icon={<FaTachometerAlt />} text="Dashboard" href="/dashboard" active={pathname === "/dashboard"} />
           <SidebarButton icon={<FaTasks />} text="Kanban" href="/kanban" active={pathname === "/kanban"} />

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FaTachometerAlt,
   FaTasks,
@@ -17,14 +17,34 @@ import { usePathname } from "next/navigation";
 
 const Sidebar = () => {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+ 
+
+  // CERRAR AL HACER CLICK FUERA
+  const sidebarRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+  
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <aside
-      className={`transition-all duration-300 ${isOpen ? styles.sidebar : 'w-20'} min-h-screen flex flex-col`}
+      ref={sidebarRef}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+      className={`transition-all duration-300 ${isOpen ? styles.sidebar : 'w-18'} min-h-screen flex flex-col bg-gradient-to-br from-[#0b022b] to-[#4b0082] rounded-xl shadow-lg border-2 border-white backdrop-blur-lg`}
     >
       {/* LOGO */}
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center -mb-2">
         {isOpen && (
           <Image
             src="/lead-horizontal.png"
@@ -36,7 +56,7 @@ const Sidebar = () => {
       </div>
 
       {/* USER INFO */}
-      <div className="flex flex-col items-center text-center mb-6">
+      <div className="flex flex-col items-center text-center mb-4">
         <Image
           src="/profile-test.jpg"
           alt="Imagen Perfil"
@@ -54,27 +74,18 @@ const Sidebar = () => {
 
       {/* NAVIGATION */}
       <nav className="flex-1">
-        <ul className="space-y-2">
-          <SidebarButton icon={<FaUser />} text="Profile" href="/profile" active={pathname === "/profile"} />
-          <SidebarButton icon={<FaTachometerAlt />} text="Dashboard" href="/dashboard" active={pathname === "/dashboard"} />
-          <SidebarButton icon={<FaTasks />} text="Kanban" href="/kanban" active={pathname === "/kanban"} />
-          <SidebarButton icon={<FaBoxOpen />} text="Products" href="/products" active={pathname === "/products"} />
-          <SidebarButton icon={<FaGamepad />} text="Game" href="/game" active={pathname === "/game"} />
-          <SidebarButton icon={<FaClipboardList />} text="Contacts" href="/contacts" active={pathname === "/contacts"} />
+        <ul className="space-y-1c">
+          <SidebarButton icon={<FaUser />} text="Profile" href="/profile" active={pathname === "/profile"}  isOpen={isOpen} />
+          <SidebarButton icon={<FaTachometerAlt />} text="Dashboard" href="/dashboard" active={pathname === "/dashboard"}  isOpen={isOpen} />
+          <SidebarButton icon={<FaTasks />} text="Kanban" href="/kanban" active={pathname === "/kanban"}  isOpen={isOpen} />
+          <SidebarButton icon={<FaBoxOpen />} text="Products" href="/products" active={pathname === "/products"}  isOpen={isOpen} />
+          <SidebarButton icon={<FaGamepad />} text="Game" href="/game" active={pathname === "/game"}  isOpen={isOpen} />
+          <SidebarButton icon={<FaClipboardList />} text="Contacts" href="/contacts" active={pathname === "/contacts"}  isOpen={isOpen} />
         </ul>
       </nav>
 
-      {/* TOGGLE BUTTON */}
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className={styles.toggleButton}
-        >
-          {isOpen ? <FaChevronLeft /> : <FaChevronRight />}
-        </button>
-      </div>
     </aside>
   );
 };
 
-export default Sidebar;
+export default Sidebar; 
