@@ -1,16 +1,15 @@
-'use client'
+'use client';
 import Sidebar from "@/components/sidebar/page";
 import styles from "./page.module.css";
 import { FaRegEnvelope } from "react-icons/fa";
 import { useState } from "react";
 
 export default function Home() {
-
   const [showModal, setShowModal] = useState(false);
   const [contacts, setContacts] = useState([
     { name: "Alejandra Velazquez", email: "palomitas@hotmail.com", Business: "Bimbo", phone: "+558124300715" },
   ]);
-  
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -19,80 +18,73 @@ export default function Home() {
   });
 
   return (
-    <div className="h-screen w-full flex bg-[#07101d]">
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-[#07101d]">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 bg-dark p-6 text-white overflow-auto">
+      <div className="flex-1 bg-dark p-4 md:p-6 text-white overflow-auto">
         {/* Header */}
-        <div className="flex  mb-6">
-          <h1 className="text-3xl font-bold pl-8 mt-5">Contacts</h1>
-          <button 
-          onClick={() => setShowModal(true)}
-          className="bg-[#1877f2] hover:bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center  ml-160 mt-5">
-            Add Contact <span className="ml-5">+</span>
-          </button>
-
-          <button 
-          onClick={() => setShowModal(true)}
-          className="bg-[#1877f2] hover:bg-indigo-600 text-white px-6 py-2 rounded-lg flex items-center ml-10 mt-5 mr-16">
-            Save <span className="ml-5">+</span>
-          </button>
-
-          
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+          <h1 className="text-2xl md:text-3xl font-bold pl-2 md:pl-8">Contacts</h1>
+          <div className="flex flex-col sm:flex-row gap-4 px-2">
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-[#1877f2] hover:bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center justify-center"
+            >
+              Add Contact <span className="ml-2">+</span>
+            </button>
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-[#1877f2] hover:bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center justify-center"
+            >
+              Save <span className="ml-2">+</span>
+            </button>
+          </div>
         </div>
 
-        {/* Table */}
-        <div className={`${styles.tableContainer} bg-dark-700 p-4 rounded-lg`}>
-          <tr className="text-gray-400 text-mm">
-              <th className="p-4 pr-80">Name</th>
-              <th className="p-4 pr-45">Email</th>
-              <th className="p-4 pr-44">Business</th>
-              <th className="p-4">Phone</th>
-            </tr>
-
-          <table className="text-left">
-            {/* Table Head */}
-            {/* Table Body */}
-            <div className="space-y-4 w-full px-2">
+        {/* Table Container */}
+        <div className={`${styles.tableContainer} bg-dark-700 p-4 rounded-lg overflow-x-auto`}>
+          <table className="min-w-[600px] w-full text-left">
+            <thead>
+              <tr className="text-gray-400 text-sm">
+                <th className="p-2">Name</th>
+                <th className="p-2">Email</th>
+                <th className="p-2">Business</th>
+                <th className="p-2">Phone</th>
+                <th className="p-2 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="space-y-2">
               {contacts.map((item, index) => (
-    <div
-      key={index}
-      className="grid grid-cols-[300px_250px_150px_80px_10px_30px] bg-gray-800 p-3 rounded-xl flex items-center justify-between w-[1130px]"
-    >
-      {/* Left Side: Profile + Name/Email */}
-      <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 rounded-full bg-[#1877f2]"></div>
-        <div>
-          <p className="text-white text-lg italic text-sm ">{item.name}</p>
+                <tr
+                  key={index}
+                  className="bg-gray-800 rounded-xl text-sm text-white hover:bg-gray-700 transition-all"
+                >
+                  <td className="p-2 flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-[#1877f2]" />
+                    <span>{item.name}</span>
+                  </td>
+                  <td className="p-2 flex items-center">
+                    <FaRegEnvelope className="mr-2 text-gray-400" />
+                    {item.email}
+                  </td>
+                  <td className="p-2">{item.Business}</td>
+                  <td className="p-2">{item.phone}</td>
+                  <td className="p-2 text-right">
+                    <button className="text-gray-400 text-xl">⋮</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
-
-      <p className="text-gray-400 text-sm flex items-center">
-        <FaRegEnvelope className="mr-2 w-[16px]" />
-        <span>{item.email}</span>
-      </p>
-
-      {/* Business */}
-      <p className="text-white text-sm">{item.Business}</p>
-      <p className="text-white text-sm">{item.phone}</p>
-
-      {/* More Options */}
-      <button className="text-gray-400 text-xl">⋮</button>
-    </div>
-  ))}
-</div>
-
-          </table>  
-        </div>
-      </div>
-        
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-dark-700 p-6 rounded-lg w-[400px] space-y-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-4">
+          <div className="bg-dark-700 p-6 rounded-lg w-full max-w-md space-y-4">
             <h2 className="text-2xl font-bold text-white mb-4">Add New Contact</h2>
             <input
               type="text"
@@ -131,21 +123,10 @@ export default function Home() {
               </button>
               <button
                 onClick={() => {
-                  setContacts([
-                    ...contacts,
-                    {
-                      ...form,
-                      phone: String(form.phone),
-                    },
-                  ]);
+                  setContacts([...contacts, { ...form, phone: String(form.phone) }]);
                   setShowModal(false);
-                  setForm({
-                    name: "",
-                    email: "",
-                    Business: "",
-                    phone: "",
-                  });
-                }}                
+                  setForm({ name: "", email: "", Business: "", phone: "" });
+                }}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white"
               >
                 Save
