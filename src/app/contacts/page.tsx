@@ -30,6 +30,7 @@ export default function Home() {
   ]);
 
   const [searchText, setSearchText] = useState("");
+  const [companySearchText, setCompanySearchText] = useState("");
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
 
   const handleSearch = () => {
@@ -86,7 +87,7 @@ export default function Home() {
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-gradient-to-br from-[#0b022b] to-[#4b0082]">
       <Sidebar />
       <div className="flex-1 p-6 text-gray-100 overflow-auto">
-        <div className="ml-10 mb-4  pt-15">
+        <div className="ml-10 mb-4  pt-10">
           <h1 className="text-4xl font-bold">Contacts & Companies</h1>
         </div>
 
@@ -148,7 +149,7 @@ export default function Home() {
         )}
 
         <div className="flex flex-col md:flex-row gap-8 items-start">
-          <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg overflow-x-auto w-full max-w-5xl ml-10">
+        <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg overflow-x-auto w-full max-w-5xl ml-10 max-h-[400px] overflow-y-auto">
             <h2 className="text-lg text-purple-300 mb-4">Contacts</h2>
             <table className="w-full text-left text-sm">
               <thead>
@@ -214,7 +215,13 @@ export default function Home() {
           <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg w-120 max-w-xs h-[400px] overflow-y-auto">
             <h2 className="text-lg text-purple-300 mb-4">Companies</h2>
             <div className="space-y-4">
-              {companies.map((company) => (
+            <SearchBar value={companySearchText} onChange={setCompanySearchText} onSearch={() => {}} />
+            {companies
+              .filter((company) =>
+                company.name.toLowerCase().includes(companySearchText.toLowerCase())
+              )
+              .map((company) => (
+
                 <div key={company.name}>
                   <h3 className="text-white font-semibold">{company.name}</h3>
                   <p className="text-sm text-purple-300">Industry: {company.industry}</p>
