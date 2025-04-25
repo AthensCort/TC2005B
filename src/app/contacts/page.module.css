@@ -53,3 +53,39 @@
     cursor: pointer;
   }
   
+  /* page.module.css */
+
+.bg-gradient-dark {
+  background: linear-gradient(135deg, #10002b, #240046, #3c096c);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.button-shiny {
+  background: linear-gradient(to right, #3b82f6, #60a5fa);
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 12px;
+  font-weight: bold;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0px 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.button-shiny:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 20px rgba(0, 123, 255, 0.5);
+}
