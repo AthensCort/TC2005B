@@ -17,12 +17,18 @@ const SidebarButton: React.FC<SidebarButtonProps> = ({
   active = false,
   isOpen
 }) => {
-  const baseClasses =
-"flex items-center gap-4 px-6 py-4 rounded-xl cursor-pointer transition-all duration-300 text-base font-semibold";
+  const baseClasses = `
+    flex items-center 
+    ${isOpen ? "justify-start px-6 gap-4" : "justify-center px-0"} 
+    py-4 rounded-xl cursor-pointer 
+    transition-all duration-300 text-base font-semibold
+  `;
+
   const activeClasses =
     "bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md";
+
   const inactiveClasses =
-    " hover:bg-pink-600/20 text-[#f3f4f6]";
+    "hover:bg-pink-600/20 text-[#f3f4f6]";
 
   return (
     <Link

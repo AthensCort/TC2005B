@@ -10,6 +10,10 @@ export default function Home() {
     { name: "Carlos Pérez", email: "carlos@apple.com", Business: "Apple", phone: "+525588990011" },
     { name: "Lucía Morales", email: "lucia@google.com", Business: "Google", phone: "+524422337755" },
     { name: "Tomás Rivera", email: "tomas@tesla.com", Business: "Tesla", phone: "+527788665544" },
+    { name: "Lucía Morales", email: "lucia@google.com", Business: "Google", phone: "+524422337755" },
+    { name: "Tomás Rivera", email: "tomas@tesla.com", Business: "Tesla", phone: "+527788665544" },
+    { name: "Lucía Morales", email: "lucia@google.com", Business: "Google", phone: "+524422337755" },
+    
   ]);
 
   const [form, setForm] = useState({
@@ -19,59 +23,78 @@ export default function Home() {
     phone: "",
   });
 
+  const handleSave = () => {
+    if (form.name && form.email && form.Business && form.phone) {
+      setContacts([...contacts, { ...form }]);
+      setShowModal(false);
+      setForm({ name: "", email: "", Business: "", phone: "" });
+    }
+  };
+
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-gradient-to-br from-[#0b022b] to-[#4b0082]">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
       <div className="flex-1 p-6 text-gray-100 overflow-auto">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-          <h1 className="text-3xl font-bold">Contacts</h1>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={() => setShowModal(true)}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md"
-            >
-              Add Contact +
-            </button>
-          </div>
-        </div>
+  {/* Header - SOLO el título */}
+  <div className="ml-10 mb-4">
+    <h1 className="text-3xl font-bold">Contacts</h1>
+  </div>
+
+  {/* Botones justo antes de la tabla */}
+  <div className="flex flex-col sm:flex-row gap-4 ml-10 mb-6 mt-25 ml-240">
+    <button
+      onClick={() => setShowModal(true)}
+      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md"
+    >
+      Add Contact +
+    </button>
+    <button
+      onClick={handleSave}
+      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md"
+    >
+      Save
+    </button>
+  </div>
 
         {/* Table */}
-        <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg overflow-x-auto">
-          <table className="min-w-[600px] w-full text-left text-sm">
-            <thead>
-              <tr className="text-purple-300">
-                <th className="p-2">Name</th>
-                <th className="p-2">Email</th>
-                <th className="p-2">Business</th>
-                <th className="p-2">Phone</th>
-                <th className="p-2 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {contacts.map((item, index) => (
-                <tr key={index} className="hover:bg-[#2a2458] transition-colors">
-                  <td className="p-2 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-purple-500" />
-                    {item.name}
-                  </td>
-                  <td className="p-2 flex items-center gap-2">
-                    <FaRegEnvelope className="text-purple-300" />
-                    {item.email}
-                  </td>
-                  <td className="p-2">{item.Business}</td>
-                  <td className="p-2">{item.phone}</td>
-                  <td className="p-2 text-right">
-                    <button className="text-purple-300 hover:text-white">⋮</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg overflow-x-auto max-w-6xl ml-8">
+  <table className="min-w-[800px] w-full text-left text-sm">
+    <thead>
+      <tr className="text-purple-300">
+        <th className="p-2">Name</th>
+        <th className="p-2">Email</th>
+        <th className="p-2">Business</th>
+        <th className="p-2">Phone</th>
+        <th className="p-2 text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {contacts.map((item, index) => (
+        <tr key={index} className="hover:bg-[#2a2458] transition-colors">
+          <td className="p-2 whitespace-nowrap">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-purple-500" />
+              {item.name}
+            </div>
+          </td>
+          <td className="p-2 whitespace-nowrap">
+            <div className="flex items-center gap-2 text-purple-300">
+              <FaRegEnvelope />
+              {item.email}
+            </div>
+          </td>
+          <td className="p-2 whitespace-nowrap">{item.Business}</td>
+          <td className="p-2 whitespace-nowrap">{item.phone}</td>
+          <td className="p-2 text-right whitespace-nowrap">
+            <button className="text-purple-300 hover:text-white">⋮</button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
       </div>
 
       {/* Modal */}
@@ -115,11 +138,7 @@ export default function Home() {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  setContacts([...contacts, { ...form }]);
-                  setShowModal(false);
-                  setForm({ name: "", email: "", Business: "", phone: "" });
-                }}
+                onClick={handleSave}
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded"
               >
                 Save

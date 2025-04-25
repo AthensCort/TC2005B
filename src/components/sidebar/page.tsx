@@ -40,7 +40,7 @@ const Sidebar = () => {
       onMouseLeave={() => setIsOpen(false)}
       className={`transition-all duration-300 ${
         isOpen ? styles.sidebar : styles.sidebarCollapsed
-      } min-h-screen flex flex-col bg-gradient-to-br from-[#0b022b] to-[#4b0082] rounded-xl shadow-lg border-2 border-white backdrop-blur-lg`}
+      } min-h-screen flex flex-col bg-gradient-to-br from-[#0b022b] to-[#4b0082] rounded-xl shadow-lg backdrop-blur-lg`}
     >
       {/* LOGO */}
       <div className="flex justify-center mt-6 mb-2">
