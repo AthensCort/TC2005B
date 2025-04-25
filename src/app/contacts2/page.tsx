@@ -7,51 +7,15 @@ import SearchBar from "@/components/search_bar/page";
 export default function Home() {
   const [showModal, setShowModal] = useState(false);
 
+  // Estado de contactos
   const [contacts, setContacts] = useState([
-    {
-      name: "Alejandra Velazquez",
-      email: "palomitas@hotmail.com",
-      Business: "Bimbo",
-      phone: "+558124300715",
-      avatar: "https://i.pravatar.cc/150?img=1"
-    },
-    {
-      name: "Carlos Pérez",
-      email: "carlos@apple.com",
-      Business: "Apple",
-      phone: "+525588990011",
-      avatar: "https://i.pravatar.cc/150?img=2"
-    },
-    {
-      name: "Lucía Morales",
-      email: "lucia@google.com",
-      Business: "Google",
-      phone: "+524422337755",
-      avatar: "https://i.pravatar.cc/150?img=3"
-    },
-    {
-      name: "Tomás Rivera",
-      email: "tomas@tesla.com",
-      Business: "Tesla",
-      phone: "+527788665544",
-      avatar: "https://i.pravatar.cc/150?img=4"
-    },
-    {
-      name: "María Díaz",
-      email: "maria@apple.com",
-      Business: "Apple",
-      phone: "+525588990012",
-      avatar: "https://i.pravatar.cc/150?img=5"
-    },
-    {
-      name: "Juan Gómez",
-      email: "juan@bimbo.com",
-      Business: "Bimbo",
-      phone: "+527788665533",
-      avatar: "https://i.pravatar.cc/150?img=6"
-    },
+    { name: "Alejandra Velazquez", email: "palomitas@hotmail.com", Business: "Bimbo", phone: "+558124300715" },
+    { name: "Carlos Pérez", email: "carlos@apple.com", Business: "Apple", phone: "+525588990011" },
+    { name: "Lucía Morales", email: "lucia@google.com", Business: "Google", phone: "+524422337755" },
+    { name: "Tomás Rivera", email: "tomas@tesla.com", Business: "Tesla", phone: "+527788665544" },
   ]);
 
+  // Estado de empresas con atributos adicionales
   const [companies, setCompanies] = useState([
     { name: "Bimbo", industry: "Food", preferences: "Sustainability" },
     { name: "Apple", industry: "Technology", preferences: "Innovation" },
@@ -59,72 +23,63 @@ export default function Home() {
     { name: "Tesla", industry: "Automotive", preferences: "Sustainability" },
   ]);
 
+  // Estado de la búsqueda
   const [searchText, setSearchText] = useState("");
-  const [activeCompanies, setActiveCompanies] = useState<string[]>([]);
+  const [filteredContacts, setFilteredContacts] = useState(contacts);
+  const [filteredCompanies, setFilteredCompanies] = useState(companies);
 
-  const toggleCompanyFilter = (companyName: string) => {
-    setActiveCompanies(prev =>
-      prev.includes(companyName)
-        ? prev.filter(name => name !== companyName)
-        : [...prev, companyName]
-    );
-  };
-
-  const getFilteredContacts = () => {
-    let base = contacts;
-
-    if (activeCompanies.length > 0) {
-      base = base.filter(contact => activeCompanies.includes(contact.Business));
-    }
-
-    if (searchText !== "") {
-      base = base.filter(contact =>
-        contact.name.toLowerCase().includes(searchText.toLowerCase())
+  // Manejo de la búsqueda
+  const handleSearch = () => {
+    if (searchText === "") {
+      setFilteredContacts(contacts);
+      setFilteredCompanies(companies);
+    } else {
+      setFilteredContacts(
+        contacts.filter((contact) =>
+          contact.name.toLowerCase().includes(searchText.toLowerCase())
+        )
+      );
+      setFilteredCompanies(
+        companies.filter((company) =>
+          company.name.toLowerCase().includes(searchText.toLowerCase())
+        )
       );
     }
-
-    return base;
   };
 
-  const filteredContacts = getFilteredContacts();
-
+  // Manejo del formulario de contacto
   const [form, setForm] = useState({
     name: "",
     email: "",
     Business: "",
     phone: "",
-    avatar: "https://i.pravatar.cc/150?u=" + Math.random().toString(36).substr(2, 5)
   });
 
   const handleSave = () => {
     if (form.name && form.email && form.Business && form.phone) {
       setContacts([...contacts, { ...form }]);
       setShowModal(false);
-      setForm({
-        name: "",
-        email: "",
-        Business: "",
-        phone: "",
-        avatar: "https://i.pravatar.cc/150?u=" + Math.random().toString(36).substr(2, 5)
-      });
+      setForm({ name: "", email: "", Business: "", phone: "" });
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row bg-gradient-to-br from-[#0b022b] to-[#4b0082]">
+    <div className="min-h-screen w-full flex bg-gradient-to-br from-[#0b022b] to-[#4b0082]">
       <Sidebar />
 
       <div className="flex-1 p-6 text-gray-100 overflow-auto">
+        {/* Header */}
         <div className="ml-10 mb-4">
           <h1 className="text-3xl font-bold">Contacts & Companies</h1>
         </div>
 
+        {/* Search and Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6 mt-25">
           <div className="flex-1 sm:flex-none sm:mr-auto ml-10">
             <SearchBar
               value={searchText}
               onChange={setSearchText}
-              onSearch={() => {}}
+              onSearch={handleSearch}
             />
           </div>
           <div className="flex gap-4 mr-110">
@@ -143,9 +98,10 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Contenedor para la tabla de Contactos y el Rectángulo de Empresas */}
         <div className="flex gap-8">
           {/* Tabla de Contactos */}
-          <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg overflow-x-auto w-230 max-w-5xl ml-10">
+          <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg w-full max-w-5xl">
             <h2 className="text-lg text-purple-300 mb-4">Contacts</h2>
             <table className="w-full text-left text-sm">
               <thead>
@@ -159,13 +115,11 @@ export default function Home() {
               <tbody>
                 {filteredContacts.map((item, index) => (
                   <tr key={index} className="hover:bg-[#2a2458] transition-colors">
-                    <td className="p-2 whitespace-nowrap flex items-center gap-2">
-                      <img
-                        src={item.avatar}
-                        alt={item.name}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      {item.name}
+                    <td className="p-2 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-purple-500" />
+                        {item.name}
+                      </div>
                     </td>
                     <td className="p-2 whitespace-nowrap">
                       <div className="flex items-center gap-2 text-purple-300">
@@ -180,34 +134,18 @@ export default function Home() {
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
 
-          {/* Tabla de Empresas */}
-          <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg overflow-x-auto w-80 max-w-xs">
-            <h2 className="text-lg text-purple-300 mb-4">Companies</h2>
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="text-purple-300">
-                  <th className="p-2">Company Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                {companies.map((company, index) => {
-                  const isActive = activeCompanies.includes(company.name);
-                  return (
-                    <tr
-                      key={index}
-                      onClick={() => toggleCompanyFilter(company.name)}
-                      className={`cursor-pointer transition-colors ${
-                        isActive ? "bg-purple-700" : "hover:bg-[#2a2458]"
-                      }`}
-                    >
-                      <td className="p-2 whitespace-nowrap">{company.name}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+      {/* Rectángulo de Empresas a la derecha, ocupando toda la altura */}
+      <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg w-80 min-h-screen overflow-auto">
+        <h2 className="text-lg text-purple-300 mb-4">Companies</h2>
+        <div className="text-purple-300">
+          {filteredCompanies.map((company, index) => (
+            <div key={index} className="p-2">
+              {company.name}
+            </div>
+          ))}
         </div>
       </div>
 
