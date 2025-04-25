@@ -67,7 +67,7 @@ const Sidebar = () => {
 
       {/* NAVIGATION */}
       <nav className="flex-1 mt-10">
-        <ul className="space-y-1">
+        <ul className={`${isOpen ? "space-y-1" : "space-y-5"} flex flex-col`}>
           <SidebarButton icon={<FaUser />} text="Profile" href="/profile" active={pathname === "/profile"} isOpen={isOpen} />
           <SidebarButton icon={<FaTachometerAlt />} text="Dashboard" href="/dashboard" active={pathname === "/dashboard"} isOpen={isOpen} />
           <SidebarButton icon={<FaTasks />} text="Kanban" href="/kanban" active={pathname === "/kanban"} isOpen={isOpen} />

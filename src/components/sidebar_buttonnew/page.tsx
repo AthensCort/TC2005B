@@ -19,7 +19,7 @@ const SidebarButton: React.FC<SidebarButtonProps> = ({
 }) => {
   const baseClasses = `
     flex items-center 
-    ${isOpen ? "justify-start px-6 gap-4" : "justify-center px-0"} 
+    ${isOpen ? "justify-start px-6 gap-4" : "justify-center px-3"} 
     py-4 rounded-xl cursor-pointer 
     transition-all duration-300 text-base font-semibold
   `;

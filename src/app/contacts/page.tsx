@@ -2,20 +2,52 @@
 import Sidebar from "@/components/sidebar/page";
 import { FaRegEnvelope } from "react-icons/fa";
 import { useState } from "react";
+import SearchBar from "@/components/search_bar/page";
 
 export default function Home() {
   const [showModal, setShowModal] = useState(false);
+
+  // Estado de contactos
   const [contacts, setContacts] = useState([
     { name: "Alejandra Velazquez", email: "palomitas@hotmail.com", Business: "Bimbo", phone: "+558124300715" },
     { name: "Carlos Pérez", email: "carlos@apple.com", Business: "Apple", phone: "+525588990011" },
     { name: "Lucía Morales", email: "lucia@google.com", Business: "Google", phone: "+524422337755" },
     { name: "Tomás Rivera", email: "tomas@tesla.com", Business: "Tesla", phone: "+527788665544" },
-    { name: "Lucía Morales", email: "lucia@google.com", Business: "Google", phone: "+524422337755" },
-    { name: "Tomás Rivera", email: "tomas@tesla.com", Business: "Tesla", phone: "+527788665544" },
-    { name: "Lucía Morales", email: "lucia@google.com", Business: "Google", phone: "+524422337755" },
-    
   ]);
 
+  // Estado de empresas con atributos adicionales
+  const [companies, setCompanies] = useState([
+    { name: "Bimbo", industry: "Food", preferences: "Sustainability" },
+    { name: "Apple", industry: "Technology", preferences: "Innovation" },
+    { name: "Google", industry: "Technology", preferences: "Data Privacy" },
+    { name: "Tesla", industry: "Automotive", preferences: "Sustainability" },
+  ]);
+
+  // Estado de la búsqueda
+  const [searchText, setSearchText] = useState("");
+  const [filteredContacts, setFilteredContacts] = useState(contacts);
+  const [filteredCompanies, setFilteredCompanies] = useState(companies);
+
+  // Manejo de la búsqueda
+  const handleSearch = () => {
+    if (searchText === "") {
+      setFilteredContacts(contacts);
+      setFilteredCompanies(companies);
+    } else {
+      setFilteredContacts(
+        contacts.filter((contact) =>
+          contact.name.toLowerCase().includes(searchText.toLowerCase())
+        )
+      );
+      setFilteredCompanies(
+        companies.filter((company) =>
+          company.name.toLowerCase().includes(searchText.toLowerCase())
+        )
+      );
+    }
+  };
+
+  // Manejo del formulario de contacto
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -36,65 +68,92 @@ export default function Home() {
       <Sidebar />
 
       <div className="flex-1 p-6 text-gray-100 overflow-auto">
-  {/* Header - SOLO el título */}
-  <div className="ml-10 mb-4">
-    <h1 className="text-3xl font-bold">Contacts</h1>
-  </div>
+        {/* Header */}
+        <div className="ml-10 mb-4">
+          <h1 className="text-3xl font-bold">Contacts & Companies</h1>
+        </div>
 
-  {/* Botones justo antes de la tabla */}
-  <div className="flex flex-col sm:flex-row gap-4 ml-10 mb-6 mt-25 ml-240">
-    <button
-      onClick={() => setShowModal(true)}
-      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md"
-    >
-      Add Contact +
-    </button>
-    <button
-      onClick={handleSave}
-      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md"
-    >
-      Save
-    </button>
-  </div>
+        {/* Search and Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6 mt-25">
+          <div className="flex-1 sm:flex-none sm:mr-auto ml-10">
+            <SearchBar
+              value={searchText}
+              onChange={setSearchText}
+              onSearch={handleSearch}
+            />
+          </div>
+          <div className="flex gap-4 mr-110">
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md w-full sm:w-auto"
+            >
+              Add Contact +
+            </button>
+            <button
+              onClick={handleSave}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md w-full sm:w-auto"
+            >
+              Save
+            </button>
+          </div>
+        </div>
 
-        {/* Table */}
-        <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg overflow-x-auto max-w-6xl ml-8">
-  <table className="min-w-[800px] w-full text-left text-sm">
-    <thead>
-      <tr className="text-purple-300">
-        <th className="p-2">Name</th>
-        <th className="p-2">Email</th>
-        <th className="p-2">Business</th>
-        <th className="p-2">Phone</th>
-        <th className="p-2 text-right">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {contacts.map((item, index) => (
-        <tr key={index} className="hover:bg-[#2a2458] transition-colors">
-          <td className="p-2 whitespace-nowrap">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-purple-500" />
-              {item.name}
-            </div>
-          </td>
-          <td className="p-2 whitespace-nowrap">
-            <div className="flex items-center gap-2 text-purple-300">
-              <FaRegEnvelope />
-              {item.email}
-            </div>
-          </td>
-          <td className="p-2 whitespace-nowrap">{item.Business}</td>
-          <td className="p-2 whitespace-nowrap">{item.phone}</td>
-          <td className="p-2 text-right whitespace-nowrap">
-            <button className="text-purple-300 hover:text-white">⋮</button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+        {/* Contenedor flex para las tablas */}
+        <div className="flex gap-8">
+          {/* Tabla de Contactos (más ancha) */}
+          <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg overflow-x-auto w-230 max-w-5xl ml-10">
+            <h2 className="text-lg text-purple-300 mb-4">Contacts</h2>
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="text-purple-300">
+                  <th className="p-2">Name</th>
+                  <th className="p-2">Email</th>
+                  <th className="p-2">Business</th>
+                  <th className="p-2">Phone</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredContacts.map((item, index) => (
+                  <tr key={index} className="hover:bg-[#2a2458] transition-colors">
+                    <td className="p-2 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-purple-500" />
+                        {item.name}
+                      </div>
+                    </td>
+                    <td className="p-2 whitespace-nowrap">
+                      <div className="flex items-center gap-2 text-purple-300">
+                        <FaRegEnvelope />
+                        {item.email}
+                      </div>
+                    </td>
+                    <td className="p-2 whitespace-nowrap">{item.Business}</td>
+                    <td className="p-2 whitespace-nowrap">{item.phone}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
+          {/* Tabla de Empresas (sin barra de desplazamiento) */}
+          <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg overflow-x-auto  w-80 max-w-xs">
+            <h2 className="text-lg text-purple-300 mb-4">Companies</h2>
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="text-purple-300">
+                  <th className="p-2">Company Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredCompanies.map((company, index) => (
+                  <tr key={index} className="hover:bg-[#2a2458] transition-colors">
+                    <td className="p-2 whitespace-nowrap">{company.name}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       {/* Modal */}
