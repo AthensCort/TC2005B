@@ -3,56 +3,55 @@ import Sidebar from "@/components/sidebar/page";
 import { FaRegEnvelope } from "react-icons/fa";
 import { useState } from "react";
 import SearchBar from "@/components/search_bar/page";
+import { IoMdClose } from "react-icons/io";
+import { FaChevronDown } from "react-icons/fa6";
 
 export default function Home() {
   const [showModal, setShowModal] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [companyModal, setCompanyModal] = useState(false);
 
-  // Estado de contactos
   const [contacts, setContacts] = useState([
     { name: "Alejandra Velazquez", email: "palomitas@hotmail.com", Business: "Bimbo", phone: "+558124300715" },
     { name: "Carlos Pérez", email: "carlos@apple.com", Business: "Apple", phone: "+525588990011" },
     { name: "Lucía Morales", email: "lucia@google.com", Business: "Google", phone: "+524422337755" },
     { name: "Tomás Rivera", email: "tomas@tesla.com", Business: "Tesla", phone: "+527788665544" },
+    { name: "Fernando Torres", email: "fer@apple.com", Business: "Apple", phone: "+527788661111" },
   ]);
 
-  // Estado de empresas con atributos adicionales
   const [companies, setCompanies] = useState([
-    { name: "Bimbo", industry: "Food", preferences: "Sustainability" },
+    { name: "Bimbo", industry: "Bread", preferences: "Flour" },
     { name: "Apple", industry: "Technology", preferences: "Innovation" },
     { name: "Google", industry: "Technology", preferences: "Data Privacy" },
     { name: "Tesla", industry: "Automotive", preferences: "Sustainability" },
+    { name: "Perla", industry: "Automotive", preferences: "Sustainability" },
   ]);
 
-  // Estado de la búsqueda
   const [searchText, setSearchText] = useState("");
-  const [filteredContacts, setFilteredContacts] = useState(contacts);
-  const [filteredCompanies, setFilteredCompanies] = useState(companies);
+  const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
 
-  // Manejo de la búsqueda
   const handleSearch = () => {
-    if (searchText === "") {
-      setFilteredContacts(contacts);
-      setFilteredCompanies(companies);
-    } else {
-      setFilteredContacts(
-        contacts.filter((contact) =>
-          contact.name.toLowerCase().includes(searchText.toLowerCase())
-        )
-      );
-      setFilteredCompanies(
-        companies.filter((company) =>
-          company.name.toLowerCase().includes(searchText.toLowerCase())
-        )
-      );
-    }
+    return contacts.filter((contact) => {
+      const matchesText = contact.name.toLowerCase().includes(searchText.toLowerCase());
+      const matchesCompany = selectedCompanies.length === 0 || selectedCompanies.includes(contact.Business);
+      return matchesText && matchesCompany;
+    });
   };
 
-  // Manejo del formulario de contacto
+  const filteredContacts = handleSearch();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
     Business: "",
     phone: "",
+  });
+
+  const [companyForm, setCompanyForm] = useState({
+    name: "",
+    industry: "",
+    preferences: "",
+    photo: "",
   });
 
   const handleSave = () => {
@@ -63,45 +62,87 @@ export default function Home() {
     }
   };
 
-  return (
-    <div className="min-h-screen w-full flex bg-gradient-to-br from-[#0b022b] to-[#4b0082]">
-      <Sidebar />
+  const handleSaveCompany = () => {
+    if (companyForm.name && companyForm.industry && companyForm.preferences) {
+      setCompanies([...companies, { ...companyForm }]);
+      setCompanyModal(false);
+      setCompanyForm({ name: "", industry: "", preferences: "", photo: "" });
+    }
+  };
 
+  const toggleCompany = (company: string) => {
+    setSelectedCompanies((prev) =>
+      prev.includes(company) ? prev.filter((c) => c !== company) : [...prev, company]
+    );
+  };
+
+  return (
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-gradient-to-br from-[#0b022b] to-[#4b0082]">
+      <Sidebar />
       <div className="flex-1 p-6 text-gray-100 overflow-auto">
-        {/* Header */}
         <div className="ml-10 mb-4">
           <h1 className="text-3xl font-bold">Contacts & Companies</h1>
         </div>
 
-        {/* Search and Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6 mt-25">
           <div className="flex-1 sm:flex-none sm:mr-auto ml-10">
-            <SearchBar
-              value={searchText}
-              onChange={setSearchText}
-              onSearch={handleSearch}
-            />
+            <SearchBar value={searchText} onChange={setSearchText} onSearch={() => {}} />
           </div>
-          <div className="flex gap-4 mr-110">
+          <div className="flex gap-2 items-center mr-10 relative">
+            <div className="relative">
+              <button
+                className="flex items-center gap-1 bg-purple-700 px-3 py-2 rounded-md text-white hover:bg-purple-800"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                Filter by Company <FaChevronDown />
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 max-h-60 overflow-y-auto bg-[#2a2458] text-white rounded-md shadow-lg z-10 p-2">
+                  {companies.map((company) => (
+                    <div
+                      key={company.name}
+                      className={`cursor-pointer px-2 py-1 rounded hover:bg-purple-600 ${selectedCompanies.includes(company.name) ? 'bg-purple-700' : ''}`}
+                      onClick={() => toggleCompany(company.name)}
+                    >
+                      {company.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             <button
               onClick={() => setShowModal(true)}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md w-full sm:w-auto"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md"
             >
               Add Contact +
             </button>
             <button
-              onClick={handleSave}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md w-full sm:w-auto"
+              onClick={() => setCompanyModal(true)}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md"
             >
-              Save
+              Add Company +
             </button>
           </div>
         </div>
 
-        {/* Contenedor para la tabla de Contactos y el Rectángulo de Empresas */}
-        <div className="flex gap-8">
-          {/* Tabla de Contactos */}
-          <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg w-full max-w-5xl">
+        {selectedCompanies.length > 0 && (
+          <div className="flex flex-wrap gap-2 ml-10 mb-6">
+            {selectedCompanies.map((company) => (
+              <div key={company} className="flex items-center bg-purple-700 text-white px-3 py-1 rounded-full">
+                <span>{company}</span>
+                <button
+                  onClick={() => toggleCompany(company)}
+                  className="ml-2 text-white hover:text-gray-300"
+                >
+                  <IoMdClose />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex flex-col md:flex-row gap-8 items-start">
+          <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg overflow-x-auto w-full max-w-5xl ml-10">
             <h2 className="text-lg text-purple-300 mb-4">Contacts</h2>
             <table className="w-full text-left text-sm">
               <thead>
@@ -134,22 +175,23 @@ export default function Home() {
               </tbody>
             </table>
           </div>
+
+          <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg w-80 max-w-xs h-[400px] overflow-y-auto">
+  <h2 className="text-lg text-purple-300 mb-4">Companies</h2>
+  <div className="space-y-4">
+    {companies.map((company) => (
+      <div key={company.name}>
+        <h3 className="text-white font-semibold">{company.name}</h3>
+        <p className="text-sm text-purple-300">Industry: {company.industry}</p>
+        <p className="text-sm text-purple-300">Preference: {company.preferences}</p>
+      </div>
+    ))}
+  </div>
+</div>
+
+
         </div>
       </div>
-
-      {/* Rectángulo de Empresas a la derecha, ocupando toda la altura */}
-      <div className="bg-[#1e1b3a] p-4 rounded-xl shadow-lg w-80 min-h-screen overflow-auto">
-        <h2 className="text-lg text-purple-300 mb-4">Companies</h2>
-        <div className="text-purple-300">
-          {filteredCompanies.map((company, index) => (
-            <div key={index} className="p-2">
-              {company.name}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-4">
           <div className="bg-[#2e295f] p-6 rounded-lg w-full max-w-md space-y-4 text-white">
@@ -191,6 +233,56 @@ export default function Home() {
               </button>
               <button
                 onClick={handleSave}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {companyModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-4">
+          <div className="bg-[#2e295f] p-6 rounded-lg w-full max-w-md space-y-4 text-white">
+            <h2 className="text-2xl font-semibold">Add New Company</h2>
+            <input
+              type="text"
+              placeholder="Company Name"
+              value={companyForm.name}
+              onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })}
+              className="w-full p-2 rounded bg-[#1c183a] text-white"
+            />
+            <input
+              type="text"
+              placeholder="Industry"
+              value={companyForm.industry}
+              onChange={(e) => setCompanyForm({ ...companyForm, industry: e.target.value })}
+              className="w-full p-2 rounded bg-[#1c183a] text-white"
+            />
+            <input
+              type="text"
+              placeholder="Preference"
+              value={companyForm.preferences}
+              onChange={(e) => setCompanyForm({ ...companyForm, preferences: e.target.value })}
+              className="w-full p-2 rounded bg-[#1c183a] text-white"
+            />
+            <input
+              type="text"
+              placeholder="Photo URL"
+              value={companyForm.photo}
+              onChange={(e) => setCompanyForm({ ...companyForm, photo: e.target.value })}
+              className="w-full p-2 rounded bg-[#1c183a] text-white"
+            />
+            <div className="flex justify-end space-x-3 mt-4">
+              <button
+                onClick={() => setCompanyModal(false)}
+                className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveCompany}
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded"
               >
                 Save

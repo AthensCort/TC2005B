@@ -1,22 +1,24 @@
 'use client'
 import Sidebar from "@/components/sidebar/page";
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+interface Product {
+  nombre: string,
+  precio: number,
+  stock: number,
+  url?: string,
+}
 export default function Home() {
-
+  useEffect(()=>{
+    fetch("http://localhost:8080/api/productoServicio")
+    .then(res => res.json())
+    .then(data => {setProduct(data)})
+  })
   const [showModal, setShowModal] = useState(false);
-  const [contacts, setContacts] = useState([
-    { name: "Pepsi MAX", price: 800.50, stock: 53, photo: "/pepsi.jpg"},
-    { name: "Pepsi MAX", price: 800.50, stock: 53, photo: "/pepsi.jpg"},
-    { name: "Pepsi MAX", price: 800.50, stock: 53, photo: "/pepsi.jpg"},
-    { name: "Pepsi MAX", price: 800.50, stock: 53, photo: "/pepsi.jpg"},
-    { name: "Pepsi MAX", price: 800.50, stock: 53, photo: "/pepsi.jpg"},
-    { name: "Pepsi MAX", price: 800.50, stock: 53, photo: "/pepsi.jpg"},
-  ]);
+  const [product, setProduct] = useState<Product[]>([]);
   
   const [form, setForm] = useState({
-    name: "",
-    price: "",
+    nombre: "",
+    precio: "",
     stock: "",
     photo: "",
   });
@@ -38,21 +40,21 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Grid Layout for Contacts */}
+        {/* Grid Layout for product */}
         <div className="flex flex-wrap gap-4">
-        {contacts.map((item, index) => (
+        {product.map((item, index) => (
             <div key={index} className="bg-gray-800 p-4 rounded-xl flex flex-col space-y-2">
             {/* Profile and Name */}
             <div className="flex items-center space-x-4 mb-2"> {/* Use flex-row to align items horizontally */}
                 <img
-                src={item.photo} // The photo URL from the state
-                alt={item.name}   // Alt text for the image (could be the name)
+                src={item.url} // The photo URL from the state
+                alt={item.nombre}   // Alt text for the image (could be the name)
                 className="w-16 h-32 rounded-lg object-cover" // Image size and rounded corners
                 />
             <div className="flex flex-col space-y-2">
-            <p className="text-white text-sm">Name: <span className="text-gray-400">{item.name}</span></p>
+            <p className="text-white text-sm">Name: <span className="text-gray-400">{item.nombre}</span></p>
             <p className="text-white text-sm">Stock: <span className="text-gray-400">{item.stock}</span></p>
-            <p className="text-white text-sm">Price: <span className="text-gray-400">{item.price}</span></p>
+            <p className="text-white text-sm">precio: <span className="text-gray-400">{item.precio}</span></p>
             </div>
 
             </div>
@@ -71,15 +73,15 @@ export default function Home() {
             <input
               type="text"
               placeholder="Name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              value={form.nombre}
+              onChange={(e) => setForm({ ...form, nombre: e.target.value })}
               className="w-full p-2 rounded bg-dark-600 text-white"
             />
             <input
               type="price"
               placeholder="price"
-              value={form.price}
-              onChange={(e) => setForm({ ...form, price: e.target.value })}
+              value={form.precio}
+              onChange={(e) => setForm({ ...form, precio: e.target.value })}
               className="w-full p-2 rounded bg-dark-600 text-white"
             />
             <input
@@ -105,18 +107,18 @@ export default function Home() {
               </button>
               <button
                 onClick={() => {
-                    setContacts([
-                    ...contacts,
+                    setProduct([
+                    ...product,
                     {
                         ...form,
-                        price: parseFloat(form.price),
+                        precio: parseFloat(form.precio),
                         stock: parseInt(form.stock),
                     },
                     ]);
                     setShowModal(false);
                     setForm({
-                    name: "",
-                    price: "",
+                    nombre: "",
+                    precio: "",
                     stock: "",
                     photo: "",
                     });
