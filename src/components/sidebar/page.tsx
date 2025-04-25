@@ -57,23 +57,16 @@ const Sidebar = () => {
 
       {/* USER INFO */}
       <div className="flex flex-col items-center text-center mb-4">
-        <Image
-          src="/profile-test.jpg"
-          alt="Imagen Perfil"
-          width={65}
-          height={65}
-          className={styles.userImage}
-        />
         {isOpen && (
           <>
-            <p className="font-bold text-white mt-3">Alejandra Cepeda</p>
+            <p className="font-bold text-white mt-15">Alejandra Cepeda</p>
             <span className="italic text-sm text-gray-400">Empleada</span>
           </>
         )}
       </div>
 
       {/* NAVIGATION */}
-      <nav className="flex-1">
+      <nav className="flex-1 mt-20">
         <ul className="space-y-1c">
           <SidebarButton icon={<FaUser />} text="Profile" href="/profile" active={pathname === "/profile"}  isOpen={isOpen} />
           <SidebarButton icon={<FaTachometerAlt />} text="Dashboard" href="/dashboard" active={pathname === "/dashboard"}  isOpen={isOpen} />
