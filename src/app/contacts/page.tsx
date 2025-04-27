@@ -97,15 +97,35 @@ export default function Home() {
   };
 
   const handleSaveContact = () => {
-    if (editingContact) {
-      setContacts(prevContacts =>
-        prevContacts.map(contact =>
-          contact.id === editingContact.id ? editingContact : contact
-        )
-      );
+    if (!form.nombre || !form.correo || !form.telefono || !form.empresa) {
+      alert("Please fill in all fields before saving.");
+      return;
     }
-    closeModal();
+  
+    setContacts((prevContacts) => [
+      ...prevContacts,
+      { ...form, id: prevContacts.length + 1 }, // Use your own logic for generating ID
+    ]);
+  
+    // Reset the form and close the modal
+    setShowModal(false);
+    setForm({ nombre: "", correo: "", empresa: "", telefono: "" });
   };
+  const handleSaveEditedContact = () => {
+    if (!editingContact?.nombre || !editingContact?.correo || !editingContact?.telefono || !editingContact?.empresa) {
+      alert("Please fill in all fields before saving.");
+      return;
+    }
+  
+    setContacts((prevContacts) =>
+      prevContacts.map((contact) =>
+        contact.id === editingContact.id ? editingContact : contact
+      )
+    );
+  
+    closeModal(); // Close modal after editing
+  };
+  
 
   const handleDeleteContact = () => {
     if (editingContact) {
@@ -377,7 +397,7 @@ export default function Home() {
   </button>
 
   <button
-    onClick={handleSaveContact}
+    onClick={handleSaveEditedContact}
     className="px-3 py-2 bg-purple-600 hover:bg-purple-700 rounded text-sm"
   >
     Save
@@ -550,7 +570,7 @@ export default function Home() {
                 Cancel
               </button>
               <button
-                onClick={handleSave}
+                onClick={handleSaveContact}
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded"
               >
                 Save
