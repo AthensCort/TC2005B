@@ -14,20 +14,60 @@ import { motion, AnimatePresence } from "framer-motion";
 
 
 export default function LeadFlow() {
+  //NORMAL FORM
+  // Define the necessary types for your form
+interface Form {
+  user: string;
+  client: string;
+  state: string;
+  affair: string;
+  description: string;
+  date: string;
+  commission: string;
+  product: string;  // Added product field
+}
 
   //VALIDACION CREACION DE NEGOCIACIONES
-  const isFormValid = () => {
-    return (
-      form.user &&
-      form.client &&
-      form.state &&
-      form.affair &&
-      form.description &&
-      form.date &&
-      form.commission
-    );
-  };
-  
+  // Combined Validation Function
+const isFormValid = () => {
+  // Check if you are editing or adding a negotiation
+  const targetForm = isEditing ? editingNegotiation : form;
+
+  return (
+    targetForm.user !== "" &&
+    targetForm.client !== "" &&
+    targetForm.state !== "" &&
+    targetForm.affair !== "" &&
+    targetForm.description !== "" &&
+    targetForm.date !== "" &&
+    targetForm.commission !== "" &&
+    targetForm.product !== "" // Ensure product is also validated
+  );
+};
+
+
+  //ESTADO DE RESET
+
+    // Reset the form to initial values
+    const resetForm = () => {
+      setForm({
+        user: "",
+        client: "",
+        state: "",
+        affair: "",
+        description: "",
+        date: "",
+        commission: "",
+        product: "", // Reset product field
+      });
+    };
+
+    //MODAL HACER NUEVO
+    const openModal = () => {
+      resetForm(); // Reset form when modal is opened
+      setShowModal(true); // Show the modal
+    };
+
   //INTERFACE DE LAS EMPRESAS
   interface Empresa {
     id?: number;
@@ -43,7 +83,22 @@ export default function LeadFlow() {
           .then((data) => setCompanies(data));
       }, []);
 
-  
+
+  //ESTIPULACION Y LLAMADA D EPRODUCTOS
+  interface Product {
+    nombre: string,
+    precio: number,
+    stock: number,
+    url?: string,
+  }
+  const [products, setProducts] = useState<Product[]>([]);
+
+      useEffect(() => {
+        fetch("http://localhost:8080/api/productoServicio")
+          .then((res) => res.json())
+          .then((data) => setProducts(data));
+      }, []);
+
   const [showModal, setShowModal] = useState(false);
   const [contacts, setContacts] = useState([
     {
@@ -54,6 +109,7 @@ export default function LeadFlow() {
       description: "Reached out to discuss potential collaboration",
       date: "2025-04-10",
       commission: "$500",
+      product: "Platform A",
     },
     {
       user: "Laura García",
@@ -63,6 +119,7 @@ export default function LeadFlow() {
       description: "Showed platform demo and features",
       date: "2025-04-11",
       commission: "$1,200",
+      product: "Platform B",
     },
     {
       user: "Luis Torres",
@@ -72,6 +129,7 @@ export default function LeadFlow() {
       description: "Discussing terms before closing",
       date: "2025-04-12",
       commission: "$2,000",
+      product: "Platform C",
     },
     {
       user: "Maria magdalena",
@@ -81,6 +139,7 @@ export default function LeadFlow() {
       description: "Discussing terms before closing",
       date: "2025-04-12",
       commission: "$2,000",
+      product: "Platform D",
     },
   ]);
 
@@ -94,6 +153,7 @@ export default function LeadFlow() {
     description: "",
     date: "",
     commission: "",
+    product: "", 
   });
 
   const [expandedCard, setExpandedCard] = useState<{ [key: string]: boolean }>({});
@@ -114,6 +174,7 @@ export default function LeadFlow() {
     }));
   };
 
+  //MODIFICA EL DRAG PARA CAMBIAR EL ESTADO Y LA POSICION ENTE LA MISMA COLUMNA
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
   
@@ -154,6 +215,7 @@ export default function LeadFlow() {
     });
   };
 
+    //IMPLEMENTACION DE AI PARA EL REPORTE DE NEGOCIOS
   const generateReport = async () => {
     const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBycft2U9zo4J4-AUFUeHvKpjRgkSQGjvA';
 
@@ -184,6 +246,7 @@ export default function LeadFlow() {
   };
   const [searchValue, setSearchValue] = useState("");
 
+  //IMPLEMENTACION DE BARRA DE BUSQUEDA
 const handleSearch = () => {
   // Aquí no necesitas hacer nada porque vamos a filtrar en el render.
 };
@@ -196,17 +259,22 @@ const [activeMenu, setActiveMenu] = useState<string | null>(null);
 const [editingNegotiation, setEditingNegotiation] = useState<any | null>(null);
 const [isEditing, setIsEditing] = useState(false);
 
+
 const handleSaveEditedNegotiation = (updatedNegotiation: any) => {
   setContacts((prev) =>
-    prev.map((c) => {
+    prev.map((contact) => {
       if (
-        c.user === updatedNegotiation.user &&
-        c.client === updatedNegotiation.client &&
-        c.date === updatedNegotiation.date
+        contact.user === updatedNegotiation.user &&
+        contact.client === updatedNegotiation.client &&
+        contact.date === updatedNegotiation.date
       ) {
-        return { ...c, ...updatedNegotiation, state: c.state }; // state doesn't change!
+        return {
+          ...contact, // Copy the existing contact
+          ...updatedNegotiation, // Overwrite with updated negotiation data
+          // state: contact.state, // Optional: If state is not changing, you don't need to include it here
+        };
       }
-      return c;
+      return contact;
     })
   );
 };
@@ -219,6 +287,32 @@ const handleDeleteNegotiation = (cardKey: string) => {
     })
   );
   setIsDeleteModalOpen(false);
+};
+
+const handleAddNegotiation = () => {
+  if (isFormValid()) {
+    const newNegotiation = {
+      ...form, // include all fields from form
+    };
+    setContacts((prevContacts) => [...prevContacts, newNegotiation]);
+    setShowModal(false);  // Close modal
+  } else {
+    alert("Please fill out all fields!");
+  }
+};
+const handleSaveNegotiation = () => {
+  if (isFormValid()) {
+    const newNegotiation = {
+      ...form,
+      commission: `$${form.commission}`, // Format commission as currency
+    };
+
+    // Add the new negotiation to the contacts state
+    setContacts((prev) => [...prev, newNegotiation]);
+    setShowModal(false); // Close the modal after saving
+  } else {
+    alert("Please fill out all fields!"); // Alert if the form is invalid
+  }
 };
 
 
@@ -327,9 +421,11 @@ return (
 
 
                                 <div className={styles.cardTitle}>{contact.affair}</div>
+                                <small><span className={styles.product}>{contact.product}</span></small>
                                 <div className={styles.cardDetails}>
                                   <span className={styles.date}>{contact.client}</span>
                                   <span className={styles.amount}>{contact.commission}</span>
+    
                                 </div>
                                 <div className={styles.meta}>
                                   <small>{contact.user} - {contact.date}</small>
@@ -378,47 +474,92 @@ return (
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="bg-[#1e1b3a] p-6 rounded-xl shadow-xl w-full max-w-md text-white"
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <h3 className="text-lg text-purple-300 mb-4">Edit Negotiation</h3>
+  className="bg-[#1e1b3a] p-6 rounded-xl shadow-xl w-full max-w-md text-white"
+  initial={{ scale: 0.9, opacity: 0 }}
+  animate={{ scale: 1, opacity: 1 }}
+  exit={{ scale: 0.9, opacity: 0 }}
+  transition={{ duration: 0.3 }}
+>
+  <h3 className="text-lg text-purple-300 mb-4">Edit Negotiation</h3>
 
-        {/* Editable fields */}
-        {["user", "client", "affair", "description", "date", "commission"].map((field) => (
-          <div key={field} className="mb-4">
-            <label className="block text-sm font-semibold mb-1 capitalize">{field}:</label>
-            <input
-              type="text"
-              className="w-full p-2 rounded bg-gray-700 text-white"
-              value={editingNegotiation[field]}
-              onChange={(e) =>
-                setEditingNegotiation({ ...editingNegotiation, [field]: e.target.value })
-              }
-            />
-          </div>
-        ))}
+  {/* Editable fields */}
+  {["user", "affair", "description", "date", "commission"].map((field) => (
+    <div key={field} className="mb-4">
+      <label className="block text-sm font-semibold mb-1 capitalize">{field}:</label>
+      <input
+        type="text"
+        className="w-full p-2 rounded bg-gray-700 text-white"
+        value={editingNegotiation[field]}
+        onChange={(e) =>
+          setEditingNegotiation({ ...editingNegotiation, [field]: e.target.value })
+        }
+      />
+    </div>
+  ))}
 
-        <div className="flex justify-end gap-4">
-          <button
-            onClick={() => setIsEditing(false)}
-            className="bg-gray-600 px-4 py-2 rounded hover:bg-gray-500"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => {
-              handleSaveEditedNegotiation(editingNegotiation);
-              setIsEditing(false);
-            }}
-            className="bg-purple-600 px-4 py-2 rounded hover:bg-purple-500"
-          >
-            Save
-          </button>
-        </div>
-      </motion.div>
+  {/* Client select dropdown */}
+  <div className="mb-4">
+    <label className="block text-sm font-semibold mb-1">Client:</label>
+    <select
+      value={editingNegotiation.client}
+      onChange={(e) =>
+        setEditingNegotiation({ ...editingNegotiation, client: e.target.value })
+      }
+      className="w-full p-2 rounded bg-gray-700 text-white"
+    >
+      <option value="" disabled>Select Company</option>
+      {companies.map((company) => (
+        <option key={company.id} value={company.nombre}>
+          {company.nombre}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  {/* Product select dropdown */}
+  <div className="mb-4">
+    <label className="block text-sm font-semibold mb-1">Product:</label>
+    <select
+      value={editingNegotiation.product}
+      onChange={(e) =>
+        setEditingNegotiation({ ...editingNegotiation, product: e.target.value })
+      }
+      className="w-full p-2 rounded bg-gray-700 text-white"
+    >
+      <option value="" disabled>Select Product</option>
+      {products.map((product) => (
+        <option key={product.nombre} value={product.nombre}>
+          {product.nombre}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  <div className="flex justify-end gap-4">
+    <button
+      onClick={() => setIsEditing(false)}
+      className="bg-gray-600 px-4 py-2 rounded hover:bg-gray-500"
+    >
+      Cancel
+    </button>
+    <button
+  onClick={() => {
+    if (isFormValid()) {
+      handleSaveEditedNegotiation(editingNegotiation);
+      setIsEditing(false);
+    } else {
+      alert("Please fill out all fields!");
+    }
+  }}
+  disabled={!isFormValid()}  // Disable if form is invalid
+  className="bg-purple-600 px-4 py-2 rounded hover:bg-purple-500"
+>
+  Save
+</button>
+
+  </div>
+</motion.div>
+
     </motion.div>
   )}
 </AnimatePresence>
@@ -427,7 +568,7 @@ return (
 
       {/* Floating Plus Button */}
       <button
-        onClick={() => setShowModal(true)}
+        onClick={openModal}
         className="fixed bottom-6 right-10 w-14 h-14 bg-purple-700 text-white text-3xl rounded-full shadow-lg flex items-center justify-center hover:bg-purple-800 transition-all z-50"
       >
         +
@@ -526,6 +667,18 @@ return (
               onChange={(e) => setForm({ ...form, commission: e.target.value })}
               className="w-full p-2 rounded bg-[#2c2c3c] text-white"
             />
+            <select
+              value={form.product}
+              onChange={(e) => setForm({ ...form, product: e.target.value })}
+              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+            >
+              <option value="" disabled>Select Product</option>
+              {products.map((product) => (
+                <option key={product.nombre} value={product.nombre}>
+                  {product.nombre}
+                </option>
+              ))}
+            </select>
 
             <div className="flex justify-end space-x-2 mt-4">
               <button
@@ -537,8 +690,8 @@ return (
               <button
   onClick={() => {
     if (isFormValid()) {
-      handleSaveEditedNegotiation(form);  // Or however you save the negotiation
-      setShowModal(false);  // Close the modal
+      handleSaveNegotiation();
+      setShowModal(false);
     } else {
       alert("Please fill out all fields!");
     }
@@ -548,6 +701,7 @@ return (
 >
   Save
 </button>
+
 
             </div>
           </div>
