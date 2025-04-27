@@ -8,52 +8,65 @@ import { IoMdClose } from "react-icons/io";
 import { FaChevronDown } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiOutlineDotsVertical } from "react-icons/hi"; // Icono de 3 puntitos
+interface Contacto {
+  id?: number;
+  nombre: string;
+  correo: string;
+  telefono: string;
+  empresa: string;
+  url?: string | undefined;
+}
 
-interface Contacto{
-  id?:number,
-  nombre:string,
-  correo:string,
-  telefono:string,
-  empresa:string,
-  url?:string | undefined
+interface Empresa {
+  id?: number;
+  nombre: string;
+  industria: string;
+  preferencias: string;
 }
-interface Empresa{ 
-  id?:number,
-  nombre:string,
-  industria:string, 
-  preferencias:string
-}
+
+type EditingEmpresa = Empresa & { nombreBeforeEdit: string };
 
 export default function Home() {
-  useEffect(()=>{
-    fetch("http://localhost:8080/api/cliente")
-    .then(res => res.json())
-    .then(data => setContacts(data));
-    
-    fetch("http://localhost:8080/api/empresa")
-    .then(res => res.json())
-    .then(data => setCompanies(data));
-    
-    // Eu como corro esto CARO carolina carolina
-  },[])/*woa un fetchwooooo, die potatoe die*/
+  // Estados
+  const [contacts, setContacts] = useState<Contacto[]>([]);
+  const [companies, setCompanies] = useState<Empresa[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [companyModal, setCompanyModal] = useState(false);
   const [expandedContact, setExpandedContact] = useState<string | null>(null);
   const [expandedCompany, setExpandedCompany] = useState<string | null>(null);
-
-  const [contacts, setContacts] = useState<Contacto[]>([]);
-
-  const [companies, setCompanies] = useState<Empresa[]>([]);
-
   const [searchText, setSearchText] = useState("");
   const [companySearchText, setCompanySearchText] = useState("");
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
+  const [form, setForm] = useState({
+    nombre: "",
+    correo: "",
+    empresa: "",
+    telefono: "",
+  });
+  const [companyForm, setCompanyForm] = useState({
+    nombre: "",
+    industria: "",
+    preferencias: "",
+    photo: "",
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contacto | null>(null);
+  const [isEditingCompany, setIsEditingCompany] = useState(false);
+  const [editingCompany, setEditingCompany] = useState<EditingEmpresa | null>(null);
 
-  type EditingEmpresa = Empresa & { nombreBeforeEdit: string };
+  // Fetch de datos al montar el componente
+  useEffect(() => {
+    fetch("http://localhost:8080/api/cliente")
+      .then(res => res.json())
+      .then(data => setContacts(data));
 
+    fetch("http://localhost:8080/api/empresa")
+      .then(res => res.json())
+      .then(data => setCompanies(data));
+  }, []);
 
-
+  // Funciones de búsqueda de contactos
   const handleSearch = () => {
     return contacts.filter((contact) => {
       const matchesText = contact.nombre.toLowerCase().includes(searchText.toLowerCase());
@@ -61,31 +74,10 @@ export default function Home() {
       return matchesText && matchesCompany;
     });
   };
-
+  
   const filteredContacts = handleSearch();
 
-  const [form, setForm] = useState({
-    nombre: "",
-    correo: "",
-    empresa: "",
-    telefono: "",
-  });
-
-  const [companyForm, setCompanyForm] = useState({
-    nombre: "",
-    industria: "",
-    preferencias: "",
-    photo: "",
-  });
-
-
-  interface CompaniesListProps {
-    companies: Empresa[];
-    companySearchText: string;
-    setCompanySearchText: (value: string) => void;
-  }
-  
-
+  // Funciones para manejar los contactos (agregar, editar, eliminar)
   const handleSave = () => {
     if (form.nombre && form.correo && form.empresa && form.telefono) {
       setContacts([...contacts, { ...form }]);
@@ -94,28 +86,14 @@ export default function Home() {
     }
   };
 
-  const toggleCompany = (company: string) => {
-    setSelectedCompanies((prev) =>
-      prev.includes(company) ? prev.filter((c) => c !== company) : [...prev, company]
-    );
-  };
-
-  const getCompanyInfo = (name: string) => {
-    return companies.find((c) => c.nombre === name);
-  };
-
-  //MODAL PARA PODER EDITAR A LOS CLIENTES CONSTANTES NECESARIAS
-  const [isEditing, setIsEditing] = useState(false);  // For modal visibility
-  const [editingContact, setEditingContact] = useState<Contacto | null>(null);  // For selected contact
-  
   const handleEdit = (contact: Contacto) => {
     setEditingContact(contact);
-    setIsEditing(true);  // Open modal when editing
+    setIsEditing(true);
   };
-  
+
   const closeModal = () => {
-    setIsEditing(false);  // Close modal
-    setEditingContact(null);  // Clear contact
+    setIsEditing(false);
+    setEditingContact(null);
   };
 
   const handleSaveContact = () => {
@@ -137,50 +115,64 @@ export default function Home() {
     }
     closeModal();
   };
+
+  // Funciones para manejar las empresas (agregar, editar, eliminar)
+  const handleEditCompany = (company: Empresa) => {
+    setEditingCompany({ ...company, nombreBeforeEdit: company.nombre });
+    setIsEditingCompany(true);
+  };
+
+  const closeCompanyModal = () => {
+    setIsEditingCompany(false);
+    setEditingCompany(null);
+  };
+
+  const handleSaveCompany = () => {
+    if (!companyForm.nombre || !companyForm.industria || !companyForm.preferencias || !companyForm.photo) {
+      // You can handle validation here, like showing an error if required fields are missing
+      return;
+    }
   
+    // Add new company to the list
+    setCompanies((prev) => [
+      ...prev,
+      { 
+        ...companyForm, 
+        id: prev.length + 1, // or any other logic for generating ID
+      },
+    ]);
   
+    // Close the modal and reset form
+    setCompanyModal(false);
+    setCompanyForm({
+      nombre: "",
+      industria: "",
+      preferencias: "",
+      photo: "",
+    });
+  };
   
- //LISTO AQUI SE CIERRA LAS FUNCIONES PARA EDITAR A LOS CLIENTES
- //bg-gradient-to-br from-[#0b022b] to-[#4b0082]
 
+  const handleDeleteCompany = () => {
+    if (!editingCompany) return;
 
- //INICIA LAS FUNCIONES PAR AMANEJAR A LAS EMPRESAS
- const [isEditingCompany, setIsEditingCompany] = useState(false);
- const [editingCompany, setEditingCompany] = useState<EditingEmpresa | null>(null);
+    setCompanies(prev =>
+      prev.filter(c => c.nombre !== editingCompany.nombreBeforeEdit)
+    );
+    closeCompanyModal();
+  };
 
+  
+  // Funciones adicionales para manejar empresas
+  const toggleCompany = (company: string) => {
+    setSelectedCompanies((prev) =>
+      prev.includes(company) ? prev.filter((c) => c !== company) : [...prev, company]
+    );
+  };
 
-// Abrir modal de editar
-const handleEditCompany = (company: Empresa) => {
-  setEditingCompany({ ...company, nombreBeforeEdit: company.nombre });
-  setIsEditingCompany(true);
-};
-// Cerrar modal
-const closeCompanyModal = () => {
-  setIsEditingCompany(false);
-  setEditingCompany(null);
-};
-
-const handleSaveCompany = () => {
-  if (!editingCompany) return;
-
-  setCompanies((prev) =>
-    prev.map((c) =>
-      c.nombre === editingCompany.nombreBeforeEdit ? editingCompany : c
-    )
-  );
-  closeCompanyModal();
-};
-
-// Para BORRAR empresa
-const handleDeleteCompany = () => {
-  if (!editingCompany) return;
-
-  setCompanies((prev) =>
-    prev.filter((c) => c.nombre !== editingCompany.nombreBeforeEdit)
-  );
-  closeCompanyModal();
-};
-
+  const getCompanyInfo = (name: string) => {
+    return companies.find((c) => c.nombre === name);
+  };
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-[#07101d]">
