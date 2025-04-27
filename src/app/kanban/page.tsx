@@ -1,7 +1,7 @@
 'use client'
 import Sidebar from "@/components/sidebar/page";
 import styles from "./page.module.css";
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import {
   DragDropContext,
   Droppable,
@@ -9,9 +9,41 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import SearchBar from "@/components/search_bar/page"; // ajusta el path si no es correcto
+import { HiOutlineDotsVertical } from "react-icons/hi"; // Icono de 3 puntitos
+import { motion, AnimatePresence } from "framer-motion";
 
 
 export default function LeadFlow() {
+
+  //VALIDACION CREACION DE NEGOCIACIONES
+  const isFormValid = () => {
+    return (
+      form.user &&
+      form.client &&
+      form.state &&
+      form.affair &&
+      form.description &&
+      form.date &&
+      form.commission
+    );
+  };
+  
+  //INTERFACE DE LAS EMPRESAS
+  interface Empresa {
+    id?: number;
+    nombre: string;
+    industria: string;
+    preferencias: string;
+  }
+  //LLAMADA A ALS EMPRESAS DESDE LE API, LOL
+  const [companies, setCompanies] = useState<Empresa[]>([]);
+      useEffect(() => {
+        fetch("http://localhost:8080/api/empresa")
+          .then((res) => res.json())
+          .then((data) => setCompanies(data));
+      }, []);
+
+  
   const [showModal, setShowModal] = useState(false);
   const [contacts, setContacts] = useState([
     {
@@ -51,6 +83,8 @@ export default function LeadFlow() {
       commission: "$2,000",
     },
   ]);
+
+  
 
   const [form, setForm] = useState({
     user: "",
@@ -157,6 +191,37 @@ const handleSearch = () => {
 const [contactToDelete, setContactToDelete] = useState<string | null>(null);
 const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+//EDIT THE NEGOTIATIONS
+const [activeMenu, setActiveMenu] = useState<string | null>(null);
+const [editingNegotiation, setEditingNegotiation] = useState<any | null>(null);
+const [isEditing, setIsEditing] = useState(false);
+
+const handleSaveEditedNegotiation = (updatedNegotiation: any) => {
+  setContacts((prev) =>
+    prev.map((c) => {
+      if (
+        c.user === updatedNegotiation.user &&
+        c.client === updatedNegotiation.client &&
+        c.date === updatedNegotiation.date
+      ) {
+        return { ...c, ...updatedNegotiation, state: c.state }; // state doesn't change!
+      }
+      return c;
+    })
+  );
+};
+
+const handleDeleteNegotiation = (cardKey: string) => {
+  setContacts((prev) =>
+    prev.filter((contact) => {
+      const key = `${contact.client}-${contact.user}-${contact.date}`;
+      return key !== cardKey;
+    })
+  );
+  setIsDeleteModalOpen(false);
+};
+
+
 
 return (
   <div className={`${styles.container} bg-[#07101d]`}>
@@ -221,18 +286,44 @@ return (
                                 {...provided.dragHandleProps}
                               >
 
-                                            <div className="absolute top-2 right-2">
-                                                <button
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setContactToDelete(cardKey);
-                                                    setIsDeleteModalOpen(true);
-                                                  }}
-                                                  className="text-red-400 hover:text-red-600 text-lg"
-                                                >
-                                                  ✖
-                                                </button>
-                                              </div>
+                              <div className="absolute top-2 right-2">
+                                <div className="relative">
+                                  <HiOutlineDotsVertical
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActiveMenu(cardKey); // <--- set the cardKey that's open
+                                    }}
+                                    className="text-purple-300 hover:text-purple-400 cursor-pointer"
+                                  />
+                                  {activeMenu === cardKey && (
+                                    <div className="absolute right-0 mt-2 w-32 bg-[#1e1b3a] text-white rounded shadow-md z-10">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setEditingNegotiation(contact);
+                                          setIsEditing(true);
+                                          setActiveMenu(null);
+                                        }}
+                                        className="block w-full text-left px-4 py-2 hover:bg-purple-700"
+                                      >
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setContactToDelete(cardKey);
+                                          setIsDeleteModalOpen(true);
+                                          setActiveMenu(null);
+                                        }}
+                                        className="block w-full text-left px-4 py-2 hover:bg-red-700 text-red-300"
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
 
 
                                 <div className={styles.cardTitle}>{contact.affair}</div>
@@ -269,12 +360,69 @@ return (
 
                       )}
                   </div>
+                  
                 )}
               </Droppable>
             </div>
+            
           ))}
         </div>
       </DragDropContext>
+
+      <AnimatePresence>
+  {isEditing && editingNegotiation && (
+    <motion.div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-[#1e1b3a] p-6 rounded-xl shadow-xl w-full max-w-md text-white"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h3 className="text-lg text-purple-300 mb-4">Edit Negotiation</h3>
+
+        {/* Editable fields */}
+        {["user", "client", "affair", "description", "date", "commission"].map((field) => (
+          <div key={field} className="mb-4">
+            <label className="block text-sm font-semibold mb-1 capitalize">{field}:</label>
+            <input
+              type="text"
+              className="w-full p-2 rounded bg-gray-700 text-white"
+              value={editingNegotiation[field]}
+              onChange={(e) =>
+                setEditingNegotiation({ ...editingNegotiation, [field]: e.target.value })
+              }
+            />
+          </div>
+        ))}
+
+        <div className="flex justify-end gap-4">
+          <button
+            onClick={() => setIsEditing(false)}
+            className="bg-gray-600 px-4 py-2 rounded hover:bg-gray-500"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              handleSaveEditedNegotiation(editingNegotiation);
+              setIsEditing(false);
+            }}
+            className="bg-purple-600 px-4 py-2 rounded hover:bg-purple-500"
+          >
+            Save
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
       </div>
 
       {/* Floating Plus Button */}
@@ -285,32 +433,34 @@ return (
         +
       </button>
       {isDeleteModalOpen && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white p-6 rounded-lg shadow-lg">
-      <h2 className="text-xl font-bold mb-4 text-black">Are you sure you want to delete this negotiation?</h2>
-      <div className="flex justify-end space-x-4">
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-[#1e1b3a] p-6 rounded-xl shadow-xl w-full max-w-sm text-white">
+      <h3 className="text-lg text-red-400 mb-4">Delete Negotiation?</h3>
+      <p className="text-sm mb-6">This action cannot be undone.</p>
+
+      <div className="flex justify-end gap-4">
         <button
           onClick={() => setIsDeleteModalOpen(false)}
-          className="px-4 py-2 bg-gray-500 rounded hover:bg-gray-600"
+          className="bg-gray-600 px-4 py-2 rounded hover:bg-gray-500"
         >
           Cancel
         </button>
         <button
-          onClick={() => {
-            setContacts((prev) => prev.filter((contact) => {
-              const key = `${contact.client}-${contact.user}-${contact.date}`;
-              return key !== contactToDelete;
-            }));
-            setIsDeleteModalOpen(false);
-          }}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        >
-          Yes, Delete
-        </button>
+  onClick={() => {
+    if (contactToDelete) {
+      handleDeleteNegotiation(contactToDelete);
+    }
+  }}
+  className="bg-red-600 px-4 py-2 rounded hover:bg-red-500"
+>
+  Delete
+</button>
+
       </div>
     </div>
   </div>
 )}
+
 
       {/* Modal */}
       {showModal && (
@@ -324,20 +474,32 @@ return (
               onChange={(e) => setForm({ ...form, user: e.target.value })}
               className="w-full p-2 rounded bg-[#2c2c3c] text-white"
             />
-            <input
-              type="text"
-              placeholder="Client"
-              value={form.client}
-              onChange={(e) => setForm({ ...form, client: e.target.value })}
-              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-            />
-            <input
-              type="text"
-              placeholder="State"
+                          <select
+                value={form.client}
+                onChange={(e) => setForm({ ...form, client: e.target.value })}
+                className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+              >
+                <option value="" disabled>Select Company</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.nombre}>
+                    {company.nombre}
+                  </option>
+                ))}
+              </select>
+
+            <select
               value={form.state}
               onChange={(e) => setForm({ ...form, state: e.target.value })}
               className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-            />
+            >
+              <option value="" disabled>Select State</option>
+              {stages.map((stage) => (
+                <option key={stage} value={stage}>
+                  {stage}
+                </option>
+              ))}
+            </select>
+
             <input
               type="text"
               placeholder="Affair"
@@ -358,12 +520,13 @@ return (
               className="w-full p-2 rounded bg-[#2c2c3c] text-white"
             />
             <input
-              type="text"
+              type="number"
               placeholder="Commission"
               value={form.commission}
               onChange={(e) => setForm({ ...form, commission: e.target.value })}
               className="w-full p-2 rounded bg-[#2c2c3c] text-white"
             />
+
             <div className="flex justify-end space-x-2 mt-4">
               <button
                 onClick={() => setShowModal(false)}
@@ -372,28 +535,20 @@ return (
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  setContacts([
-                    ...contacts,
-                    {
-                      ...form,
-                    },
-                  ]);
-                  setShowModal(false);
-                  setForm({
-                    user: "",
-                    client: "",
-                    state: "",
-                    affair: "",
-                    description: "",
-                    date: "",
-                    commission: "",
-                  });
-                }}
-                className="px-4 py-2 bg-purple-700 hover:bg-purple-800 transition rounded text-white"
-              >
-                Add
-              </button>
+  onClick={() => {
+    if (isFormValid()) {
+      handleSaveEditedNegotiation(form);  // Or however you save the negotiation
+      setShowModal(false);  // Close the modal
+    } else {
+      alert("Please fill out all fields!");
+    }
+  }}
+  disabled={!isFormValid()}  // Disable if form is invalid
+  className="bg-purple-600 px-4 py-2 rounded hover:bg-purple-500 disabled:bg-gray-500"
+>
+  Save
+</button>
+
             </div>
           </div>
         </div>
