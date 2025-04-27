@@ -35,7 +35,7 @@ export default function Home() {
     .then(data => setCompanies(data));
     
     // Eu como corro esto CARO carolina carolina
-  })/*woa un fetchwooooo, die potatoe die*/
+  },[])/*woa un fetchwooooo, die potatoe die*/
   const [showModal, setShowModal] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [companyModal, setCompanyModal] = useState(false);
@@ -49,6 +49,10 @@ export default function Home() {
   const [searchText, setSearchText] = useState("");
   const [companySearchText, setCompanySearchText] = useState("");
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
+
+  type EditingEmpresa = Empresa & { nombreBeforeEdit: string };
+
+
 
   const handleSearch = () => {
     return contacts.filter((contact) => {
@@ -90,14 +94,6 @@ export default function Home() {
     }
   };
 
-  const handleSaveCompany = () => {
-    if (companyForm.nombre && companyForm.industria && companyForm.preferencias) {
-      setCompanies([...companies, { ...companyForm }]); /**/
-      setCompanyModal(false)
-      setCompanyForm({ nombre: "", industria: "", preferencias: "", photo: "" });
-    }
-  };
-
   const toggleCompany = (company: string) => {
     setSelectedCompanies((prev) =>
       prev.includes(company) ? prev.filter((c) => c !== company) : [...prev, company]
@@ -123,13 +119,67 @@ export default function Home() {
   };
 
   const handleSaveContact = () => {
-    console.log("Guardar cambios:", editingContact);
-    // Aquí podrías hacer la lógica para actualizar el contacto
+    if (editingContact) {
+      setContacts(prevContacts =>
+        prevContacts.map(contact =>
+          contact.id === editingContact.id ? editingContact : contact
+        )
+      );
+    }
+    closeModal();
+  };
+
+  const handleDeleteContact = () => {
+    if (editingContact) {
+      setContacts(prevContacts =>
+        prevContacts.filter(contact => contact.id !== editingContact.id)
+      );
+    }
     closeModal();
   };
   
+  
+  
  //LISTO AQUI SE CIERRA LAS FUNCIONES PARA EDITAR A LOS CLIENTES
  //bg-gradient-to-br from-[#0b022b] to-[#4b0082]
+
+
+ //INICIA LAS FUNCIONES PAR AMANEJAR A LAS EMPRESAS
+ const [isEditingCompany, setIsEditingCompany] = useState(false);
+ const [editingCompany, setEditingCompany] = useState<EditingEmpresa | null>(null);
+
+
+// Abrir modal de editar
+const handleEditCompany = (company: Empresa) => {
+  setEditingCompany({ ...company, nombreBeforeEdit: company.nombre });
+  setIsEditingCompany(true);
+};
+// Cerrar modal
+const closeCompanyModal = () => {
+  setIsEditingCompany(false);
+  setEditingCompany(null);
+};
+
+const handleSaveCompany = () => {
+  if (!editingCompany) return;
+
+  setCompanies((prev) =>
+    prev.map((c) =>
+      c.nombre === editingCompany.nombreBeforeEdit ? editingCompany : c
+    )
+  );
+  closeCompanyModal();
+};
+
+// Para BORRAR empresa
+const handleDeleteCompany = () => {
+  if (!editingCompany) return;
+
+  setCompanies((prev) =>
+    prev.filter((c) => c.nombre !== editingCompany.nombreBeforeEdit)
+  );
+  closeCompanyModal();
+};
 
 
   return (
@@ -204,10 +254,10 @@ export default function Home() {
             <thead>
             <tr className="text-purple-300">
               <th className="p-2">Name</th>
-              <th className="p-2">correo</th>
-              <th className="p-2">empresa</th>
-              <th className="p-1  ">telefono</th>
-              <th className="p-1">Actions</th> {/* Nuevo */}
+              <th className="p-2">Email</th>
+              <th className="p-2">Enterprise</th>
+              <th className="p-1">Phone number</th>
+              <th className="p-1">Actions</th>
             </tr>
           </thead>
               <tbody>
@@ -272,7 +322,7 @@ export default function Home() {
 </tbody>
             </table>
 
-    <AnimatePresence>
+            <AnimatePresence>
   {isEditing && editingContact && (
     <motion.div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -288,20 +338,65 @@ export default function Home() {
         transition={{ duration: 0.3 }}
       >
         <h3 className="text-lg text-purple-300 mb-4">Edit Contact</h3>
-        <p><span className="font-semibold">Nombre:</span> {editingContact.nombre}</p>
-        <p><span className="font-semibold">Correo:</span> {editingContact.correo}</p>
-        <p><span className="font-semibold">Telefono:</span> {editingContact.telefono}</p>
 
-        <button
-          onClick={closeModal}
-          className="mt-6 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded"
-        >
-          Close
-        </button>
+        <div className="mb-4">
+          <label className="block text-sm font-semibold mb-1">Nombre:</label>
+          <input
+            type="text"
+            className="w-full p-2 rounded bg-gray-700 text-white"
+            value={editingContact.nombre}
+            onChange={(e) => setEditingContact({ ...editingContact, nombre: e.target.value })}
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-semibold mb-1">Correo:</label>
+          <input
+            type="email"
+            className="w-full p-2 rounded bg-gray-700 text-white"
+            value={editingContact.correo}
+            onChange={(e) => setEditingContact({ ...editingContact, correo: e.target.value })}
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-semibold mb-1">Teléfono:</label>
+          <input
+            type="text"
+            className="w-full p-2 rounded bg-gray-700 text-white"
+            value={editingContact.telefono}
+            onChange={(e) => setEditingContact({ ...editingContact, telefono: e.target.value })}
+          />
+        </div>
+
+        <div className="flex justify-end space-x-2 mt-6">
+  <button
+    onClick={handleDeleteContact}
+    className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-sm"
+  >
+    Delete
+  </button>
+
+  <button
+    onClick={closeModal}
+    className="px-3 py-2 bg-gray-500 hover:bg-gray-600 rounded text-sm"
+  >
+    Cancel
+  </button>
+
+  <button
+    onClick={handleSaveContact}
+    className="px-3 py-2 bg-purple-600 hover:bg-purple-700 rounded text-sm"
+  >
+    Save
+  </button>
+</div>
+
       </motion.div>
     </motion.div>
   )}
 </AnimatePresence>
+
 
           </div>
 
@@ -319,25 +414,106 @@ export default function Home() {
       )
       .map((company) => (
         <div
-          key={company.nombre}
-          onClick={() =>
-            setExpandedCompany((prev) => (prev === company.nombre ? null : company.nombre))
-          }
-          className="cursor-pointer"
-        >
-          <h3 className="text-white font-semibold">{company.nombre}</h3>
-          <p className="text-sm text-purple-300">
-            Industry: {company.industria}
-          </p>
-          <p
-            className={`text-sm text-purple-300 ${
-              expandedCompany === company.nombre ? "" : "truncate"
-            }`}
-          >
-            Preference: {company.preferencias}
-          </p>
-        </div>
+  key={company.nombre}
+  onClick={() =>
+    setExpandedCompany((prev) => (prev === company.nombre ? null : company.nombre))
+  }
+  className="cursor-pointer"
+>
+  <div className="flex items-center justify-between">
+    <div>
+      <h3 className="text-white font-semibold">{company.nombre}</h3>
+      <p className="text-sm text-purple-300">
+        Industry: {company.industria}
+      </p>
+      <p
+        className={`text-sm text-purple-300 ${
+          expandedCompany === company.nombre ? "" : "truncate"
+        }`}
+      >
+        Preference: {company.preferencias}
+      </p>
+    </div>
+
+    {/* Botón de editar */}
+    <div
+      className="p-2 hover:bg-purple-700 rounded-full cursor-pointer"
+      onClick={(e) => {
+        e.stopPropagation();
+        handleEditCompany(company);
+      }}
+    >
+      <HiOutlineDotsVertical className="text-purple-300" />
+    </div>
+  </div>
+</div>
+
       ))}
+
+<AnimatePresence>
+  {isEditingCompany && editingCompany && (
+    <motion.div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-[#1e1b3a] p-6 rounded-xl shadow-xl w-full max-w-md text-white"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h3 className="text-lg text-purple-300 mb-4">Edit Company</h3>
+
+        {/* Formulario editable */}
+        <input
+          className="w-full mb-2 p-2 rounded bg-gray-700 text-white"
+          value={editingCompany.nombre}
+          onChange={(e) => setEditingCompany({ ...editingCompany, nombre: e.target.value })}
+          placeholder="Company Name"
+        />
+        <input
+          className="w-full mb-2 p-2 rounded bg-gray-700 text-white"
+          value={editingCompany.industria}
+          onChange={(e) => setEditingCompany({ ...editingCompany, industria: e.target.value })}
+          placeholder="Industry"
+        />
+        <input
+          className="w-full mb-2 p-2 rounded bg-gray-700 text-white"
+          value={editingCompany.preferencias}
+          onChange={(e) => setEditingCompany({ ...editingCompany, preferencias: e.target.value })}
+          placeholder="Preferences"
+        />
+
+        {/* Botones */}
+        <div className="flex justify-end space-x-2 mt-6">
+          <button
+            onClick={handleDeleteCompany}
+            className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+          >
+            Delete
+          </button>
+          <button
+            onClick={closeCompanyModal}
+            className="px-3 py-1 bg-gray-400 hover:bg-gray-500 rounded text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSaveCompany}
+            className="px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded text-sm"
+          >
+            Save
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
+
   </div>
 </div>
         </div>

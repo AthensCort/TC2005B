@@ -154,10 +154,6 @@ const handleSearch = () => {
   // Aquí no necesitas hacer nada porque vamos a filtrar en el render.
 };
 
-const [contactToDelete, setContactToDelete] = useState<string | null>(null);
-const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-
 return (
   <div className={`${styles.container} bg-[#07101d]`}>
     <Sidebar />
@@ -220,31 +216,16 @@ return (
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                               >
-
-                                            <div className="absolute top-2 right-2">
-                                                <button
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setContactToDelete(cardKey);
-                                                    setIsDeleteModalOpen(true);
-                                                  }}
-                                                  className="text-red-400 hover:text-red-600 text-lg"
-                                                >
-                                                  ✖
-                                                </button>
-                                              </div>
-
-
-                                <div className={styles.cardTitle}>{contact.affair}</div>
+                                <div className={styles.cardTitle}>{contact.client}</div>
                                 <div className={styles.cardDetails}>
-                                  <span className={styles.date}>{contact.client}</span>
+                                  <span className={styles.date}>{contact.date}</span>
                                   <span className={styles.amount}>{contact.commission}</span>
                                 </div>
                                 <div className={styles.meta}>
-                                  <small>{contact.user} - {contact.date}</small>
+                                  <small>{contact.user} - {contact.affair}</small>
                                 </div>
                                 {expandedCard[cardKey] && (
-                                   <small><div className={`${styles.date} mt-2`}>{contact.description}</div></small>
+                                  <div className={styles.description}>{contact.description}</div>
                                 )}
                                 <div className={styles.colorTags}>
                                   <span className={styles.tag}></span>
@@ -284,33 +265,6 @@ return (
       >
         +
       </button>
-      {isDeleteModalOpen && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white p-6 rounded-lg shadow-lg">
-      <h2 className="text-xl font-bold mb-4 text-black">Are you sure you want to delete this negotiation?</h2>
-      <div className="flex justify-end space-x-4">
-        <button
-          onClick={() => setIsDeleteModalOpen(false)}
-          className="px-4 py-2 bg-gray-500 rounded hover:bg-gray-600"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => {
-            setContacts((prev) => prev.filter((contact) => {
-              const key = `${contact.client}-${contact.user}-${contact.date}`;
-              return key !== contactToDelete;
-            }));
-            setIsDeleteModalOpen(false);
-          }}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        >
-          Yes, Delete
-        </button>
-      </div>
-    </div>
-  </div>
-)}
 
       {/* Modal */}
       {showModal && (
