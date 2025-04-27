@@ -8,6 +8,8 @@ import {
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
+import SearchBar from "@/components/search_bar/page"; // ajusta el path si no es correcto
+
 
 export default function LeadFlow() {
   const [showModal, setShowModal] = useState(false);
@@ -34,6 +36,15 @@ export default function LeadFlow() {
       user: "Luis Torres",
       client: "GlobalWare",
       state: "Finish Stage",
+      affair: "Final Negotiations",
+      description: "Discussing terms before closing",
+      date: "2025-04-12",
+      commission: "$2,000",
+    },
+    {
+      user: "Maria magdalena",
+      client: "BTICH",
+      state: "Starting",
       affair: "Final Negotiations",
       description: "Discussing terms before closing",
       date: "2025-04-12",
@@ -111,84 +122,119 @@ export default function LeadFlow() {
       setReportPopup("Failed to generate report.");
     }
   };
+  const [searchValue, setSearchValue] = useState("");
 
-  return (
-    <div className={styles.container}>
-      <Sidebar />
-      <div className={styles.main}>
-        <div className={styles.header}>
-          <h1 className="text-3xl font-bold pl-3 mt-5">KANBAN</h1>
-          <div className={styles.filters}>
-            <button>Color Filter</button>
-            <button>Save changes</button>
-            <button onClick={generateReport}>Generate Report AI</button>
-          </div>
+const handleSearch = () => {
+  // Aquí no necesitas hacer nada porque vamos a filtrar en el render.
+};
+
+return (
+  <div className={`${styles.container} bg-[#07101d]`}>
+    <Sidebar />
+    <div className={styles.main}>
+      <div className={styles.header}>
+        <h1 className="text-6xl font-dangrek ml-10 mt-10">KANBAN</h1>
+      </div>
+
+      <div className={`${styles.filters} flex justify-between items-center px-10`}>
+        <SearchBar
+          value={searchValue}
+          onChange={(val) => setSearchValue(val)}
+          onSearch={handleSearch}
+        />
+
+        <div className="flex space-x-4">
+          <button className="bg-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:scale-105 hover:shadow-lg">
+            Color Filter
+          </button>
+          <button className="bg-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:scale-105 hover:shadow-lg">
+            Save changes
+          </button>
+          <button
+            className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:scale-105 hover:shadow-lg"
+            onClick={generateReport}
+          >
+            Generate Report AI
+          </button>
         </div>
+      </div>
 
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className={styles.pipeline}>
-            {stages.map((stage) => (
-              <div className={styles.stage} key={stage}>
-                <h3>{stage}</h3>
-                <Droppable droppableId={stage}>
-                  {(provided) => (
-                    <div
-                      className={styles.cardList}
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                    >
-                      {contacts
-                        .filter((c) => c.state === stage)
-                        .map((contact, i) => {
-                          const cardKey = `${contact.client}-${contact.user}-${contact.date}`;
-                          return (
-                            <Draggable draggableId={cardKey} index={i} key={cardKey}>
-                              {(provided) => (
-                                <div
-                                  className={`${styles.card} ${expandedCard[cardKey] ? styles.expanded : ""}`}
-                                  onClick={() => handleToggleCard(cardKey)}
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                >
-                                  <div className={styles.cardTitle}>{contact.client}</div>
-                                  <div className={styles.cardDetails}>
-                                    <span className={styles.date}>{contact.date}</span>
-                                    <span className={styles.amount}>{contact.commission}</span>
-                                  </div>
-                                  <div className={styles.meta}>
-                                    <small>{contact.user} - {contact.affair}</small>
-                                  </div>
-                                  {expandedCard[cardKey] && (
-                                    <div className={styles.description}>{contact.description}</div>
-                                  )}
-                                  <div className={styles.colorTags}>
-                                    <span className={styles.tag}></span>
-                                    <span className={styles.tag}></span>
-                                    <span className={styles.tag}></span>
-                                  </div>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className={`${styles.pipeline} mt-8 ml-8 overflow-y-auto`}>
+          {stages.map((stage) => (
+            <div className={styles.stage} key={stage}>
+              <h3 className="font-bold text-purple-300">{stage}</h3>
+
+              <Droppable droppableId={stage}>
+                {(provided) => (
+                  <div
+                    className={styles.cardList}
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                  >
+                    {contacts
+                      .filter((c) => c.state === stage)
+                      .filter((c) =>
+                        c.client.toLowerCase().includes(searchValue.toLowerCase()) ||
+                        c.affair.toLowerCase().includes(searchValue.toLowerCase())
+                      )
+                      .map((contact, i) => {
+                        const cardKey = `${contact.client}-${contact.user}-${contact.date}`;
+                        return (
+                          <Draggable draggableId={cardKey} index={i} key={cardKey}>
+                            {(provided) => (
+                              <div
+                                className={`${styles.card} ${expandedCard[cardKey] ? styles.expanded : ""}`}
+                                onClick={() => handleToggleCard(cardKey)}
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                <div className={styles.cardTitle}>{contact.client}</div>
+                                <div className={styles.cardDetails}>
+                                  <span className={styles.date}>{contact.date}</span>
+                                  <span className={styles.amount}>{contact.commission}</span>
                                 </div>
-                              )}
-                            </Draggable>
-                          );
-                        })}
-                      {provided.placeholder}
-                      {contacts.filter((c) => c.state === stage).length === 0 && (
-                        <div className={styles.emptyPlaceholder}>Drop here</div>
+                                <div className={styles.meta}>
+                                  <small>{contact.user} - {contact.affair}</small>
+                                </div>
+                                {expandedCard[cardKey] && (
+                                  <div className={styles.description}>{contact.description}</div>
+                                )}
+                                <div className={styles.colorTags}>
+                                  <span className={styles.tag}></span>
+                                  <span className={styles.tag}></span>
+                                  <span className={styles.tag}></span>
+                                </div>
+                              </div>
+                            )}
+                          </Draggable>
+                        );
+                      })}
+                    {provided.placeholder}
+                    
+                    {/* EMPTY STAGE PLACEHOLDER */}
+                    {contacts
+                      .filter((c) => c.state === stage)
+                      .filter((c) =>
+                        c.client.toLowerCase().includes(searchValue.toLowerCase()) ||
+                        c.affair.toLowerCase().includes(searchValue.toLowerCase())
+                      ).length === 0 && (
+                        <div className={styles.emptyPlaceholder}>__</div>
                       )}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
-            ))}
-          </div>
-        </DragDropContext>
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          ))}
+        </div>
+      </DragDropContext>
       </div>
 
       {/* Floating Plus Button */}
       <button
         onClick={() => setShowModal(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-purple-700 text-white text-3xl rounded-full shadow-lg flex items-center justify-center hover:bg-purple-800 transition-all z-50"
+        className="fixed bottom-6 right-10 w-14 h-14 bg-purple-700 text-white text-3xl rounded-full shadow-lg flex items-center justify-center hover:bg-purple-800 transition-all z-50"
       >
         +
       </button>

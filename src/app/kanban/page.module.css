@@ -2,8 +2,7 @@
 .container {
   display: flex;
   height: 100vh;
-  background: linear-gradient(135deg, #10002b, #240046, #3c096c);
-  background-size: 400% 400%;
+  background-size: 100% 100%;
   color: #ffffff;
 }
 /*SAFE*/
@@ -20,8 +19,20 @@
   margin-bottom: 2rem;
 }
 /*SAFE*/
-.filters button {
-  background: linear-gradient(to right, #3b82f6, #60a5fa);
+.filtersAI button {
+  background: linear-gradient(to right, #8E24AA, #631e75);
+  color: white;
+  border: none;
+  margin: 0 0.3rem;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0px 4px 15px rgba(255, 0, 230, 0.354);
+}
+.filtersgeneral button {
+  background: linear-gradient(to right, #8E24AA, #60a5fa);
   color: white;
   border: none;
   margin: 0 0.3rem;
@@ -33,9 +44,16 @@
   box-shadow: 0px 4px 15px rgba(0, 123, 255, 0.3);
 }
 
+
+.filtersButtons {
+   /* move only the buttons down */
+  display: flex;
+  gap: 0.5rem;
+}
+
 .filters button:hover {
   transform: scale(1.05);
-  box-shadow: 0px 6px 20px rgba(0, 123, 255, 0.5);
+  box-shadow: 0px 6px 20px rgba(231, 13, 216, 0.5);
 }
 
 /*SAFE*/
@@ -43,16 +61,17 @@
   display: flex;
   gap: 1rem;
   overflow-x: auto;
+  margin-top: 2rem;
 }
 
 .stage {
-  background: rgba(255, 255, 255, 0.05);
+  background: #18212e;
   border: 1px solid rgba(255, 255, 255, 0.15);
   padding: 1rem;
   border-radius: 16px;
   width: 250px;
   min-width: 250px;
-  min-height: 550px;
+  min-height: 250px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
@@ -106,7 +125,7 @@
   justify-content: space-between;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
-  color: #5aa2ff;
+  color: #cbacec;
 }
 
 .colorTags {
@@ -117,6 +136,7 @@
 .tag {
   width: 12px;
   height: 6px;
-  background-color: #5aa2ff;
+  background-color: 	#a46ede;
   border-radius: 4px;
 }
+

@@ -2,41 +2,49 @@
 import React from "react";
 import Sidebar from "@/components/sidebar/page";
 import { FaRegEnvelope } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SearchBar from "@/components/search_bar/page";
 import { IoMdClose } from "react-icons/io";
 import { FaChevronDown } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiOutlineDotsVertical } from "react-icons/hi"; // Icono de 3 puntitos
 
-
+interface Contacto{
+  id?:number,
+  nombre:string,
+  correo:string,
+  telefono:string,
+  empresa:string,
+  url?:string | undefined
+}
+interface Empresa{ 
+  id?:number,
+  nombre:string,
+  industria:string, 
+  preferencias:string
+}
 
 export default function Home() {
-
+  useEffect(()=>{
+    fetch("http://localhost:8080/api/cliente")
+    .then(res => res.json())
+    .then(data => setContacts(data));
+    
+    fetch("http://localhost:8080/api/empresa")
+    .then(res => res.json())
+    .then(data => setCompanies(data));
+    
+    // Eu como corro esto CARO carolina carolina
+  })/*woa un fetchwooooo, die potatoe die*/
   const [showModal, setShowModal] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [companyModal, setCompanyModal] = useState(false);
   const [expandedContact, setExpandedContact] = useState<string | null>(null);
   const [expandedCompany, setExpandedCompany] = useState<string | null>(null);
 
-  const [contacts, setContacts] = useState([
-    { name: "Alejandra Velazquez", email: "palomitas@hotmail.com", Business: "Bimbo", phone: "+558124300715" },
-    { name: "Carlos Pérez", email: "carlos@apple.com", Business: "Apple", phone: "+525588990011" },
-    { name: "Lucía Morales", email: "lucia@google.com", Business: "Google", phone: "+524422337755" },
-    { name: "Tomás Rivera", email: "tomas@tesla.com", Business: "Tesla", phone: "+527788665544" },
-    { name: "Fernando Torres", email: "fer@apple.com", Business: "Apple", phone: "+527788661111" },
-    { name: "Lucía Morales", email: "lucia@google.com", Business: "Google", phone: "+524422337755" },
-    { name: "Tomás Rivera", email: "tomas@tesla.com", Business: "Tesla", phone: "+527788665544" },
-    { name: "Fernando Torres", email: "fer@apple.com", Business: "Apple", phone: "+527788661111" },
-   ]);
+  const [contacts, setContacts] = useState<Contacto[]>([]);
 
-  const [companies, setCompanies] = useState([
-    { name: "Bimbo", industry: "Bread", preferences: "Flour" },
-    { name: "Apple", industry: "Technology", preferences: "Dejame robarte un bso que me llegue hasta el alma, como un ballenato de esos que nos gustabaaan, se que sientes mariposas, yo tambien senti sus alas" },
-    { name: "Google", industry: "Technology", preferences: "Data Privacy" },
-    { name: "Tesla", industry: "Automotive", preferences: "Sustainability" },
-    { name: "Perla", industry: "Automotive", preferences: "Sustainability" },
-  ]);
+  const [companies, setCompanies] = useState<Empresa[]>([]);
 
   const [searchText, setSearchText] = useState("");
   const [companySearchText, setCompanySearchText] = useState("");
@@ -44,8 +52,8 @@ export default function Home() {
 
   const handleSearch = () => {
     return contacts.filter((contact) => {
-      const matchesText = contact.name.toLowerCase().includes(searchText.toLowerCase());
-      const matchesCompany = selectedCompanies.length === 0 || selectedCompanies.includes(contact.Business);
+      const matchesText = contact.nombre.toLowerCase().includes(searchText.toLowerCase());
+      const matchesCompany = selectedCompanies.length === 0 || selectedCompanies.includes(contact.empresa);
       return matchesText && matchesCompany;
     });
   };
@@ -53,54 +61,40 @@ export default function Home() {
   const filteredContacts = handleSearch();
 
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    Business: "",
-    phone: "",
+    nombre: "",
+    correo: "",
+    empresa: "",
+    telefono: "",
   });
 
   const [companyForm, setCompanyForm] = useState({
-    name: "",
-    industry: "",
-    preferences: "",
+    nombre: "",
+    industria: "",
+    preferencias: "",
     photo: "",
   });
 
-  interface Company {
-    name: string;
-    industry: string;
-    preferences: string;
-    photo?: string;
-  }
-
-  type Contact = {
-    name: string;
-    email: string;
-    Business: string;
-    phone: string;
-  };
-  
 
   interface CompaniesListProps {
-    companies: Company[];
+    companies: Empresa[];
     companySearchText: string;
     setCompanySearchText: (value: string) => void;
   }
   
 
   const handleSave = () => {
-    if (form.name && form.email && form.Business && form.phone) {
+    if (form.nombre && form.correo && form.empresa && form.telefono) {
       setContacts([...contacts, { ...form }]);
       setShowModal(false);
-      setForm({ name: "", email: "", Business: "", phone: "" });
+      setForm({ nombre: "", correo: "", empresa: "", telefono: "" });
     }
   };
 
   const handleSaveCompany = () => {
-    if (companyForm.name && companyForm.industry && companyForm.preferences) {
-      setCompanies([...companies, { ...companyForm }]);
-      setCompanyModal(false);
-      setCompanyForm({ name: "", industry: "", preferences: "", photo: "" });
+    if (companyForm.nombre && companyForm.industria && companyForm.preferencias) {
+      setCompanies([...companies, { ...companyForm }]); /**/
+      setCompanyModal(false)
+      setCompanyForm({ nombre: "", industria: "", preferencias: "", photo: "" });
     }
   };
 
@@ -111,14 +105,14 @@ export default function Home() {
   };
 
   const getCompanyInfo = (name: string) => {
-    return companies.find((c) => c.name === name);
+    return companies.find((c) => c.nombre === name);
   };
 
   //MODAL PARA PODER EDITAR A LOS CLIENTES CONSTANTES NECESARIAS
   const [isEditing, setIsEditing] = useState(false);  // For modal visibility
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);  // For selected contact
+  const [editingContact, setEditingContact] = useState<Contacto | null>(null);  // For selected contact
   
-  const handleEdit = (contact: Contact) => {
+  const handleEdit = (contact: Contacto) => {
     setEditingContact(contact);
     setIsEditing(true);  // Open modal when editing
   };
@@ -135,10 +129,11 @@ export default function Home() {
   };
   
  //LISTO AQUI SE CIERRA LAS FUNCIONES PARA EDITAR A LOS CLIENTES
+ //bg-gradient-to-br from-[#0b022b] to-[#4b0082]
 
 
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row bg-gradient-to-br from-[#0b022b] to-[#4b0082]">
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-[#07101d]">
       <Sidebar />
       <div className="flex-1 p-6 text-gray-100 overflow-auto">
         <div className="ml-10 mb-4  pt-10">
@@ -161,11 +156,11 @@ export default function Home() {
                 <div className="absolute right-0 mt-2 w-48 max-h-60 overflow-y-auto bg-[#2a2458] text-white rounded-md shadow-lg z-10 p-2">
                   {companies.map((company) => (
                     <div
-                      key={company.name}
-                      className={`cursor-pointer px-2 py-1 rounded hover:bg-purple-600 ${selectedCompanies.includes(company.name) ? 'bg-purple-700' : ''}`}
-                      onClick={() => toggleCompany(company.name)}
+                      key={company.nombre}
+                      className={`cursor-pointer px-2 py-1 rounded hover:bg-purple-600 ${selectedCompanies.includes(company.nombre) ? 'bg-purple-700' : ''}`}
+                      onClick={() => toggleCompany(company.nombre)}
                     >
-                      {company.name}
+                      {company.nombre}
                     </div>
                   ))}
                 </div>
@@ -209,37 +204,37 @@ export default function Home() {
             <thead>
             <tr className="text-purple-300">
               <th className="p-2">Name</th>
-              <th className="p-2">Email</th>
-              <th className="p-2">Business</th>
-              <th className="p-1  ">Phone</th>
+              <th className="p-2">correo</th>
+              <th className="p-2">empresa</th>
+              <th className="p-1  ">telefono</th>
               <th className="p-1">Actions</th> {/* Nuevo */}
             </tr>
           </thead>
               <tbody>
   {filteredContacts.map((item, index) => {
-    const isExpanded = expandedContact === item.email;
-    const companyInfo = getCompanyInfo(item.Business);
+    const isExpanded = expandedContact === item.correo;
+    const companyInfo = getCompanyInfo(item.empresa);
 
     return (
       <React.Fragment key={index}>
         <tr
           className="hover:bg-[#2a2458] transition-colors cursor-pointer"
-          onClick={() => setExpandedContact(isExpanded ? null : item.email)}
+          onClick={() => setExpandedContact(isExpanded ? null : item.correo)}
         >
           <td className="p-2 whitespace-nowrap">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-purple-500" />
-              {item.name}
+              {item.nombre}
             </div>
           </td>
           <td className="p-2 whitespace-nowrap">
             <div className="flex items-center gap-2 text-purple-300">
               <FaRegEnvelope />
-              {item.email}
+              {item.correo}
             </div>
           </td>
-          <td className="p-2 whitespace-nowrap">{item.Business}</td>
-          <td className="p-2 whitespace-nowrap">{item.phone}</td>
+          <td className="p-2 whitespace-nowrap">{item.empresa}</td>
+          <td className="p-2 whitespace-nowrap">{item.telefono}</td>
           <td className="p-2 whitespace-nowrap">
             <div
               className="p-2 hover:bg-purple-700 rounded-full cursor-pointer"
@@ -264,8 +259,8 @@ export default function Home() {
             >
               <td colSpan={5} className="p-4">
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <span className="font-bold text-purple-300">Industry:</span> {companyInfo.industry}
-                  <span className="font-bold text-purple-300">Preference:</span> {companyInfo.preferences}
+                  <span className="font-bold text-purple-300">Industry:</span> {companyInfo.industria}
+                  <span className="font-bold text-purple-300">Preference:</span> {companyInfo.preferencias}
                 </div>
               </td>
             </motion.tr>
@@ -293,9 +288,9 @@ export default function Home() {
         transition={{ duration: 0.3 }}
       >
         <h3 className="text-lg text-purple-300 mb-4">Edit Contact</h3>
-        <p><span className="font-semibold">Name:</span> {editingContact.name}</p>
-        <p><span className="font-semibold">Email:</span> {editingContact.email}</p>
-        <p><span className="font-semibold">Phone:</span> {editingContact.phone}</p>
+        <p><span className="font-semibold">Nombre:</span> {editingContact.nombre}</p>
+        <p><span className="font-semibold">Correo:</span> {editingContact.correo}</p>
+        <p><span className="font-semibold">Telefono:</span> {editingContact.telefono}</p>
 
         <button
           onClick={closeModal}
@@ -320,26 +315,26 @@ export default function Home() {
     />
     {companies
       .filter((company) =>
-        company.name.toLowerCase().includes(companySearchText.toLowerCase())
+        company.nombre.toLowerCase().includes(companySearchText.toLowerCase())
       )
       .map((company) => (
         <div
-          key={company.name}
+          key={company.nombre}
           onClick={() =>
-            setExpandedCompany((prev) => (prev === company.name ? null : company.name))
+            setExpandedCompany((prev) => (prev === company.nombre ? null : company.nombre))
           }
           className="cursor-pointer"
         >
-          <h3 className="text-white font-semibold">{company.name}</h3>
+          <h3 className="text-white font-semibold">{company.nombre}</h3>
           <p className="text-sm text-purple-300">
-            Industry: {company.industry}
+            Industry: {company.industria}
           </p>
           <p
             className={`text-sm text-purple-300 ${
-              expandedCompany === company.name ? "" : "truncate"
+              expandedCompany === company.nombre ? "" : "truncate"
             }`}
           >
-            Preference: {company.preferences}
+            Preference: {company.preferencias}
           </p>
         </div>
       ))}
@@ -354,29 +349,29 @@ export default function Home() {
             <input
               type="text"
               placeholder="Name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              value={form.nombre}
+              onChange={(e) => setForm({ ...form, nombre: e.target.value })}
               className="w-full p-2 rounded bg-[#1c183a] text-white"
             />
             <input
-              type="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              type="correo"
+              placeholder="correo"
+              value={form.correo}
+              onChange={(e) => setForm({ ...form, correo: e.target.value })}
               className="w-full p-2 rounded bg-[#1c183a] text-white"
             />
             <input
               type="text"
-              placeholder="Business"
-              value={form.Business}
-              onChange={(e) => setForm({ ...form, Business: e.target.value })}
+              placeholder="empresa"
+              value={form.empresa}
+              onChange={(e) => setForm({ ...form, empresa: e.target.value })}
               className="w-full p-2 rounded bg-[#1c183a] text-white"
             />
             <input
               type="tel"
-              placeholder="Phone"
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              placeholder="telefono"
+              value={form.telefono}
+              onChange={(e) => setForm({ ...form, telefono: e.target.value })}
               className="w-full p-2 rounded bg-[#1c183a] text-white"
             />
             <div className="flex justify-end space-x-3 mt-4">
@@ -404,22 +399,22 @@ export default function Home() {
             <input
               type="text"
               placeholder="Company Name"
-              value={companyForm.name}
-              onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })}
+              value={companyForm.nombre}
+              onChange={(e) => setCompanyForm({ ...companyForm, nombre: e.target.value })}
               className="w-full p-2 rounded bg-[#1c183a] text-white"
             />
             <input
               type="text"
               placeholder="Industry"
-              value={companyForm.industry}
-              onChange={(e) => setCompanyForm({ ...companyForm, industry: e.target.value })}
+              value={companyForm.industria}
+              onChange={(e) => setCompanyForm({ ...companyForm, industria: e.target.value })}
               className="w-full p-2 rounded bg-[#1c183a] text-white"
             />
             <input
               type="text"
               placeholder="Preference"
-              value={companyForm.preferences}
-              onChange={(e) => setCompanyForm({ ...companyForm, preferences: e.target.value })}
+              value={companyForm.preferencias}
+              onChange={(e) => setCompanyForm({ ...companyForm, preferencias: e.target.value })}
               className="w-full p-2 rounded bg-[#1c183a] text-white"
             />
             <input
