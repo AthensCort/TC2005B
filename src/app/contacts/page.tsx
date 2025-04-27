@@ -12,10 +12,14 @@ interface Contacto {
   id?: number;
   nombre: string;
   correo: string;
-  telefono: string;
+  telefono: string; // This will be the full phone number
+  telefonoPrefix?: string; // Country code (optional)
+  telefonoNumber?: string; // Local phone number (optional)
   empresa: string;
-  url?: string | undefined;
+  photo?: string;
 }
+
+
 
 interface Empresa {
   id?: number;
@@ -42,14 +46,20 @@ export default function Home() {
     nombre: "",
     correo: "",
     empresa: "",
-    telefono: "",
+    telefonoPrefix: "", // temporary field for country code
+    telefonoNumber: "", // temporary field for phone number
+    photo: "",
   });
+  
+  
   const [companyForm, setCompanyForm] = useState({
     nombre: "",
     industria: "",
     preferencias: "",
     photo: "",
   });
+
+  
   const [isEditing, setIsEditing] = useState(false);
   const [editingContact, setEditingContact] = useState<Contacto | null>(null);
   const [isEditingCompany, setIsEditingCompany] = useState(false);
@@ -77,15 +87,7 @@ export default function Home() {
   
   const filteredContacts = handleSearch();
 
-  // Funciones para manejar los contactos (agregar, editar, eliminar)
-  const handleSave = () => {
-    if (form.nombre && form.correo && form.empresa && form.telefono) {
-      setContacts([...contacts, { ...form }]);
-      setShowModal(false);
-      setForm({ nombre: "", correo: "", empresa: "", telefono: "" });
-    }
-  };
-
+ 
   const handleEdit = (contact: Contacto) => {
     setEditingContact(contact);
     setIsEditing(true);
@@ -95,36 +97,59 @@ export default function Home() {
     setIsEditing(false);
     setEditingContact(null);
   };
-
   const handleSaveContact = () => {
-    if (!form.nombre || !form.correo || !form.telefono || !form.empresa) {
-      alert("Please fill in all fields before saving.");
-      return;
+    if (
+      form.nombre &&
+      form.correo &&
+      form.empresa &&
+      form.telefonoPrefix &&
+      form.telefonoNumber
+    ) {
+      // Concatenate prefix and number to form the full phone number
+      const fullPhoneNumber = `${form.telefonoPrefix} ${form.telefonoNumber}`;
+  
+      setContacts([
+        ...contacts,
+        { ...form, telefono: fullPhoneNumber }, // Save the full phone number in 'telefono'
+      ]);
+      setShowModal(false); // Close the modal after saving
+      setForm({
+        nombre: "",
+        correo: "",
+        empresa: "",
+        telefonoPrefix: "", // Clear the prefix field
+        telefonoNumber: "", // Clear the number field
+        photo: "",
+      });
     }
-  
-    setContacts((prevContacts) => [
-      ...prevContacts,
-      { ...form, id: prevContacts.length + 1 }, // Use your own logic for generating ID
-    ]);
-  
-    // Reset the form and close the modal
-    setShowModal(false);
-    setForm({ nombre: "", correo: "", empresa: "", telefono: "" });
   };
+  
+  
   const handleSaveEditedContact = () => {
-    if (!editingContact?.nombre || !editingContact?.correo || !editingContact?.telefono || !editingContact?.empresa) {
-      alert("Please fill in all fields before saving.");
-      return;
+    if (
+      editingContact &&
+      editingContact.nombre &&
+      editingContact.correo &&
+      editingContact.empresa &&
+      editingContact.telefonoPrefix &&
+      editingContact.telefonoNumber
+    ) {
+      // Concatenate prefix and number to form the full phone number
+      const fullPhoneNumber = `${editingContact.telefonoPrefix} ${editingContact.telefonoNumber}`;
+  
+      // Update the contact list by replacing the edited contact
+      setContacts((prevContacts) =>
+        prevContacts.map((contact) =>
+          contact.id === editingContact.id
+            ? { ...editingContact, telefono: fullPhoneNumber }
+            : contact
+        )
+      );
+  
+      closeModal(); // Close modal after saving
     }
-  
-    setContacts((prevContacts) =>
-      prevContacts.map((contact) =>
-        contact.id === editingContact.id ? editingContact : contact
-      )
-    );
-  
-    closeModal(); // Close modal after editing
   };
+  
   
 
   const handleDeleteContact = () => {
@@ -371,15 +396,37 @@ export default function Home() {
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-semibold mb-1">Teléfono:</label>
-          <input
-            type="text"
-            className="w-full p-2 rounded bg-gray-700 text-white"
-            value={editingContact.telefono}
-            onChange={(e) => setEditingContact({ ...editingContact, telefono: e.target.value })}
-          />
-        </div>
+       {/* Phone Number with Prefix and Main Part */}
+       <div className="flex space-x-2">
+        <input
+          type="text"
+          placeholder="Country Code"
+          value={editingContact.telefonoPrefix}
+          onChange={(e) =>
+            setEditingContact({ ...editingContact, telefonoPrefix: e.target.value })
+          }
+          className="w-1/4 p-2 rounded bg-[#1c183a] text-white"
+        />
+        <input
+          type="text"
+          placeholder="Phone Number"
+          value={editingContact.telefonoNumber}
+          onChange={(e) =>
+            setEditingContact({ ...editingContact, telefonoNumber: e.target.value })
+          }
+          className="w-3/4 p-2 rounded bg-[#1c183a] text-white"
+        />
+      </div>
+
+        <input
+        type="text"
+        placeholder="Photo URL"
+        value={editingContact.photo || ""}
+        onChange={(e) =>
+          setEditingContact({ ...editingContact, photo: e.target.value })
+        }
+        className="w-full p-2 rounded bg-[#1c183a] text-white"
+      />
 
         <div className="flex justify-end space-x-2 mt-6">
   <button
@@ -548,21 +595,43 @@ export default function Home() {
               onChange={(e) => setForm({ ...form, correo: e.target.value })}
               className="w-full p-2 rounded bg-[#1c183a] text-white"
             />
-            <input
-              type="text"
-              placeholder="empresa"
-              value={form.empresa}
-              onChange={(e) => setForm({ ...form, empresa: e.target.value })}
-              className="w-full p-2 rounded bg-[#1c183a] text-white"
-            />
-            <input
-              type="tel"
-              placeholder="telefono"
-              value={form.telefono}
-              onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-              className="w-full p-2 rounded bg-[#1c183a] text-white"
-            />
-            <div className="flex justify-end space-x-3 mt-4">
+             <select
+        value={form.empresa}
+        onChange={(e) => setForm({ ...form, empresa: e.target.value })}
+        className="w-full p-2 rounded bg-[#1c183a] text-white"
+      >
+        <option value="">Select a Company</option>
+        {companies.map((company) => (
+          <option key={company.id} value={company.nombre}>
+            {company.nombre}
+          </option>
+        ))}
+      </select>
+             {/* Phone Number with Prefix and Main Part */}
+             <div className="flex space-x-2">
+        <input
+          type="text"
+          placeholder="Country Code"
+          value={form.telefonoPrefix}
+          onChange={(e) => setForm({ ...form, telefonoPrefix: e.target.value })}
+          className="w-1/4 p-2 rounded bg-[#1c183a] text-white"
+        />
+        <input
+          type="text"
+          placeholder="Phone Number"
+          value={form.telefonoNumber}
+          onChange={(e) => setForm({ ...form, telefonoNumber: e.target.value })}
+          className="w-3/4 p-2 rounded bg-[#1c183a] text-white"
+        />
+      </div>
+               <input
+            type="text"
+            placeholder="Photo URL"
+            value={form.photo}
+            onChange={(e) => setForm({ ...form, photo: e.target.value })}
+            className="w-full p-2 rounded bg-[#1c183a] text-white"
+          />
+                <div className="flex justify-end space-x-3 mt-4">
               <button
                 onClick={() => setShowModal(false)}
                 className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-700"
