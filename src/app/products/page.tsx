@@ -21,7 +21,8 @@ export default function Home() {
     stock: "",
     photo: "",
   });
-  const [activeMenu, setActiveMenu] = useState<string | null>(null); // State to track active menu
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false); // Track if we are editing a product or adding a new one
 
   useEffect(() => {
     fetch("http://localhost:8080/api/productoServicio")
@@ -38,7 +39,7 @@ export default function Home() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(searchQuery);
-    }, 500); // Delay in milliseconds (e.g., 500ms)
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -63,24 +64,50 @@ export default function Home() {
       stock: item.stock.toString(),
       photo: item.url || "",
     });
+    setIsEditing(true); // Set editing mode
     setShowModal(true);
-    setActiveMenu(null); // Close the menu after edit
+    setActiveMenu(null);
   };
 
   // Handle delete functionality
   const handleDelete = (item: Product) => {
     setProduct((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
     setFilteredProducts((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
-    setActiveMenu(null); // Close the menu after delete
+    setActiveMenu(null);
   };
 
   const handleSaveEdit = () => {
-    const updatedProducts = product.map((p) =>
-      p.nombre === form.nombre ? { ...p, ...form, precio: parseFloat(form.precio), stock: parseInt(form.stock) } : p
-    );
-    setProduct(updatedProducts);
-    setFilteredProducts(updatedProducts);
-    setShowModal(false); // Close modal after save
+    if (form.nombre && form.precio && form.stock && form.photo) {
+      const updatedProduct = {
+        nombre: form.nombre,
+        precio: parseFloat(form.precio),
+        stock: parseInt(form.stock),
+        url: form.photo,
+      };
+  
+      if (isEditing) {
+        const updatedProducts = product.map((p) =>
+          p.nombre === form.nombre ? updatedProduct : p
+        );
+        setProduct(updatedProducts);
+        setFilteredProducts(updatedProducts);
+      } else {
+        const newProduct = { ...updatedProduct };
+        const updatedProducts = [...product, newProduct];
+        setProduct(updatedProducts);
+        setFilteredProducts(updatedProducts);
+      }
+  
+      setShowModal(false);
+      setIsEditing(false);
+    }
+  };
+  
+
+  const handleAddNew = () => {
+    setForm({ nombre: "", precio: "", stock: "", photo: "" }); // Reset form for new product
+    setIsEditing(false); // Set to add mode
+    setShowModal(true);
   };
 
   return (
@@ -95,7 +122,7 @@ export default function Home() {
           <div className="flex justify-between items-center">
             <h1 className="text-6xl font-dangrek ml-10 mt-10">PRODUCTS</h1>
             <button
-              onClick={() => setShowModal(true)}
+              onClick={handleAddNew}
               className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-2 rounded-full flex items-center mt-5 mr-16 shadow-lg"
             >
               Add Product <span className="ml-3 text-2xl">+</span>
@@ -155,10 +182,11 @@ export default function Home() {
 
               <div className="flex flex-col items-center space-y-3">
                 <img
-                  src={item.url}
+                  src={item.url || "default-image-url"} // Ensure we are using the actual product URL
                   alt={item.nombre}
                   className="w-32 h-32 rounded-xl object-cover border-2 border-purple-500"
                 />
+
                 <div className="text-center space-y-2">
                   <p className="text-lg font-bold text-white">{item.nombre}</p>
                   <p className="text-sm text-purple-400">Stock: {item.stock}</p>
@@ -175,7 +203,7 @@ export default function Home() {
         <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 backdrop-blur-md">
           <div className="bg-[#1a1c29] p-8 rounded-2xl w-[400px] space-y-6 border border-[#2c2e3f] shadow-2xl">
             <h2 className="text-3xl font-bold text-white mb-6 text-center">
-              {form.nombre ? "Edit Product" : "Add New Product"}
+              {isEditing ? "Edit Product" : "Add New Product"}
             </h2>
             <input
               type="text"
@@ -199,12 +227,18 @@ export default function Home() {
               className="w-full p-3 rounded-lg bg-[#2c2e3f] placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
             <input
-              type="text"
-              placeholder="Photo URL"
-              value={form.photo}
-              onChange={(e) => setForm({ ...form, photo: e.target.value })}
+              type="file"
+              accept="image/png, image/jpeg"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const photoUrl = URL.createObjectURL(file);
+                  setForm({ ...form, photo: photoUrl });
+                }
+              }}
               className="w-full p-3 rounded-lg bg-[#2c2e3f] placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
+
             <div className="flex justify-end space-x-4">
               <button
                 onClick={() => setShowModal(false)}
