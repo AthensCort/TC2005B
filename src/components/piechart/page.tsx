@@ -28,7 +28,7 @@ const NegotiationsChart = ({ closed, middle, starting }: NegotiationsChartProps)
   return (
     <div className="w-full h-80 flex items-center bg-[#202437] rounded-xl shadow-lg p-4">
       <div className="flex-shrink-0 mr-8">
-        <h2 className="text-white text-lg mb-2"><span className="font-bold">Negotiations</span></h2>
+        <h2 className="text-white text-lg ml-8 mt-4"><span className="font-bold">Negotiations</span></h2>
         <PieChart width={280} height={280}>
           <Pie
             data={data}
