@@ -197,7 +197,7 @@ const isFormValid = () => {
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
   
-    const { source, destination, draggableId } = result;
+    const { destination, draggableId } = result;  // Removed source since it's not used
   
     setContacts((prev) => {
       // Find the dragged contact
@@ -233,6 +233,7 @@ const isFormValid = () => {
       return [...before, ...after];
     });
   };
+  
 
     //IMPLEMENTACION DE AI PARA EL REPORTE DE NEGOCIOS
   const generateReport = async () => {
