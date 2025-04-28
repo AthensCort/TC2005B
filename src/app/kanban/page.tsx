@@ -65,7 +65,7 @@ const handleGeneratePDF = async () => {
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage([595, 842]); // A4 size
 
-    const { width, height } = page.getSize();
+    const {height } = page.getSize();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
     // 3. Optional: Add logo
@@ -547,14 +547,18 @@ return (
       <button
       onClick={(e) => {
         e.stopPropagation();
-        handleGeneratePDF();
-        // Lógica para manejar el envío de la factura
-        setActiveMenu(null);  // Cerrar el menú después de hacer clic en "Invoice"
+        handleGeneratePDF(); // Call the function to generate PDF
+        setActiveMenu(null);  // Close the menu after clicking "Invoice"
       }}
       className="block w-full text-left px-4 py-2 hover:bg-green-700 text-green-300"
+      disabled={loading} // Disable button if loading is true
     >
-        Invoice
-      </button>
+      {loading ? (
+        <span>Loading...</span>  // You can replace this with a spinner or text
+      ) : (
+        'Invoice'  // Button text when not loading
+      )}
+    </button>
     )}
         </div>
                                   )}
