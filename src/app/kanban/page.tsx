@@ -209,7 +209,7 @@ const isFormValid = () => {
       if (!draggedContact) return prev;
   
       // Remove it from old place
-      let newContacts = [...prev].filter((contact) => {
+      const newContacts = [...prev].filter((contact) => {
         const cardKey = `${contact.client}-${contact.user}-${contact.date}`;
         return cardKey !== draggableId;
       });
@@ -233,6 +233,7 @@ const isFormValid = () => {
       return [...before, ...after];
     });
   };
+  
   
 
     //IMPLEMENTACION DE AI PARA EL REPORTE DE NEGOCIOS
