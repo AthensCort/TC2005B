@@ -119,6 +119,7 @@ export default function Home() {
   
       setShowModal(false);
       setIsEditing(false);
+      console.log("Edito")
     }
   };
   
@@ -127,6 +128,7 @@ export default function Home() {
     setForm({ nombre: "", precio: "", stock: "", photo: "" }); // Reset form for new product
     setIsEditing(false); // Set to add mode
     setShowModal(true);
+    console.log("Agrego")
   };
 
   return (
