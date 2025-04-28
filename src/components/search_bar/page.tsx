@@ -21,7 +21,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ value, onChange, onSearch }) => {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Search products..."
+        placeholder="Search..."
         className="w-full pl-10 pr-4 py-2 rounded-lg bg-[#1c183a] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
       />
       <button
