@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function LeadFlow() {
   //NORMAL FORM
   // Define the necessary types for your form
-interface Form {
+interface Negotiation {
   user: string;
   client: string;
   state: string;
@@ -24,14 +24,20 @@ interface Form {
   description: string;
   date: string;
   commission: string;
-  product: string;  // Added product field
+  products: { product: string; amount: number }[];  // Added product field
 }
 
   //VALIDACION CREACION DE NEGOCIACIONES
+
+  
   // Combined Validation Function
 const isFormValid = () => {
   // Check if you are editing or adding a negotiation
   const targetForm = isEditing ? editingNegotiation : form;
+
+  const areProductsValid = targetForm.products.every(
+    (item: { product: string; amount: number }) => item.product !== "" && item.amount !== 0
+  );
 
   return (
     targetForm.user !== "" &&
@@ -41,7 +47,7 @@ const isFormValid = () => {
     targetForm.description !== "" &&
     targetForm.date !== "" &&
     targetForm.commission !== "" &&
-    targetForm.product !== "" // Ensure product is also validated
+    areProductsValid
   );
 };
 
@@ -58,7 +64,7 @@ const isFormValid = () => {
         description: "",
         date: "",
         commission: "",
-        product: "", // Reset product field
+        products: [{ product: "", amount: 0 }]
       });
     };
 
@@ -100,7 +106,7 @@ const isFormValid = () => {
       }, []);
 
   const [showModal, setShowModal] = useState(false);
-  const [contacts, setContacts] = useState([
+  const [contacts, setContacts] = useState<Negotiation[]>([
     {
       user: "Carlos Mendoza",
       client: "Tech Solutions",
@@ -109,7 +115,10 @@ const isFormValid = () => {
       description: "Reached out to discuss potential collaboration",
       date: "2025-04-10",
       commission: "$500",
-      product: "Platform A",
+      products:[{
+        product: "Platform A",
+        amount: 120
+      }]
     },
     {
       user: "Laura García",
@@ -119,7 +128,10 @@ const isFormValid = () => {
       description: "Showed platform demo and features",
       date: "2025-04-11",
       commission: "$1,200",
-      product: "Platform B",
+      products:[{
+        product: "Platform A",
+        amount: 120
+      }]
     },
     {
       user: "Luis Torres",
@@ -129,7 +141,10 @@ const isFormValid = () => {
       description: "Discussing terms before closing",
       date: "2025-04-12",
       commission: "$2,000",
-      product: "Platform C",
+      products:[{
+        product: "Platform A",
+        amount: 120
+      }]
     },
     {
       user: "Maria magdalena",
@@ -139,7 +154,11 @@ const isFormValid = () => {
       description: "Discussing terms before closing",
       date: "2025-04-12",
       commission: "$2,000",
-      product: "Platform D",
+      products:[
+        {product: "Platform A",amount: 120},
+        { product: "TRAPECIO", amount: 100 }
+      
+      ]
     },
   ]);
 
@@ -153,7 +172,7 @@ const isFormValid = () => {
     description: "",
     date: "",
     commission: "",
-    product: "", 
+    products: [{ product: "", amount: 0 }]
   });
 
   const [expandedCard, setExpandedCard] = useState<{ [key: string]: boolean }>({});
@@ -289,22 +308,17 @@ const handleDeleteNegotiation = (cardKey: string) => {
   setIsDeleteModalOpen(false);
 };
 
-const handleAddNegotiation = () => {
-  if (isFormValid()) {
-    const newNegotiation = {
-      ...form, // include all fields from form
-    };
-    setContacts((prevContacts) => [...prevContacts, newNegotiation]);
-    setShowModal(false);  // Close modal
-  } else {
-    alert("Please fill out all fields!");
-  }
-};
+
 const handleSaveNegotiation = () => {
   if (isFormValid()) {
+    // Make sure commission is properly formatted
     const newNegotiation = {
       ...form,
       commission: `$${form.commission}`, // Format commission as currency
+      products: form.products.map(product => ({
+        product: product.product,
+        amount: product.amount,
+      })), // Ensure products are formatted correctly
     };
 
     // Add the new negotiation to the contacts state
@@ -421,7 +435,6 @@ return (
 
 
                                 <div className={styles.cardTitle}>{contact.affair}</div>
-                                <small><span className={styles.product}>{contact.product}</span></small>
                                 <div className={styles.cardDetails}>
                                   <span className={styles.date}>{contact.client}</span>
                                   <span className={styles.amount}>{contact.commission}</span>
@@ -430,14 +443,35 @@ return (
                                 <div className={styles.meta}>
                                   <small>{contact.user} - {contact.date}</small>
                                 </div>
-                                {expandedCard[cardKey] && (
-                                   <small><div className={`${styles.date} mt-2`}>{contact.description}</div></small>
-                                )}
-                                <div className={styles.colorTags}>
-                                  <span className={styles.tag}></span>
-                                  <span className={styles.tag}></span>
-                                  <span className={styles.tag}></span>
-                                </div>
+                           {expandedCard[cardKey] && (   
+                            <div className="space-y-1 mt-6">
+                        {/* Description */}
+                        <div>
+                          <small className="block font-semibold text-gray-400 mt:6">Description:</small>
+                          <small className={`${styles.date} mt-1 block`}>{contact.description}</small>
+                        </div>
+
+                        {/* Product and Amount */}
+                        <div className="flex justify-between mt-4">
+                          <small className="font-semibold text-gray-400">Product:</small>
+                          <small className="font-semibold text-gray-400">Amount:</small>
+                        </div>
+
+                        
+                        {contact.products.map((item, index) => (
+                      <div key={index} className="flex justify-between mt-1">
+                        <small className={`${styles.product}`}>{item.product}</small>
+                        <small className="font-medium">{item.amount}</small>
+                      </div>
+                    ))}
+                  </div>      
+                          )}
+                                <div className={`${styles.colorTags} mt-4`}>
+                                <span className={styles.tag}></span>
+                                <span className={styles.tag}></span>
+                                <span className={styles.tag}></span>
+                              </div>
+
                               </div>
                             )}
                           </Draggable>
@@ -535,6 +569,20 @@ return (
     </select>
   </div>
 
+      {/* Amount input */}
+    <div className="mb-4">
+      <label className="block text-sm font-semibold mb-1">Amount:</label>
+      <input
+        type="number"
+        className="w-full p-2 rounded bg-gray-700 text-white"
+        value={editingNegotiation.amount}
+        onChange={(e) =>
+          setEditingNegotiation({ ...editingNegotiation, amount: Number(e.target.value) })
+        }
+      />
+    </div>
+
+
   <div className="flex justify-end gap-4">
     <button
       onClick={() => setIsEditing(false)}
@@ -605,88 +653,151 @@ return (
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-[#1c1c2c] p-6 rounded-lg w-[400px] space-y-4">
-            <h2 className="text-2xl font-bold text-white mb-4">Add New Negotiation</h2>
-            <input
-              type="text"
-              placeholder="User"
-              value={form.user}
-              onChange={(e) => setForm({ ...form, user: e.target.value })}
-              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-            />
-                          <select
-                value={form.client}
-                onChange={(e) => setForm({ ...form, client: e.target.value })}
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-[#1c1c2c] p-6 rounded-lg w-[400px] space-y-4">
+      <h2 className="text-2xl font-bold text-white mb-4">Add New Negotiation</h2>
+
+      {/* User Input */}
+      <input
+        type="text"
+        placeholder="User"
+        value={form.user}
+        onChange={(e) => setForm({ ...form, user: e.target.value })}
+        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+      />
+
+      {/* Select Company */}
+      <select
+        value={form.client}
+        onChange={(e) => setForm({ ...form, client: e.target.value })}
+        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+      >
+        <option value="" disabled>Select Company</option>
+        {companies.map((company) => (
+          <option key={company.id} value={company.nombre}>
+            {company.nombre}
+          </option>
+        ))}
+      </select>
+
+      {/* Select Stage */}
+      <select
+        value={form.state}
+        onChange={(e) => setForm({ ...form, state: e.target.value })}
+        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+      >
+        <option value="" disabled>Select State</option>
+        {stages.map((stage) => (
+          <option key={stage} value={stage}>
+            {stage}
+          </option>
+        ))}
+      </select>
+
+      {/* Affair */}
+      <input
+        type="text"
+        placeholder="Affair"
+        value={form.affair}
+        onChange={(e) => setForm({ ...form, affair: e.target.value })}
+        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+      />
+
+      {/* Description */}
+      <textarea
+        placeholder="Description"
+        value={form.description}
+        onChange={(e) => setForm({ ...form, description: e.target.value })}
+        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+      />
+
+      {/* Date */}
+      <input
+        type="date"
+        value={form.date}
+        onChange={(e) => setForm({ ...form, date: e.target.value })}
+        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+      />
+
+      {/* Commission */}
+      <input
+        type="number"
+        placeholder="Commission"
+        value={form.commission}
+        onChange={(e) => setForm({ ...form, commission: e.target.value })}
+        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+      />
+
+      {/* Products and Amounts */}
+      <div className="space-y-4">
+        {form.products.map((item, index) => (
+          <div key={index} className="flex items-center justify-between space-x-4">
+            <div className="flex flex-col w-full">
+              <label className="block font-semibold text-gray-400">Product:</label>
+              <select
+                value={item.product}
+                onChange={(e) => {
+                  const updatedProducts = [...form.products];
+                  updatedProducts[index].product = e.target.value;
+                  setForm({ ...form, products: updatedProducts });
+                }}
                 className="w-full p-2 rounded bg-[#2c2c3c] text-white"
               >
-                <option value="" disabled>Select Company</option>
-                {companies.map((company) => (
-                  <option key={company.id} value={company.nombre}>
-                    {company.nombre}
+                <option value="" disabled>Select Product</option>
+                {products.map((product) => (
+                  <option key={product.nombre} value={product.nombre}>
+                    {product.nombre}
                   </option>
                 ))}
               </select>
-
-            <select
-              value={form.state}
-              onChange={(e) => setForm({ ...form, state: e.target.value })}
-              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+            </div>
+            <div className="flex flex-col items-end w-full">
+              <label className="block font-semibold text-gray-400">Amount:</label>
+              <input
+                type="number"
+                value={item.amount}
+                onChange={(e) => {
+                  const updatedProducts = [...form.products];
+                  updatedProducts[index].amount = Number(e.target.value);
+                  setForm({ ...form, products: updatedProducts });
+                }}
+                className="p-2 rounded bg-[#2c2c3c] text-white"
+              />
+            </div>
+            <button
+              onClick={() => {
+                const updatedProducts = form.products.filter((_, i) => i !== index);
+                setForm({ ...form, products: updatedProducts });
+              }}
+              className="text-red-500"
             >
-              <option value="" disabled>Select State</option>
-              {stages.map((stage) => (
-                <option key={stage} value={stage}>
-                  {stage}
-                </option>
-              ))}
-            </select>
+              Remove
+            </button>
+          </div>
+        ))}
 
-            <input
-              type="text"
-              placeholder="Affair"
-              value={form.affair}
-              onChange={(e) => setForm({ ...form, affair: e.target.value })}
-              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-            />
-            <textarea
-              placeholder="Description"
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-            />
-            <input
-              type="date"
-              value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-            />
-            <input
-              type="number"
-              placeholder="Commission"
-              value={form.commission}
-              onChange={(e) => setForm({ ...form, commission: e.target.value })}
-              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-            />
-            <select
-              value={form.product}
-              onChange={(e) => setForm({ ...form, product: e.target.value })}
-              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-            >
-              <option value="" disabled>Select Product</option>
-              {products.map((product) => (
-                <option key={product.nombre} value={product.nombre}>
-                  {product.nombre}
-                </option>
-              ))}
-            </select>
+        {/* Button to add a new product */}
+        <button
+          onClick={() => {
+            setForm({
+              ...form,
+              products: [...form.products, { product: "", amount: 0 }] // Add a new empty product
+            });
+          }}
+          className="text-blue-500"
+        >
+          Add Product
+        </button>
+      </div>
 
-            <div className="flex justify-end space-x-2 mt-4">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-gray-500 rounded text-white"
-              >
-                Cancel
-              </button>
+      {/* Modal Buttons */}
+      <div className="flex justify-end space-x-2 mt-4">
+        <button
+          onClick={() => setShowModal(false)}
+          className="px-4 py-2 bg-gray-500 rounded text-white"
+        >
+          Cancel
+        </button>
               <button
   onClick={() => {
     if (isFormValid()) {
