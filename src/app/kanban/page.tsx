@@ -456,7 +456,7 @@ return (
                                 <div className={styles.cardTitle}>{contact.affair}</div>
                                 <div className={styles.cardDetails}>
                                   <span className={styles.date}>{contact.client}</span>
-                                  <span className={styles.amount}>{contact.commission}</span>
+                                  
     
                                 </div>
                                 <div className={styles.meta}>
