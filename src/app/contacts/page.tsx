@@ -718,12 +718,17 @@ export default function Home() {
               className="w-full p-2 rounded bg-[#1c183a] text-white"
             />
             <input
-              type="text"
-              placeholder="Photo URL"
-              value={companyForm.photo}
-              onChange={(e) => setCompanyForm({ ...companyForm, photo: e.target.value })}
-              className="w-full p-2 rounded bg-[#1c183a] text-white"
-            />
+      type="file"
+      accept="image/png, image/jpeg"
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          const photoUrl = URL.createObjectURL(file);
+          setCompanyForm({ ...companyForm, photo: photoUrl }); // Correcto: actualiza companyForm
+        }
+      }}
+      className="w-full p-3 rounded-lg bg-[#2c2e3f] placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+    />
             <div className="flex justify-end space-x-3 mt-4">
               <button
                 onClick={() => setCompanyModal(false)}
