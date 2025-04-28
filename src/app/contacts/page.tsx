@@ -185,6 +185,22 @@ export default function Home() {
     setIsEditingCompany(false);
     setEditingCompany(null);
   };
+  const handleSaveEditedCompany = () => {
+    if (!editingCompany?.nombre || !editingCompany?.industria || !editingCompany?.preferencias) {
+      // Validación para los campos editados
+      return;
+    }
+  
+    setCompanies((prevCompanies) =>
+      prevCompanies.map((company) =>
+        company.nombre === editingCompany.nombreBeforeEdit
+          ? { ...editingCompany, nombreBeforeEdit: undefined } // Remove temporary prop
+          : company
+      )
+    );
+  
+    closeCompanyModal();
+  };
 
   const handleSaveCompany = () => {
     if (!companyForm.nombre || !companyForm.industria || !companyForm.preferencias || !companyForm.photo) {
@@ -552,57 +568,57 @@ export default function Home() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <motion.div
-        className="bg-[#1e1b3a] p-6 rounded-xl shadow-xl w-full max-w-md text-white"
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <h3 className="text-lg text-purple-300 mb-4">Edit Company</h3>
+     <motion.div
+  className="bg-[#1e1b3a] p-6 rounded-xl shadow-xl w-full max-w-md text-white"
+  initial={{ scale: 0.9, opacity: 0 }}
+  animate={{ scale: 1, opacity: 1 }}
+  exit={{ scale: 0.9, opacity: 0 }}
+  transition={{ duration: 0.3 }}
+>
+  <h3 className="text-lg text-purple-300 mb-4">Edit Company</h3>
 
-        {/* Formulario editable */}
-        <input
-          className="w-full mb-2 p-2 rounded bg-gray-700 text-white"
-          value={editingCompany.nombre}
-          onChange={(e) => setEditingCompany({ ...editingCompany, nombre: e.target.value })}
-          placeholder="Company Name"
-        />
-        <input
-          className="w-full mb-2 p-2 rounded bg-gray-700 text-white"
-          value={editingCompany.industria}
-          onChange={(e) => setEditingCompany({ ...editingCompany, industria: e.target.value })}
-          placeholder="Industry"
-        />
-        <input
-          className="w-full mb-2 p-2 rounded bg-gray-700 text-white"
-          value={editingCompany.preferencias}
-          onChange={(e) => setEditingCompany({ ...editingCompany, preferencias: e.target.value })}
-          placeholder="Preferences"
-        />
+  {/* Formulario editable */}
+  <input
+    className="w-full mb-2 p-2 rounded bg-gray-700 text-white"
+    value={editingCompany?.nombre || ''}
+    onChange={(e) => setEditingCompany({ ...editingCompany, nombre: e.target.value })}
+    placeholder="Company Name"
+  />
+  <input
+    className="w-full mb-2 p-2 rounded bg-gray-700 text-white"
+    value={editingCompany?.industria || ''}
+    onChange={(e) => setEditingCompany({ ...editingCompany, industria: e.target.value })}
+    placeholder="Industry"
+  />
+  <input
+    className="w-full mb-2 p-2 rounded bg-gray-700 text-white"
+    value={editingCompany?.preferencias || ''}
+    onChange={(e) => setEditingCompany({ ...editingCompany, preferencias: e.target.value })}
+    placeholder="Preferences"
+  />
 
-        {/* Botones */}
-        <div className="flex justify-end space-x-2 mt-6">
-          <button
-            onClick={handleDeleteCompany}
-            className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
-          >
-            Delete
-          </button>
-          <button
-            onClick={closeCompanyModal}
-            className="px-3 py-1 bg-gray-400 hover:bg-gray-500 rounded text-sm"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSaveCompany}
-            className="px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded text-sm"
-          >
-            Save
-          </button>
-        </div>
-      </motion.div>
+  {/* Botones */}
+  <div className="flex justify-end space-x-2 mt-6">
+    <button
+      onClick={handleDeleteCompany}
+      className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+    >
+      Delete
+    </button>
+    <button
+      onClick={closeCompanyModal}
+      className="px-3 py-1 bg-gray-400 hover:bg-gray-500 rounded text-sm"
+    >
+      Cancel
+    </button>
+    <button
+      onClick={handleSaveEditedCompany} // ¡Cambio aquí!
+      className="px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded text-sm"
+    >
+      Save
+    </button>
+  </div>
+</motion.div>
     </motion.div>
   )}
 </AnimatePresence>
