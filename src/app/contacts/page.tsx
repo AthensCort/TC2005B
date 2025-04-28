@@ -182,13 +182,31 @@ export default function Home() {
   
   
 
-  const handleDeleteContact = () => {
-    if (editingContact) {
-      setContacts(prevContacts =>
-        prevContacts.filter(contact => contact.id !== editingContact.id)
+  const handleDeleteContact = async () => {
+    if (!editingContact) return;
+  
+    try {
+      // Realiza una solicitud DELETE al backend
+      const response = await fetch(`http://localhost:8080/api/cliente/${editingContact.id}`, {
+        method: "DELETE",
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "No se pudo eliminar el contacto");
+      }
+  
+      // Elimina el contacto del estado local
+      setContacts((prevContacts) =>
+        prevContacts.filter((contact) => contact.id !== editingContact.id)
       );
+  
+      // Cierra el modal
+      closeModal();
+    } catch (error) {
+      console.error("Error al eliminar el contacto:", error);
+      alert("Ocurrió un error al eliminar el contacto.");
     }
-    closeModal();
   };
 
   // Funciones para manejar las empresas (agregar, editar, eliminar)
@@ -247,13 +265,30 @@ export default function Home() {
   };
   
 
-  const handleDeleteCompany = () => {
+  const handleDeleteCompany = async () => {
     if (!editingCompany) return;
-
-    setCompanies(prev =>
-      prev.filter(c => c.nombre !== editingCompany.nombreBeforeEdit)
-    );
-    closeCompanyModal();
+  
+    try {
+      // Make a DELETE request to the backend
+      const response = await fetch(`http://localhost:8080/api/empresa/${editingCompany.id}`, {
+        method: "DELETE",
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete the company");
+      }
+  
+      // Remove the company from the state
+      setCompanies((prev) =>
+        prev.filter((c) => c.id !== editingCompany.id)
+      );
+  
+      // Close the modal
+      closeCompanyModal();
+    } catch (error) {
+      console.error("Error deleting company:", error);
+      alert("An error occurred while deleting the company.");
+    }
   };
 
   
