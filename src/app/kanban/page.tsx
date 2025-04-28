@@ -1,6 +1,7 @@
 'use client'
 import Sidebar from "@/components/sidebar/page";
 import styles from "./page.module.css";
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';n
 import { useState, useEffect} from "react";
 import {
   DragDropContext,
