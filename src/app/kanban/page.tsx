@@ -386,11 +386,11 @@ const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
 //EDIT THE NEGOTIATIONS
 const [activeMenu, setActiveMenu] = useState<string | null>(null);
-const [editingNegotiation, setEditingNegotiation] = useState<any | null>(null);
+const [editingNegotiation, setEditingNegotiation] = useState<Negotiation | null>(null);
 const [isEditing, setIsEditing] = useState(false);
 
 
-const handleSaveEditedNegotiation = (updatedNegotiation: any) => {
+const handleSaveEditedNegotiation = (updatedNegotiation: Negotiation) => {
   setContacts((prev) =>
     prev.map((contact) => {
       if (
