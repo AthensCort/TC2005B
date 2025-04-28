@@ -123,6 +123,20 @@ export default function Home() {
       });
     }
   };
+
+  
+
+  const handleSaveEdit = () => {
+    if (!editingContact) return;
+  
+    setContacts((prevContacts) =>
+      prevContacts.map((contact) =>
+        contact.id === editingContact.id ? editingContact : contact
+      )
+    );
+    
+    setIsEditing(false);
+  };
   
   
   const handleSaveEditedContact = () => {
@@ -271,7 +285,7 @@ export default function Home() {
         {selectedCompanies.length > 0 && (
           <div className="flex flex-wrap gap-2 ml-10 mb-6">
             {selectedCompanies.map((company) => (
-              <div key={company} className="flex items-center bg-purple-700 text-white px-3 py-1 rounded-full">
+              <div key={company} className="flex items-center bg-purple-700 text-white px-3 py-1">
                 <span>{company}</span>
                 <button
                   onClick={() => toggleCompany(company)}
@@ -309,10 +323,19 @@ export default function Home() {
           onClick={() => setExpandedContact(isExpanded ? null : item.correo)}
         >
           <td className="p-2 whitespace-nowrap">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-purple-500" />
-              {item.nombre}
-            </div>
+          <div className="flex items-center gap-2">
+  <div
+    className="w-8 h-8 rounded-full bg-purple-500 overflow-hidden"
+    style={{
+      backgroundImage: item.photo ? `url(${item.photo})` : undefined,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+    }}
+  >
+    {!item.photo && <div className="w-full h-full" />} {/* Keep the purple background if there's no photo */}
+  </div>
+  {item.nombre}
+</div>
           </td>
           <td className="p-2 whitespace-nowrap">
             <div className="flex items-center gap-2 text-purple-300">
@@ -368,65 +391,74 @@ export default function Home() {
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="bg-[#1e1b3a] p-6 rounded-xl shadow-xl w-full max-w-md text-white"
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <h3 className="text-lg text-purple-300 mb-4">Edit Contact</h3>
+  className="bg-[#1e1b3a] p-6 rounded-xl shadow-xl w-full max-w-md text-white"
+  initial={{ scale: 0.9, opacity: 0 }}
+  animate={{ scale: 1, opacity: 1 }}
+  exit={{ scale: 0.9, opacity: 0 }}
+  transition={{ duration: 0.3 }}
+>
+  <h3 className="text-lg text-purple-300 mb-4">Edit Contact</h3>
 
-        <div className="mb-4">
-          <label className="block text-sm font-semibold mb-1">Nombre:</label>
-          <input
-            type="text"
-            className="w-full p-2 rounded bg-gray-700 text-white"
-            value={editingContact.nombre}
-            onChange={(e) => setEditingContact({ ...editingContact, nombre: e.target.value })}
-          />
-        </div>
+  {/* Nombre */}
+  <div className="mb-4">
+    <label className="block text-sm font-semibold mb-1">Nombre:</label>
+    <input
+      type="text"
+      className="w-full p-2 rounded bg-gray-700 text-white"
+      value={editingContact.nombre}
+      onChange={(e) => setEditingContact({ ...editingContact, nombre: e.target.value })}
+    />
+  </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-semibold mb-1">Correo:</label>
-          <input
-            type="email"
-            className="w-full p-2 rounded bg-gray-700 text-white"
-            value={editingContact.correo}
-            onChange={(e) => setEditingContact({ ...editingContact, correo: e.target.value })}
-          />
-        </div>
+  {/* Correo */}
+  <div className="mb-4">
+    <label className="block text-sm font-semibold mb-1">Correo:</label>
+    <input
+      type="email"
+      className="w-full p-2 rounded bg-gray-700 text-white"
+      value={editingContact.correo}
+      onChange={(e) => setEditingContact({ ...editingContact, correo: e.target.value })}
+    />
+  </div>
 
-       {/* Phone Number with Prefix and Main Part */}
-       <div className="flex space-x-2">
-        <input
-          type="text"
-          placeholder="Country Code"
-          value={editingContact.telefonoPrefix}
-          onChange={(e) =>
-            setEditingContact({ ...editingContact, telefonoPrefix: e.target.value })
-          }
-          className="w-1/4 p-2 rounded bg-[#1c183a] text-white"
-        />
-        <input
-          type="text"
-          placeholder="Phone Number"
-          value={editingContact.telefonoNumber}
-          onChange={(e) =>
-            setEditingContact({ ...editingContact, telefonoNumber: e.target.value })
-          }
-          className="w-3/4 p-2 rounded bg-[#1c183a] text-white"
-        />
-      </div>
+  {/* Teléfono */}
+  <div className="flex space-x-2 mb-4">
+    <input
+      type="text"
+      placeholder="Country Code"
+      value={editingContact.telefonoPrefix || ""}
+      onChange={(e) =>
+        setEditingContact({ ...editingContact, telefonoPrefix: e.target.value })
+      }
+      className="w-1/4 p-2 rounded bg-[#1c183a] text-white"
+    />
+    <input
+      type="text"
+      placeholder="Phone Number"
+      value={editingContact.telefonoNumber || ""}
+      onChange={(e) =>
+        setEditingContact({ ...editingContact, telefonoNumber: e.target.value })
+      }
+      className="w-3/4 p-2 rounded bg-[#1c183a] text-white"
+    />
+  </div>
 
-        <input
-        type="text"
-        placeholder="Photo URL"
-        value={editingContact.photo || ""}
-        onChange={(e) =>
-          setEditingContact({ ...editingContact, photo: e.target.value })
+  {/* Photo Upload */}
+  <div className="mb-4">
+    <label className="block text-sm font-semibold mb-1">Photo:</label>
+    <input
+      type="file"
+      accept="image/png, image/jpeg"
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          const photoUrl = URL.createObjectURL(file);
+          setEditingContact({ ...editingContact, photo: photoUrl });
         }
-        className="w-full p-2 rounded bg-[#1c183a] text-white"
-      />
+      }}
+      className="w-full p-3 rounded-lg bg-[#2c2e3f] placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+    />
+  </div>
 
         <div className="flex justify-end space-x-2 mt-6">
   <button
@@ -444,7 +476,10 @@ export default function Home() {
   </button>
 
   <button
-    onClick={handleSaveEditedContact}
+    onClick={() => {
+      handleSaveEditedContact();
+      handleSaveEdit();
+    }}
     className="px-3 py-2 bg-purple-600 hover:bg-purple-700 rounded text-sm"
   >
     Save
@@ -624,13 +659,21 @@ export default function Home() {
           className="w-3/4 p-2 rounded bg-[#1c183a] text-white"
         />
       </div>
-               <input
-            type="text"
-            placeholder="Photo URL"
-            value={form.photo}
-            onChange={(e) => setForm({ ...form, photo: e.target.value })}
-            className="w-full p-2 rounded bg-[#1c183a] text-white"
-          />
+      <div className="mb-4">
+    <label className="block text-sm font-semibold mb-1">Photo:</label>
+    <input
+      type="file"
+      accept="image/png, image/jpeg"
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          const photoUrl = URL.createObjectURL(file);
+          setForm({ ...form, photo: photoUrl }); // Actualiza el estado 'form'
+        }
+      }}
+      className="w-full p-3 rounded-lg bg-[#2c2e3f] placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+    />
+  </div>
                 <div className="flex justify-end space-x-3 mt-4">
               <button
                 onClick={() => setShowModal(false)}
