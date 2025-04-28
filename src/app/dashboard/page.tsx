@@ -1,5 +1,5 @@
 'use client';
-
+import NegotiationsChart from '@/components/piechart/page'; // Agrega esta línea
 import styles from "./page.module.css";
 import Sidebar from "@/components/sidebar/page";
 import { useEffect, useState } from "react";
@@ -116,7 +116,13 @@ const Dashboard = () => {
         {/* --- Other Content Section --- */}
         <section className={styles.contentGrid}>
           <div className={styles.chart}>Monthly Status Chart</div>
-          <div className={styles.analytics}>Analytics Chart</div>
+          <div className={`${styles.analytics} mr-10`}>
+            <NegotiationsChart
+              closed={dashboardData.closedNegotiations}
+              middle={dashboardData.middleNegotiations}
+              starting={dashboardData.startingNegotiations}
+            />
+          </div>
           <div className={styles.transactions}>Transaction Status Table</div>
           <div className={styles.contacts}>Recent Contacts</div>
         </section>

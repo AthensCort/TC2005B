@@ -10,6 +10,20 @@
   flex-shrink: 0;
 }
 
+
+.analytics {
+  /* Estilos para el segundo elemento (NegotiationsChart) */
+  justify-self: end; /* Mueve este elemento hacia la derecha */
+  /* Opcional: Ajusta el ancho si es necesario */
+  /* width: 80%; */
+}
+
+.transactions {
+  grid-column: 1 / -1; /* Ocupa toda la fila */
+  /* Otros estilos si los tienes */
+}
+
+
 .main {
   flex-grow: 1;
   display: flex;
