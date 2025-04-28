@@ -158,9 +158,8 @@ export default function Home() {
   const handleSaveEditedContact = () => {
     if (
       editingContact &&
-      editingContact.nombre &&
+      editingContact.nombre && 
       editingContact.correo &&
-      editingContact.empresa &&
       editingContact.telefonoPrefix &&
       editingContact.telefonoNumber
     ) {
