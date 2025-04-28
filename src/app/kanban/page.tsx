@@ -1,7 +1,7 @@
 'use client'
 import Sidebar from "@/components/sidebar/page";
 import styles from "./page.module.css";
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';n
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { useState, useEffect} from "react";
 import {
   DragDropContext,
@@ -12,7 +12,6 @@ import {
 import SearchBar from "@/components/search_bar/page"; // ajusta el path si no es correcto
 import { HiOutlineDotsVertical } from "react-icons/hi"; // Icono de 3 puntitos
 import { motion, AnimatePresence } from "framer-motion";
-
 
 export default function LeadFlow() {
   //NORMAL FORM
@@ -27,6 +26,115 @@ interface Negotiation {
   commission: string;
   products: { product: string; amount: number }[];  // Added product field
 }
+
+  // Facturas
+
+  interface Factura {
+    id: number;
+    asunto: string;
+    fecha: string; // Puede ser `Date` si se parsea como objeto de fecha
+    comision: number;
+    total: number;
+    empresa: string;
+    cliente: string;
+    subtotal: number;
+    productos: {
+      nombre: string;
+      precio: number;
+      cantidad: number;
+      subtotal: number;
+    }[];
+  }
+
+  const [facturas, crearFacturas] = useState<Factura>();
+      useEffect(() => {
+        fetch("http://localhost:8080/api/negociacion/factura/id")
+          .then((res) => res.json())
+          .then((data) => crearFacturas(data));
+      }, []);
+
+  const [loading, setLoading] = useState(false);
+
+  const handleGeneratePDF = async () => {
+    setLoading(true);
+
+    try {
+      // 1. Hardcoded invoice data
+
+      // 2. Create a new PDF
+      const pdfDoc = await PDFDocument.create();
+      const page = pdfDoc.addPage([595, 842]); // A4 size
+
+      const { width, height } = page.getSize();
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+      // 3. Optional: Add logo
+      /*
+      try {
+        if (logoUrl) {
+          const logoImageBytes = await fetch(logoUrl).then(res => res.arrayBuffer());
+          const logoImage = await pdfDoc.embedPng(logoImageBytes);
+          page.drawImage(logoImage, {
+            x: width - 150,
+            y: height - 100,
+            width: 100,
+            height: 50,
+          });
+        }
+      } catch (err) {
+        console.warn('Logo not found or failed to load, skipping logo.', err);
+      }
+        */
+
+      // 4. Add invoice basic info
+      page.drawText('INVOICE', { x: 50, y: height - 50, size: 30, font, color: rgb(0, 0, 0) });
+      page.drawText(`Invoice #: ${facturas?.id}`, { x: 50, y: height - 90, size: 14, font });
+      page.drawText(`Client: ${facturas?.cliente}`, { x: 50, y: height - 110, size: 14, font });
+      page.drawText(`Company: ${facturas?.empresa}`, { x: 50, y: height - 130, size: 14, font });
+      page.drawText(`Date: ${facturas?.fecha}`, { x: 50, y: height - 150, size: 14, font });
+
+      // 5. Add table headers
+      const tableTop = height - 200;
+      page.drawText('Item', { x: 50, y: tableTop, size: 12, font });
+      page.drawText('Unitary Price', { x: 150, y: tableTop, size: 12, font });
+      page.drawText('Quantity', { x: 250, y: tableTop, size: 12, font });
+      page.drawText('Subtotal', { x: 350, y: tableTop, size: 12, font });
+
+      // 6. Fill items
+      let yPosition = tableTop - 20;
+      if (facturas?.productos) {
+      for (const item of facturas?.productos) {
+        page.drawText(item.nombre, { x: 50, y: yPosition, size: 12, font });
+        page.drawText(item.precio.toString(), { x: 150, y: yPosition, size: 12, font });
+        page.drawText(item.cantidad.toString(), { x: 250, y: yPosition, size: 12, font });
+        page.drawText(`$${item.subtotal.toFixed(2)}`, { x: 350, y: yPosition, size: 12, font });
+
+        yPosition -= 20;
+      }
+    }
+
+      // 7. Add subtotal, commission, and total
+      yPosition -= 20;
+      page.drawText(`Subtotal: $${facturas?.subtotal.toFixed(2)}`, { x: 50, y: yPosition, size: 14, font });
+      page.drawText(`Commission: $${facturas?.comision.toFixed(2)}`, { x: 50, y: yPosition - 20, size: 14, font });
+      page.drawText(`Total: $${facturas?.total.toFixed(2)}`, { x: 50, y: yPosition - 40, size: 14, font });
+
+      // 8. Save and download
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Invoice_${facturas?.id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+
+    setLoading(false);
+  };
 
   //VALIDACION CREACION DE NEGOCIACIONES
 
@@ -438,8 +546,8 @@ return (
       <button
         onClick={(e) => {
           e.stopPropagation();
+          handleGeneratePDF();
           // Lógica para manejar el envío de la factura
-          alert("Invoice action triggered");
           setActiveMenu(null);  // Cerrar el menú después de hacer clic en "Invoice"
         }}
         className="block w-full text-left px-4 py-2 hover:bg-green-700 text-green-300"
