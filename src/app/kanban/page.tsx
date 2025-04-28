@@ -308,26 +308,46 @@ const handleDeleteNegotiation = (cardKey: string) => {
   setIsDeleteModalOpen(false);
 };
 
+useEffect(() => {
+  if (isEditing && editingNegotiation) {
+    setForm({
+      user: editingNegotiation.user,
+      client: editingNegotiation.client,
+      state: editingNegotiation.state,
+      affair: editingNegotiation.affair,
+      description: editingNegotiation.description,
+      date: editingNegotiation.date,
+      commission: editingNegotiation.commission,
+      products: editingNegotiation.products.length > 0
+        ? editingNegotiation.products
+        : [{ product: "", amount: 0 }],
+    });
+  }
+}, [isEditing, editingNegotiation]);
 
 const handleSaveNegotiation = () => {
   if (isFormValid()) {
-    // Make sure commission is properly formatted
     const newNegotiation = {
       ...form,
-      commission: `$${form.commission}`, // Format commission as currency
+      commission: `$${form.commission}`, // Format commission
       products: form.products.map(product => ({
         product: product.product,
         amount: product.amount,
-      })), // Ensure products are formatted correctly
+      })),
     };
 
-    // Add the new negotiation to the contacts state
-    setContacts((prev) => [...prev, newNegotiation]);
-    setShowModal(false); // Close the modal after saving
+    if (isEditing) {
+      handleSaveEditedNegotiation(newNegotiation);
+    } else {
+      setContacts((prev) => [...prev, newNegotiation]);
+    }
+    setShowModal(false);
+    setIsEditing(false);
   } else {
-    alert("Please fill out all fields!"); // Alert if the form is invalid
+    alert("Please fill out all fields!");
   }
 };
+
 
 
 
@@ -550,37 +570,75 @@ return (
     </select>
   </div>
 
-  {/* Product select dropdown */}
-  <div className="mb-4">
-    <label className="block text-sm font-semibold mb-1">Product:</label>
-    <select
-      value={editingNegotiation.product}
-      onChange={(e) =>
-        setEditingNegotiation({ ...editingNegotiation, product: e.target.value })
-      }
-      className="w-full p-2 rounded bg-gray-700 text-white"
-    >
-      <option value="" disabled>Select Product</option>
-      {products.map((product) => (
-        <option key={product.nombre} value={product.nombre}>
-          {product.nombre}
-        </option>
-      ))}
-    </select>
-  </div>
+  <div className="space-y-4">
+  {form.products.map((item, index) => (
+    <div key={index} className="flex items-center justify-between space-x-4">
+      
+      {/* PRODUCT SELECT */}
+      <div className="flex flex-col w-full">
+        <label className="block text-sm font-semibold mb-1 text-gray-400">Product:</label>
+        <select
+          value={item.product}
+          onChange={(e) => {
+            const updatedProducts = [...form.products];
+            updatedProducts[index].product = e.target.value;
+            setForm({ ...form, products: updatedProducts });
+          }}
+          className="w-full p-2 rounded bg-gray-700 text-white"
+        >
+          <option value="" disabled>Select Product</option>
+          {products.map((product) => (
+            <option key={product.nombre} value={product.nombre}>
+              {product.nombre}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      {/* Amount input */}
-    <div className="mb-4">
-      <label className="block text-sm font-semibold mb-1">Amount:</label>
-      <input
-        type="number"
-        className="w-full p-2 rounded bg-gray-700 text-white"
-        value={editingNegotiation.amount}
-        onChange={(e) =>
-          setEditingNegotiation({ ...editingNegotiation, amount: Number(e.target.value) })
-        }
-      />
+      {/* AMOUNT INPUT */}
+      <div className="flex flex-col w-full">
+        <label className="block text-sm font-semibold mb-1 text-gray-400">Amount:</label>
+        <input
+          type="number"
+          value={item.amount}
+          onChange={(e) => {
+            const updatedProducts = [...form.products];
+            updatedProducts[index].amount = Number(e.target.value);
+            setForm({ ...form, products: updatedProducts });
+          }}
+          className="w-full p-2 rounded bg-gray-700 text-white"
+        />
+      </div>
+
+      {/* REMOVE BUTTON */}
+      <button
+        type="button"
+        onClick={() => {
+          const updatedProducts = form.products.filter((_, i) => i !== index);
+          setForm({ ...form, products: updatedProducts });
+        }}
+        className="text-red-500 text-sm"
+      >
+        Remove
+      </button>
+
     </div>
+  ))}
+
+  {/* ADD PRODUCT BUTTON */}
+  <button
+    type="button"
+    onClick={() => {
+      setForm({
+        ...form,
+        products: [...form.products, { product: "", amount: 0 }]
+      });
+    }}
+    className="text-blue-500 text-sm"
+  >
+    Add Product
+  </button>
+</div>
 
 
   <div className="flex justify-end gap-4">
