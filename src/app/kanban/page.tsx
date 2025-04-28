@@ -12,11 +12,6 @@ import {
 import SearchBar from "@/components/search_bar/page"; // ajusta el path si no es correcto
 import { HiOutlineDotsVertical } from "react-icons/hi"; // Icono de 3 puntitos
 import { motion, AnimatePresence } from "framer-motion";
-
-
-export default function LeadFlow() {
-  //NORMAL FORM
-  // Define the necessary types for your form
 interface Negotiation {
   user: string;
   client: string;
@@ -28,6 +23,20 @@ interface Negotiation {
   products: { product: string; amount: number }[];  // Added product field
 }
 
+
+export default function LeadFlow() {
+  //NORMAL FORM
+  // Define the necessary types for your form
+  interface Negotiation {
+    user: string;
+    client: string;
+    state: string;
+    affair: string;
+    description: string;
+    date: string;
+    commission: string;
+    products: { product: string; amount: number }[];  // Added product field
+  }
 
 interface Factura {
   id: number;
@@ -142,7 +151,7 @@ const handleGeneratePDF = async () => {
 const isFormValid = () => {
   // Check if you are editing or adding a negotiation
   const targetForm = isEditing ? editingNegotiation : form;
-
+  if (!targetForm) return false;
   const areProductsValid = targetForm.products.every(
     (item: { product: string; amount: number }) => item.product !== "" && item.amount !== 0
   );
@@ -201,8 +210,8 @@ const isFormValid = () => {
   //ESTIPULACION Y LLAMADA D EPRODUCTOS
   interface Product {
     nombre: string,
-    precio: number,
-    stock: number,
+    precio: string,
+    stock: string,
     url?: string,
   }
   const [products, setProducts] = useState<Product[]>([]);
@@ -341,6 +350,8 @@ const isFormValid = () => {
       return [...before, ...after];
     });
   };
+
+  
   
   
 
@@ -640,6 +651,7 @@ return (
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
+      
       <motion.div
   className="bg-[#1e1b3a] p-6 rounded-xl shadow-xl w-full max-w-md text-white"
   initial={{ scale: 0.9, opacity: 0 }}
@@ -649,27 +661,38 @@ return (
 >
   <h3 className="text-lg text-purple-300 mb-4">Edit Negotiation</h3>
 
-  {/* Editable fields */}
-  {["user", "affair", "description", "date", "commission"].map((field) => (
-    <div key={field} className="mb-4">
-      <label className="block text-sm font-semibold mb-1 capitalize">{field}:</label>
-      <input
-        type="text"
-        className="w-full p-2 rounded bg-gray-700 text-white"
-        value={editingNegotiation[field]}
-        onChange={(e) =>
-          setEditingNegotiation({ ...editingNegotiation, [field]: e.target.value })
-        }
-      />
-    </div>
-  ))}
+  {(() => {
+    const stringFields: (keyof Omit<Negotiation, "products">)[] = [
+      "affair",
+      "description",
+      "date",
+      "commission",
+      "state",
+      "client",
+    ];
+    return stringFields.map((field) => (
+      <div key={field} className="mb-4">
+        <label className="block text-sm font-semibold mb-1 capitalize">{field}:</label>
+        <input
+          type="text"
+          className="w-full p-2 rounded bg-gray-700 text-white"
+          value={editingNegotiation?.[field] ?? ""}
+          onChange={(e) =>
+            editingNegotiation &&
+            setEditingNegotiation({ ...editingNegotiation, [field]: e.target.value })
+          }
+        />
+      </div>
+    ));
+  })()}
 
   {/* Client select dropdown */}
   <div className="mb-4">
     <label className="block text-sm font-semibold mb-1">Client:</label>
     <select
-      value={editingNegotiation.client}
+      value={editingNegotiation?.client ?? ""}
       onChange={(e) =>
+        editingNegotiation &&
         setEditingNegotiation({ ...editingNegotiation, client: e.target.value })
       }
       className="w-full p-2 rounded bg-gray-700 text-white"
@@ -683,78 +706,83 @@ return (
     </select>
   </div>
 
+  {/* Products Section */}
   <div className="space-y-4">
-  {form.products.map((item, index) => (
-    <div key={index} className="flex items-center justify-between space-x-4">
-      
-      {/* PRODUCT SELECT */}
-      <div className="flex flex-col w-full">
-        <label className="block text-sm font-semibold mb-1 text-gray-400">Product:</label>
-        <select
-          value={item.product}
-          onChange={(e) => {
-            const updatedProducts = [...form.products];
-            updatedProducts[index].product = e.target.value;
-            setForm({ ...form, products: updatedProducts });
+    {editingNegotiation?.products.map((item, index) => (
+      <div key={index} className="flex items-center justify-between space-x-4">
+        
+        {/* PRODUCT SELECT */}
+        <div className="flex flex-col w-full">
+          <label className="block text-sm font-semibold mb-1 text-gray-400">Product:</label>
+          <select
+            value={item.product}
+            onChange={(e) => {
+              if (!editingNegotiation) return;
+              const updatedProducts = [...editingNegotiation.products];
+              updatedProducts[index].product = e.target.value;
+              setEditingNegotiation({ ...editingNegotiation, products: updatedProducts });
+            }}
+            className="w-full p-2 rounded bg-gray-700 text-white"
+          >
+            <option value="" disabled>Select Product</option>
+            {products.map((product) => (
+              <option key={product.nombre} value={product.nombre}>
+                {product.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* AMOUNT INPUT */}
+        <div className="flex flex-col w-full">
+          <label className="block text-sm font-semibold mb-1 text-gray-400">Amount:</label>
+          <input
+            type="number"
+            value={item.amount}
+            onChange={(e) => {
+              if (!editingNegotiation) return;
+              const updatedProducts = [...editingNegotiation.products];
+              updatedProducts[index].amount = Number(e.target.value);
+              setEditingNegotiation({ ...editingNegotiation, products: updatedProducts });
+            }}
+            className="w-full p-2 rounded bg-gray-700 text-white"
+          />
+        </div>
+
+        {/* REMOVE BUTTON */}
+        <button
+          type="button"
+          onClick={() => {
+            if (!editingNegotiation) return;
+            const updatedProducts = editingNegotiation.products.filter((_, i) => i !== index);
+            setEditingNegotiation({ ...editingNegotiation, products: updatedProducts });
           }}
-          className="w-full p-2 rounded bg-gray-700 text-white"
+          className="text-red-500 text-sm"
         >
-          <option value="" disabled>Select Product</option>
-          {products.map((product) => (
-            <option key={product.nombre} value={product.nombre}>
-              {product.nombre}
-            </option>
-          ))}
-        </select>
+          Remove
+        </button>
+
       </div>
+    ))}
 
-      {/* AMOUNT INPUT */}
-      <div className="flex flex-col w-full">
-        <label className="block text-sm font-semibold mb-1 text-gray-400">Amount:</label>
-        <input
-          type="number"
-          value={item.amount}
-          onChange={(e) => {
-            const updatedProducts = [...form.products];
-            updatedProducts[index].amount = Number(e.target.value);
-            setForm({ ...form, products: updatedProducts });
-          }}
-          className="w-full p-2 rounded bg-gray-700 text-white"
-        />
-      </div>
+    {/* ADD PRODUCT BUTTON */}
+    <button
+      type="button"
+      onClick={() => {
+        if (!editingNegotiation) return;
+        setEditingNegotiation({
+          ...editingNegotiation,
+          products: [...editingNegotiation.products, { product: "", amount: 0 }]
+        });
+      }}
+      className="text-blue-500 text-sm"
+    >
+      Add Product
+    </button>
+  </div>
 
-      {/* REMOVE BUTTON */}
-      <button
-        type="button"
-        onClick={() => {
-          const updatedProducts = form.products.filter((_, i) => i !== index);
-          setForm({ ...form, products: updatedProducts });
-        }}
-        className="text-red-500 text-sm"
-      >
-        Remove
-      </button>
-
-    </div>
-  ))}
-
-  {/* ADD PRODUCT BUTTON */}
-  <button
-    type="button"
-    onClick={() => {
-      setForm({
-        ...form,
-        products: [...form.products, { product: "", amount: 0 }]
-      });
-    }}
-    className="text-blue-500 text-sm"
-  >
-    Add Product
-  </button>
-</div>
-
-
-  <div className="flex justify-end gap-4">
+  {/* Save/Cancel Buttons */}
+  <div className="flex justify-end gap-4 mt-6">
     <button
       onClick={() => setIsEditing(false)}
       className="bg-gray-600 px-4 py-2 rounded hover:bg-gray-500"
@@ -762,20 +790,19 @@ return (
       Cancel
     </button>
     <button
-  onClick={() => {
-    if (isFormValid()) {
-      handleSaveEditedNegotiation(editingNegotiation);
-      setIsEditing(false);
-    } else {
-      alert("Please fill out all fields!");
-    }
-  }}
-  disabled={!isFormValid()}  // Disable if form is invalid
-  className="bg-purple-600 px-4 py-2 rounded hover:bg-purple-500"
->
-  Save
-</button>
-
+      onClick={() => {
+        if (isFormValid()) {
+          handleSaveEditedNegotiation(editingNegotiation);
+          setIsEditing(false);
+        } else {
+          alert("Please fill out all fields!");
+        }
+      }}
+      disabled={!isFormValid()}
+      className="bg-purple-600 px-4 py-2 rounded hover:bg-purple-500"
+    >
+      Save
+    </button>
   </div>
 </motion.div>
 
