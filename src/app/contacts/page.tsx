@@ -97,30 +97,60 @@ export default function Home() {
     setIsEditing(false);
     setEditingContact(null);
   };
-  const handleSaveContact = () => {
+  const handleSaveContact = async () => {
     if (
-      form.nombre &&
-      form.correo &&
-      form.empresa &&
-      form.telefonoPrefix &&
-      form.telefonoNumber
+      !form.nombre ||
+      !form.correo ||
+      !form.empresa || // This should now hold the company ID
+      !form.telefonoPrefix ||
+      !form.telefonoNumber
     ) {
+      alert("All fields are required!");
+      return;
+    }
+  
+    try {
       // Concatenate prefix and number to form the full phone number
       const fullPhoneNumber = `${form.telefonoPrefix} ${form.telefonoNumber}`;
   
-      setContacts([
-        ...contacts,
-        { ...form, telefono: fullPhoneNumber }, // Save the full phone number in 'telefono'
-      ]);
-      setShowModal(false); // Close the modal after saving
+      // Create a FormData object
+      const formData = new FormData();
+      formData.append("nombre", form.nombre);
+      formData.append("correo", form.correo);
+      formData.append("idEmpresa", form.empresa); // Send the company ID
+      formData.append("telefono", fullPhoneNumber);
+      if (form.photo) {
+        formData.append("photo", form.photo); // Add photo if it exists
+      }
+  
+      // Make a POST request to save the contact
+      const response = await fetch("http://localhost:8080/api/cliente", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to save the contact");
+      }
+  
+      const newContact = await response.json();
+  
+      // Add the new contact to the list
+      setContacts((prev) => [...prev, newContact]);
+  
+      // Close the modal and reset the form
+      setShowModal(false);
       setForm({
         nombre: "",
         correo: "",
         empresa: "",
-        telefonoPrefix: "", // Clear the prefix field
-        telefonoNumber: "", // Clear the number field
+        telefonoPrefix: "",
+        telefonoNumber: "",
         photo: "",
       });
+    } catch (error) {
+      console.error("Error saving contact:", error);
+      alert("An error occurred while saving the contact.");
     }
   };
   
@@ -172,29 +202,48 @@ export default function Home() {
     setEditingCompany(null);
   };
 
-  const handleSaveCompany = () => {
+  const handleSaveCompany = async () => {
     if (!companyForm.nombre || !companyForm.industria || !companyForm.preferencias || !companyForm.photo) {
-      // You can handle validation here, like showing an error if required fields are missing
+      // Handle validation here, like showing an error if required fields are missing
+      alert("All fields are required!");
       return;
     }
   
-    // Add new company to the list
-    setCompanies((prev) => [
-      ...prev,
-      { 
-        ...companyForm, 
-        id: prev.length + 1, // or any other logic for generating ID
-      },
-    ]);
+    try {
+      // Create a FormData object
+      const formData = new FormData();
+      formData.append("nombre", companyForm.nombre);
+      formData.append("industria", companyForm.industria);
+      formData.append("preferencias", companyForm.preferencias);
+      formData.append("photo", companyForm.photo);
   
-    // Close the modal and reset form
-    setCompanyModal(false);
-    setCompanyForm({
-      nombre: "",
-      industria: "",
-      preferencias: "",
-      photo: "",
-    });
+      // Make a POST request to save the company
+      const response = await fetch("http://localhost:8080/api/empresa", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to save the company");
+      }
+  
+      const newCompany = await response.json();
+  
+      // Add the new company to the list
+      setCompanies((prev) => [...prev, newCompany]);
+  
+      // Close the modal and reset the form
+      setCompanyModal(false);
+      setCompanyForm({
+        nombre: "",
+        industria: "",
+        preferencias: "",
+        photo: "",
+      });
+    } catch (error) {
+      console.error("Error saving company:", error);
+      alert("An error occurred while saving the company.");
+    }
   };
   
 
@@ -596,17 +645,17 @@ export default function Home() {
               className="w-full p-2 rounded bg-[#1c183a] text-white"
             />
              <select
-        value={form.empresa}
-        onChange={(e) => setForm({ ...form, empresa: e.target.value })}
-        className="w-full p-2 rounded bg-[#1c183a] text-white"
-      >
-        <option value="">Select a Company</option>
-        {companies.map((company) => (
-          <option key={company.id} value={company.nombre}>
-            {company.nombre}
-          </option>
-        ))}
-      </select>
+  value={form.empresa}
+  onChange={(e) => setForm({ ...form, empresa: e.target.value })}
+  className="w-full p-2 rounded bg-[#1c183a] text-white"
+>
+  <option value="">Select a Company</option>
+  {companies.map((company) => (
+    <option key={company.id} value={company.id}>
+      {company.nombre}
+    </option>
+  ))}
+</select>
              {/* Phone Number with Prefix and Main Part */}
              <div className="flex space-x-2">
         <input
