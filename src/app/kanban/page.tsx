@@ -12,16 +12,7 @@ import {
 import SearchBar from "@/components/search_bar/page"; // ajusta el path si no es correcto
 import { HiOutlineDotsVertical } from "react-icons/hi"; // Icono de 3 puntitos
 import { motion, AnimatePresence } from "framer-motion";
-interface Negotiation {
-  user: string;
-  client: string;
-  state: string;
-  affair: string;
-  description: string;
-  date: string;
-  commission: string;
-  products: { product: string; amount: number }[];  // Added product field
-}
+
 
 
 export default function LeadFlow() {
