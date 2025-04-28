@@ -1,66 +1,123 @@
 .container {
-    display: flex;
-    background-color: #1a1d2e;
-    color: white;
-    height: 100vh;
-  }
-  
-  .sidebar {
-    width: 250px; /* Ajusta según tu diseño */
-    flex-shrink: 0;
-  }
-  
-  .main {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-  }
-  
-  
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background-color: #252a41;
-    border-radius: 10px;
-  }
-  
-  .dateButton {
-    background-color: #3a3f5c;
-    border: none;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .statsGrid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-  }
-  
-  .statCard {
-    background-color: #252a41;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-  }
-  
-  .contentGrid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 15px;
-  }
-  
-  .chart, .analytics, .transactions, .contacts {
-    background-color: #252a41;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-  }
-  
+  display: flex;
+  background-color: #1a1d2e;
+  color: white;
+  min-height: 100vh; /* Usar min-height para asegurar que cubra toda la pantalla */
+}
+
+.sidebar {
+  width: 250px; /* Ajusta según tu diseño */
+  flex-shrink: 0;
+}
+
+.main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #252a41;
+  border-radius: 10px;
+}
+
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 0 40px; /* Add side padding to the grid */
+}
+
+
+.statCard {
+  background-color: #252a41;
+  padding: 15px; /* smaller padding */
+  border-radius: 8px; /* slightly smaller corners */
+  display: flex;
+  align-items: center;
+  gap: 12px; /* a little less space between icon and text */
+}
+
+.iconWrapper {
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.contentGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.chart,
+.analytics,
+.transactions,
+.contacts {
+  background-color: #252a41;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* Puedes agregar estilos más específicos para cada sección del contentGrid si es necesario */
+.chart {
+  /* Estilos para el gráfico */
+}
+
+.analytics {
+  /* Estilos para el área de analíticas */
+}
+
+.transactions {
+  /* Estilos para la tabla de transacciones */
+}
+
+.contacts {
+  /* Estilos para la lista de contactos */
+}
+
+
+.icon {
+  color: white;
+  font-size: 24px; /* Size of the icon */
+}
+
+.textWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.statNumber {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.statLabel {
+  font-size: 0.9em; /* Softer color for the label */
+}
+
+.clientsIcon {
+  background-color: #5b61f5; /* Purple-Blue */
+}
+
+.enterprisesIcon {
+  background-color: #34d399; /* Green */
+}
+
+.negotiationsIcon {
+  background-color: #f59e0b; /* Amber/Orange */
+}
+
+.productsIcon {
+  background-color: #f87171; /* Red */
+}
