@@ -270,6 +270,7 @@ const handleSearch = () => {
   // Aquí no necesitas hacer nada porque vamos a filtrar en el render.
 };
 
+
 const [contactToDelete, setContactToDelete] = useState<string | null>(null);
 const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -308,22 +309,6 @@ const handleDeleteNegotiation = (cardKey: string) => {
   setIsDeleteModalOpen(false);
 };
 
-useEffect(() => {
-  if (isEditing && editingNegotiation) {
-    setForm({
-      user: editingNegotiation.user,
-      client: editingNegotiation.client,
-      state: editingNegotiation.state,
-      affair: editingNegotiation.affair,
-      description: editingNegotiation.description,
-      date: editingNegotiation.date,
-      commission: editingNegotiation.commission,
-      products: editingNegotiation.products.length > 0
-        ? editingNegotiation.products
-        : [{ product: "", amount: 0 }],
-    });
-  }
-}, [isEditing, editingNegotiation]);
 
 const handleSaveNegotiation = () => {
   if (isFormValid()) {
@@ -416,38 +401,52 @@ return (
 
                               <div className="absolute top-2 right-2">
                                 <div className="relative">
-                                  <HiOutlineDotsVertical
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setActiveMenu(cardKey); // <--- set the cardKey that's open
-                                    }}
-                                    className="text-purple-300 hover:text-purple-400 cursor-pointer"
-                                  />
-                                  {activeMenu === cardKey && (
-                                    <div className="absolute right-0 mt-2 w-32 bg-[#1e1b3a] text-white rounded shadow-md z-10">
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setEditingNegotiation(contact);
-                                          setIsEditing(true);
-                                          setActiveMenu(null);
-                                        }}
-                                        className="block w-full text-left px-4 py-2 hover:bg-purple-700"
-                                      >
-                                        Edit
-                                      </button>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setContactToDelete(cardKey);
-                                          setIsDeleteModalOpen(true);
-                                          setActiveMenu(null);
-                                        }}
-                                        className="block w-full text-left px-4 py-2 hover:bg-red-700 text-red-300"
-                                      >
-                                        Delete
-                                      </button>
-                                    </div>
+                                <HiOutlineDotsVertical
+        onClick={(e) => {
+          e.stopPropagation();
+          setActiveMenu((prevMenu) => (prevMenu === cardKey ? null : cardKey));  // Togglear el menú
+        }}
+        className="text-purple-300 hover:text-purple-400 cursor-pointer"
+      />
+
+      {activeMenu === cardKey && (
+        <div className="menu-container absolute right-0 mt-2 w-32 bg-[#1e1b3a] text-white rounded shadow-md z-10">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditingNegotiation(contact);
+              setIsEditing(true);
+              setActiveMenu(null);  // Cerrar el menú después de editar
+            }}
+            className="block w-full text-left px-4 py-2 hover:bg-purple-700"
+          >
+            Edit
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setContactToDelete(cardKey);
+              setIsDeleteModalOpen(true);
+              setActiveMenu(null);  // Cerrar el menú después de eliminar
+            }}
+            className="block w-full text-left px-4 py-2 hover:bg-red-700 text-red-300"
+          >
+            Delete
+          </button>
+          {contact.state === "Close Won" && (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          // Lógica para manejar el envío de la factura
+          alert("Invoice action triggered");
+          setActiveMenu(null);  // Cerrar el menú después de hacer clic en "Invoice"
+        }}
+        className="block w-full text-left px-4 py-2 hover:bg-green-700 text-green-300"
+      >
+        Invoice
+      </button>
+    )}
+        </div>
                                   )}
                                 </div>
                               </div>

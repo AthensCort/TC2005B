@@ -17,21 +17,23 @@ const Sidebar = () => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const sidebarRef = useRef<HTMLElement | null>(null);
+  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        sidebarRef.current &&
-        !sidebarRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+    let timer: NodeJS.Timeout;
+
+    if (isOpen) {
+      // ESPERAMOS 300MS PARA MOSTRAR EL CONTENIDO
+      timer = setTimeout(() => {
+        setShowContent(true);
+      }, 300);
+    } else {
+      // SI SE CIERRA, ESCONDEMOS INMEDIATO
+      setShowContent(false);
+    }
+
+    return () => clearTimeout(timer);
+  }, [isOpen]);
 
   return (
     <aside
