@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 
 interface Product {
+  id?: number;
   nombre: string;
   precio: number;
   stock: number;
@@ -70,10 +71,28 @@ export default function Home() {
   };
 
   // Handle delete functionality
-  const handleDelete = (item: Product) => {
-    setProduct((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
-    setFilteredProducts((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
-    setActiveMenu(null);
+  const handleDelete = async (item: Product) => {
+    const formData = new FormData();
+    formData.append("nombre", item.nombre);
+  
+    try {
+      const response = await fetch(`http://localhost:8080/api/productoServicio/${item.id}`, {
+        method: "DELETE",
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete the product");
+      }
+  
+      // Update the state after successful deletion
+      setProduct((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
+      setFilteredProducts((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
+      setActiveMenu(null);
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      alert("An error occurred while deleting the product.");
+    }
   };
 
   const handleSaveEdit = () => {
