@@ -70,12 +70,12 @@ export default function SignUpForm() {
         <CardContent>
           <h2 className={styles.title}>Register</h2>
           <div className="space-y-4">
-            {['nombre', 'correo', 'telefono', 'empresa'].map((field) => (
+            {['Name', 'Email', 'Phone number', 'Company'].map((field) => (
               <div key={field}>
                 <label className={styles.label}>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
                 <Input 
                   name={field} 
-                  type={field === 'correo' ? 'email' : 'text'} 
+                  type={field === 'Email' ? 'email' : 'text'} 
                   placeholder={`Enter your ${field}`} 
                   className={styles.input} 
                   onChange={handleChange} 
@@ -87,7 +87,7 @@ export default function SignUpForm() {
               <label className={styles.label}>Password</label>
               <div className="relative">
                 <Input
-                  name="contrasena"
+                  name="Password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   className={styles.input}
