@@ -1,452 +1,454 @@
 'use client'
 import Sidebar from "@/components/sidebar/page";
 import styles from "./page.module.css";
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import { useState, useEffect} from "react";
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { useState, useEffect } from "react";
 import {
   DragDropContext,
   Droppable,
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
-import SearchBar from "@/components/search_bar/page"; // ajusta el path si no es correcto
-import { HiOutlineDotsVertical } from "react-icons/hi"; // Icono de 3 puntitos
+import SearchBar from "@/components/search_bar/page";
+import { HiOutlineDotsVertical } from "react-icons/hi";
 import { motion, AnimatePresence } from "framer-motion";
+import {format} from "date-fns"
 
-
-
-export default function LeadFlow() {
-  //NORMAL FORM
-  // Define the necessary types for your form
-  interface Negotiation {
-    user: string;
-    client: string;
-    state: string;
-    affair: string;
-    description: string;
-    date: string;
-    commission: string;
-    products: { product: string; amount: number }[];  // Added product field
-  }
-
-interface Factura {
-  id: number;
+// Normal Form
+type Negociacion = {
+  id?:number;
+  usuario: string;
+  cliente: string;
+  estado: string;
   asunto: string;
-  fecha: string; // Puede ser `Date` si se parsea como objeto de fecha
+  descripcion: string;
+  fecha: string;
   comision: number;
   total: number;
-  empresa: string;
+  productos: { nombre: string; cantidad: number }[];
+} & {
+  [key: string]: any;
+};
+
+interface Factura {
+  asunto: string;
+  fecha: string;
+  descripcion: string;
+  comision: number;
+  total: number;
+  usuario: string;
   cliente: string;
-  subtotal: number;
+  estado: string;
   productos: {
     nombre: string;
     precio: number;
     cantidad: number;
-    subtotal: number;
+    id: number;
   }[];
 }
 
-const [facturas, crearFacturas] = useState<Factura>();
-    useEffect(() => {
-      fetch("http://localhost:8080/api/negociacion/factura/id")
-        .then((res) => res.json())
-        .then((data) => crearFacturas(data));
-    }, []);
+interface Empresa {
+  id?: number;
+  nombre: string;
+  industria: string;
+  preferencias: string;
+}
 
-const [loading, setLoading] = useState(false);
+interface Cliente{
+  id: number,
+  nombre: string,
+  empresa: string,
+}
 
-const handleGeneratePDF = async () => {
-  setLoading(true);
+interface Usuario{
+id: number;
+nombre: string;
+email:string;
+}
 
-  try {
-    // 1. Hardcoded invoice data
+export default function LeadFlow() {
+  const [originalNegotiation, setOriginalNegotiation] = useState<Negociacion | null>(null);
+  const [factura, setFactura] = useState<Factura>();
 
-    // 2. Create a new PDF
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595, 842]); // A4 size
+  const [products, setProducts] = useState<Producto[]>([]);
 
-    const {height } = page.getSize();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  useEffect(() => {
+    fetch("http://localhost:8080/api/productoServicio")
+      .then((res) => res.json())
+      .then((data) => setProducts(data));
+  }, []);
 
-    // 3. Optional: Add logo
-    /*
+  const [negotiations, setNegotiations] = useState<Negociacion[]>([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/api/negociacion/")
+    .then(res => res.json())
+    .then(data => setNegotiations(data)) 
+  }, []);
+
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  useEffect(() => {
+    fetch("http://localhost:8080/api/usuario/")
+    .then(res => res.json())
+    .then(data => setUsuarios(data)) 
+  }, []);
+
+  const [loading, setLoading] = useState(false);
+
+  const handleGeneratePDF = async (negotiationId:number) => {
+    setLoading(true);
+    fetch(`http://localhost:8080/api/negociacion/factura/${negotiationId}`)
+    .then(res=>res.json())
+    .then(data=>setFactura(data));
+
     try {
-      if (logoUrl) {
-        const logoImageBytes = await fetch(logoUrl).then(res => res.arrayBuffer());
-        const logoImage = await pdfDoc.embedPng(logoImageBytes);
-        page.drawImage(logoImage, {
-          x: width - 150,
-          y: height - 100,
-          width: 100,
-          height: 50,
+      const pdfDoc = await PDFDocument.create();
+      const page = pdfDoc.addPage([595, 842]); // A4 size
+
+      const { height } = page.getSize();
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+      // Title Section
+      const titleFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      page.drawText('INVOICE', {
+        x: 50,
+        y: height - 50,
+        size: 36,
+        font: titleFont,
+        color: rgb(0, 0, 0)
+      });
+
+      // Invoice Information
+      const detailsFont = font;
+      const fecha = factura?.fecha ? new Date(factura.fecha) : null;
+      const formattedDate = fecha ? format(fecha, 'dd/MM/yyyy') : 'Fecha no válida';
+
+      page.drawText(`Asunto: ${factura?.asunto}`, { x: 50, y: height - 100, size: 14, font: detailsFont });
+      page.drawText(`Cliente: ${factura?.cliente}`, { x: 50, y: height - 120, size: 14, font: detailsFont });
+      page.drawText(`Fecha: ${formattedDate}`, { x: 50, y: height - 140, size: 14, font: detailsFont });
+
+      // Table Header (Products, Prices, Quantities)
+      const tableTop = height - 180;
+      const tableHeaderFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      page.drawText('Producto', { x: 50, y: tableTop, size: 12, font: tableHeaderFont });
+      page.drawText('Precio Unitario', { x: 150, y: tableTop, size: 12, font: tableHeaderFont });
+      page.drawText('Cantidad', { x: 250, y: tableTop, size: 12, font: tableHeaderFont });
+      page.drawText('Subtotal', { x: 350, y: tableTop, size: 12, font: tableHeaderFont });
+
+      // Table Content
+      let yPosition = tableTop - 20;
+      if (factura?.productos) {
+        factura.productos.forEach(item => {
+          page.drawText(item.nombre, { x: 50, y: yPosition, size: 12, font });
+          page.drawText(`$${item.precio.toFixed(2)}`, { x: 150, y: yPosition, size: 12, font });
+          page.drawText(`${item.cantidad}`, { x: 250, y: yPosition, size: 12, font });
+          page.drawText(`$${(item.precio * item.cantidad).toFixed(2)}`, { x: 350, y: yPosition, size: 12, font });
+
+          yPosition -= 20;
         });
       }
-    } catch (err) {
-      console.warn('Logo not found or failed to load, skipping logo.', err);
+
+      // Commission and Total
+      yPosition -= 20; // add some space
+      const summaryFont = font;
+      page.drawText(`Comisión: $${factura?.comision.toFixed(2)}`, { x: 50, y: yPosition, size: 14, font: summaryFont });
+      page.drawText(`Total: $${factura?.total.toFixed(2)}`, { x: 50, y: yPosition - 20, size: 14, font: summaryFont });
+
+      // Generate the PDF and Trigger Download
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Factura_${factura?.asunto}.pdf`;
+
+      // Trigger Download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+
+    } catch (error) {
+      console.error('Error generating PDF:', error);
     }
-      */
+    setFactura({
+      asunto: '',
+      fecha: '',
+      descripcion: '',
+      comision: 0,
+      total: 0,
+      usuario: '',
+      cliente: '',
+      estado: '',
+      productos: []
+    })
 
-    // 4. Add invoice basic info
-    page.drawText('INVOICE', { x: 50, y: height - 50, size: 30, font, color: rgb(0, 0, 0) });
-    page.drawText(`Invoice #: ${facturas?.id}`, { x: 50, y: height - 90, size: 14, font });
-    page.drawText(`Client: ${facturas?.cliente}`, { x: 50, y: height - 110, size: 14, font });
-    page.drawText(`Company: ${facturas?.empresa}`, { x: 50, y: height - 130, size: 14, font });
-    page.drawText(`Date: ${facturas?.fecha}`, { x: 50, y: height - 150, size: 14, font });
-
-    // 5. Add table headers
-    const tableTop = height - 200;
-    page.drawText('Item', { x: 50, y: tableTop, size: 12, font });
-    page.drawText('Unitary Price', { x: 150, y: tableTop, size: 12, font });
-    page.drawText('Quantity', { x: 250, y: tableTop, size: 12, font });
-    page.drawText('Subtotal', { x: 350, y: tableTop, size: 12, font });
-
-    // 6. Fill items
-    let yPosition = tableTop - 20;
-    if (facturas?.productos) {
-    for (const item of facturas?.productos) {
-      page.drawText(item.nombre, { x: 50, y: yPosition, size: 12, font });
-      page.drawText(item.precio.toString(), { x: 150, y: yPosition, size: 12, font });
-      page.drawText(item.cantidad.toString(), { x: 250, y: yPosition, size: 12, font });
-      page.drawText(`$${item.subtotal.toFixed(2)}`, { x: 350, y: yPosition, size: 12, font });
-
-      yPosition -= 20;
-    }
-  }
-
-    // 7. Add subtotal, commission, and total
-    yPosition -= 20;
-    page.drawText(`Subtotal: $${facturas?.subtotal.toFixed(2)}`, { x: 50, y: yPosition, size: 14, font });
-    page.drawText(`Commission: $${facturas?.comision.toFixed(2)}`, { x: 50, y: yPosition - 20, size: 14, font });
-    page.drawText(`Total: $${facturas?.total.toFixed(2)}`, { x: 50, y: yPosition - 40, size: 14, font });
-
-    // 8. Save and download
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `Invoice_${facturas?.id}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-  }
-
-  setLoading(false);
-};
-  //VALIDACION CREACION DE NEGOCIACIONES
-
-  
-  // Combined Validation Function
-const isFormValid = () => {
-  // Check if you are editing or adding a negotiation
-  const targetForm = isEditing ? editingNegotiation : form;
-  if (!targetForm) return false;
-  const areProductsValid = targetForm.products.every(
-    (item: { product: string; amount: number }) => item.product !== "" && item.amount !== 0
-  );
-
-  return (
-    targetForm.user !== "" &&
-    targetForm.client !== "" &&
-    targetForm.state !== "" &&
-    targetForm.affair !== "" &&
-    targetForm.description !== "" &&
-    targetForm.date !== "" &&
-    targetForm.commission !== "" &&
-    areProductsValid
-  );
-};
-
-
-  //ESTADO DE RESET
-
-    // Reset the form to initial values
-    const resetForm = () => {
-      setForm({
-        user: "",
-        client: "",
-        state: "",
-        affair: "",
-        description: "",
-        date: "",
-        commission: "",
-        products: [{ product: "", amount: 0 }]
-      });
-    };
-
-    //MODAL HACER NUEVO
-    const openModal = () => {
-      resetForm(); // Reset form when modal is opened
-      setShowModal(true); // Show the modal
-    };
-
-  //INTERFACE DE LAS EMPRESAS
-  interface Empresa {
-    id?: number;
-    nombre: string;
-    industria: string;
-    preferencias: string;
-  }
-  //LLAMADA A ALS EMPRESAS DESDE LE API, LOL
-  const [companies, setCompanies] = useState<Empresa[]>([]);
-      useEffect(() => {
-        fetch("http://localhost:8080/api/empresa")
-          .then((res) => res.json())
-          .then((data) => setCompanies(data));
-      }, []);
-
-
-  //ESTIPULACION Y LLAMADA D EPRODUCTOS
-  interface Product {
-    nombre: string,
-    precio: string,
-    stock: string,
-    url?: string,
-  }
-  const [products, setProducts] = useState<Product[]>([]);
-
-      useEffect(() => {
-        fetch("http://localhost:8080/api/productoServicio")
-          .then((res) => res.json())
-          .then((data) => setProducts(data));
-      }, []);
-
-  const [showModal, setShowModal] = useState(false);
-  const [contacts, setContacts] = useState<Negotiation[]>([
-    {
-      user: "Carlos Mendoza",
-      client: "Tech Solutions",
-      state: "Starting",
-      affair: "Initial Contact",
-      description: "Reached out to discuss potential collaboration",
-      date: "2025-04-10",
-      commission: "$500",
-      products:[{
-        product: "Platform A",
-        amount: 120
-      }]
-    },
-    {
-      user: "Laura García",
-      client: "InnovaCorp",
-      state: "Middle Stage",
-      affair: "Product Presentation",
-      description: "Showed platform demo and features",
-      date: "2025-04-11",
-      commission: "$1,200",
-      products:[{
-        product: "Platform A",
-        amount: 120
-      }]
-    },
-    {
-      user: "Luis Torres",
-      client: "GlobalWare",
-      state: "Finish Stage",
-      affair: "Final Negotiations",
-      description: "Discussing terms before closing",
-      date: "2025-04-12",
-      commission: "$2,000",
-      products:[{
-        product: "Platform A",
-        amount: 120
-      }]
-    },
-    {
-      user: "Maria magdalena",
-      client: "BTICH",
-      state: "Starting",
-      affair: "Final Negotiations",
-      description: "Discussing terms before closing",
-      date: "2025-04-12",
-      commission: "$2,000",
-      products:[
-        {product: "Platform A",amount: 120},
-        { product: "TRAPECIO", amount: 100 }
-      
-      ]
-    },
-  ]);
-
-  
-
-  const [form, setForm] = useState({
-    user: "",
-    client: "",
-    state: "",
-    affair: "",
-    description: "",
-    date: "",
-    commission: "",
-    products: [{ product: "", amount: 0 }]
-  });
-
-  const [expandedCard, setExpandedCard] = useState<{ [key: string]: boolean }>({});
-  const [reportPopup, setReportPopup] = useState<string | null>(null);
-
-  const stages = [
-    "Starting",
-    "Middle Stage",
-    "Finish Stage",
-    "Close Won",
-    "Close Lost",
-  ];
-
-  const handleToggleCard = (key: string) => {
-    setExpandedCard((prev) => ({
-      ...Object.fromEntries(Object.entries(prev).map(([k]) => [k, false])),
-      [key]: !prev[key],
-    }));
+    setLoading(false);
   };
 
-  //MODIFICA EL DRAG PARA CAMBIAR EL ESTADO Y LA POSICION ENTE LA MISMA COLUMNA
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
-  
-    const { destination, draggableId } = result;  // Removed source since it's not used
-  
-    setContacts((prev) => {
-      // Find the dragged contact
-      const draggedContact = prev.find((contact) => {
-        const cardKey = `${contact.client}-${contact.user}-${contact.date}`;
-        return cardKey === draggableId;
-      });
-  
-      if (!draggedContact) return prev;
-  
-      // Remove it from old place
-      const newContacts = [...prev].filter((contact) => {
-        const cardKey = `${contact.client}-${contact.user}-${contact.date}`;
-        return cardKey !== draggableId;
-      });
-  
-      // Update its state to new stage
-      const updatedContact = { ...draggedContact, state: destination.droppableId };
-  
-      // Build the new list for that stage
-      const contactsInDestinationStage = newContacts.filter(
-        (c) => c.state === destination.droppableId
-      );
-  
-      // Find the correct index to insert
-      const before = newContacts.filter((c) => c.state !== destination.droppableId);
-      const after = [
-        ...contactsInDestinationStage.slice(0, destination.index),
-        updatedContact,
-        ...contactsInDestinationStage.slice(destination.index),
-      ];
-  
-      return [...before, ...after];
+  const [form, setForm] = useState<Negociacion>({
+    usuario: "",
+    cliente: "",
+    estado: "",
+    asunto: "",
+    descripcion: "",
+    fecha: "",
+    comision: 0,
+    total: 0,
+    productos: [{ nombre: "", cantidad: 0}],
+  });
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingNegotiation, setEditingNegotiation] = useState<Negociacion | null>(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const isFormValid = () => {
+    const targetForm = isEditing ? editingNegotiation : form;
+    if (!targetForm) return false;
+    const areProductsValid = targetForm.productos.every(
+      (item) => item.nombre !== "" && item.cantidad !== 0
+    );
+
+    return (
+      targetForm.usuario !== "" &&
+      targetForm.cliente !== "" &&
+      targetForm.estado !== "" &&
+      targetForm.asunto !== "" &&
+      targetForm.descripcion !== "" &&
+      targetForm.fecha !== "" &&
+      areProductsValid
+    );
+  };
+
+  const resetForm = () => {
+    setForm({
+      usuario: "",
+      cliente: "",
+      estado: "",
+      asunto: "",
+      descripcion: "",
+      fecha: "",
+      comision: 0,
+      total: 0,
+      productos: [{ nombre: "", cantidad: 0 }],
     });
   };
 
-  
-  
-  
-
-    //IMPLEMENTACION DE AI PARA EL REPORTE DE NEGOCIOS
-  const generateReport = async () => {
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBycft2U9zo4J4-AUFUeHvKpjRgkSQGjvA';
-
-    const payload = {
-      contents: [{
-        parts: [{
-          text: `Summarize this data: ${JSON.stringify(contacts)}`,
-        }],
-      }],
-    };
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const resp = await response.json();
-      const summary = resp.candidates[0]?.content?.parts[0]?.text || "No summary available.";
-      setReportPopup(summary);
-    } catch (error) {
-      console.error("Error generating report:", error);
-      setReportPopup("Failed to generate report.");
-    }
+  const openModal = () => {
+    resetForm();
+    setShowModal(true);
   };
-  const [searchValue, setSearchValue] = useState("");
 
-  //IMPLEMENTACION DE BARRA DE BUSQUEDA
+
+
+// LLAMADA A EMPRESAS
+const [companies, setCompanies] = useState<Empresa[]>([]);
+
+useEffect(() => {
+  fetch("http://localhost:8080/api/empresa")
+    .then((res) => res.json())
+    .then((data) => setCompanies(data));
+}, []);
+
+const [clients, setClients] = useState<Cliente[]>([]);
+
+useEffect(() =>{
+  fetch("http://localhost:8080/api/cliente")
+  .then((res) => res.json())
+  .then((data) => setClients(data));
+})
+
+// LLAMADA A PRODUCTOS
+interface Producto {
+  id:string,
+  nombre: string,
+  precio: number,
+  stock: number,
+  url?: string,
+}
+
+// EXPANSIÓN DE CARDS
+const [expandedCard, setExpandedCard] = useState<{ [key: string]: boolean }>({});
+ 
+// POPUP DE REPORTES
+const [reportPopup, setReportPopup] = useState<string | null>(null);
+
+// ETAPAS
+const etapas = [
+  "Starting",
+  "Middle Stage",
+  "Finish Stage",
+  "Close Won",
+  "Close Lost",
+];
+
+// FUNCION PARA EXPANDIR UNA TARJETA
+const handleToggleCard = (key: string) => {
+  setExpandedCard((prev) => ({
+    ...Object.fromEntries(Object.entries(prev).map(([k]) => [k, false])),
+    [key]: !prev[key],
+  }));
+};
+
+// FUNCION PARA MANEJAR DRAG AND DROP
+const handleDragEnd = (result: DropResult) => {
+  if (!result.destination) return;
+
+  const { destination, draggableId } = result;
+
+  setNegotiations((prev) => {
+    const negociacionArrastrada = prev.find((negociacion) => {
+      const key = `${negociacion.cliente}-${negociacion.usuario}-${negociacion.fecha}`;
+      return key === draggableId;
+    });
+
+    if (!negociacionArrastrada) return prev;
+
+    const nuevasNegociaciones = [...prev].filter((negociacion) => {
+      const key = `${negociacion.cliente}-${negociacion.usuario}-${negociacion.fecha}`;
+      return key !== draggableId;
+    });
+
+    const negociacionActualizada = { ...negociacionArrastrada, estado: destination.droppableId };
+
+    const negociacionesEnDestino = nuevasNegociaciones.filter(
+      (n) => n.estado === destination.droppableId
+    );
+
+    const antes = nuevasNegociaciones.filter((n) => n.estado !== destination.droppableId);
+    const despues = [
+      ...negociacionesEnDestino.slice(0, destination.index),
+      negociacionActualizada,
+      ...negociacionesEnDestino.slice(destination.index),
+    ];
+
+    return [...antes, ...despues];
+  });
+};
+// IMPLEMENTACION DE AI PARA EL REPORTE DE NEGOCIOS
+const generateReport = async () => {
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBycft2U9zo4J4-AUFUeHvKpjRgkSQGjvA';
+
+  const payload = {
+    contents: [{
+      parts: [{
+        text: `Summarize this data: ${JSON.stringify(negotiations)}`,
+      }],
+    }],
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const resp = await response.json();
+    const summary = resp.candidates[0]?.content?.parts[0]?.text || "No summary available.";
+    setReportPopup(summary);
+  } catch (error) {
+    console.error("Error generating report:", error);
+    setReportPopup("Failed to generate report.");
+  }
+};
+
+const [searchValue, setSearchValue] = useState("");
+
+// IMPLEMENTACION DE BARRA DE BUSQUEDA
 const handleSearch = () => {
   // Aquí no necesitas hacer nada porque vamos a filtrar en el render.
 };
 
-
-const [contactToDelete, setContactToDelete] = useState<string | null>(null);
+const [negotiationToDelete, setNegotiationToDelete] = useState<string | null>(null);
 const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-//EDIT THE NEGOTIATIONS
+// EDIT THE NEGOTIATIONS
 const [activeMenu, setActiveMenu] = useState<string | null>(null);
-const [editingNegotiation, setEditingNegotiation] = useState<Negotiation | null>(null);
-const [isEditing, setIsEditing] = useState(false);
+const handleSaveEditedNegotiation = async (updatedNegotiation: Negociacion) => {
+  try {
+    // Actualizar el estado local con la negociación editada
+    setNegotiations((prev: Negociacion[]) =>
+      prev.map((negotiation: Negociacion) => {
+        if (
+          negotiation.usuario === updatedNegotiation.usuario &&
+          negotiation.cliente === updatedNegotiation.cliente &&
+          negotiation.fecha === updatedNegotiation.fecha
+        ) {
+          // Hacer un POST al servidor para guardar la negociación editada
+          fetch("http://localhost:8080/api/negociacion/", {
+            method: "POST", // Método POST para enviar datos
+            headers: {
+              "Content-Type": "application/json", // Especificar que los datos son en formato JSON
+            },
+            body: JSON.stringify(updatedNegotiation), // Pasar los datos como un string JSON
+          })
+            .then((response) => response.json()) // Obtener la respuesta en formato JSON
+            .then((data) => {
+              console.log("Negociación actualizada:", data);
+            })
+            .catch((error) => {
+              console.error("Error al guardar la negociación:", error);
+            });
 
-
-const handleSaveEditedNegotiation = (updatedNegotiation: Negotiation) => {
-  setContacts((prev) =>
-    prev.map((contact) => {
-      if (
-        contact.user === updatedNegotiation.user &&
-        contact.client === updatedNegotiation.client &&
-        contact.date === updatedNegotiation.date
-      ) {
-        return {
-          ...contact, // Copy the existing contact
-          ...updatedNegotiation, // Overwrite with updated negotiation data
-          // state: contact.state, // Optional: If state is not changing, you don't need to include it here
-        };
-      }
-      return contact;
-    })
-  );
+          // Retornar la negociación actualizada en el estado
+          return {
+            ...negotiation, // Copiar la negociación existente
+            ...updatedNegotiation, // Sobrescribir con los datos de la negociación editada
+          };
+        }
+        return negotiation;
+      })
+    );
+  } catch (error) {
+    console.error("Error en handleSaveEditedNegotiation:", error);
+  }
 };
 
+
 const handleDeleteNegotiation = (cardKey: string) => {
-  setContacts((prev) =>
-    prev.filter((contact) => {
-      const key = `${contact.client}-${contact.user}-${contact.date}`;
+  setNegotiations((prev:Negociacion[]) =>
+    prev.filter((negotiation:Negociacion) => {
+      const key = `${negotiation.cliente}-${negotiation.usuario}-${negotiation.fecha}`;
       return key !== cardKey;
     })
   );
   setIsDeleteModalOpen(false);
 };
 
-
 const handleSaveNegotiation = () => {
   if (isFormValid()) {
     const newNegotiation = {
       ...form,
-      commission: `$${form.commission}`, // Format commission
-      products: form.products.map(product => ({
-        product: product.product,
-        amount: product.amount,
+      products: form.productos.map(product => ({
+        product: product.nombre,
+        amount: product.cantidad,
       })),
     };
 
     if (isEditing) {
       handleSaveEditedNegotiation(newNegotiation);
     } else {
-      setContacts((prev) => [...prev, newNegotiation]);
+      setShowModal(false);
+      setIsEditing(false);
+
+      fetch("http://localhost:8080/api/negociacion/", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newNegotiation),
+      })
+      .then(res => res.json())
+      .then(data => setNegotiations((prev) => [...prev, data]))
+      .catch( error => console.log(error))
+
     }
-    setShowModal(false);
-    setIsEditing(false);
   } else {
     alert("Please fill out all fields!");
   }
 };
-
-
-
 
 return (
   <div className={`${styles.container} bg-[#07101d]`}>
@@ -481,25 +483,25 @@ return (
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className={`${styles.pipeline} mt-8 ml-8 overflow-y-auto`}>
-          {stages.map((stage) => (
-            <div className={styles.stage} key={stage}>
-              <h3 className="font-bold text-purple-300">{stage}</h3>
+          {etapas.map((etapa) => (
+            <div className={styles.stage} key={etapa}>
+              <h3 className="font-bold text-purple-300">{etapa}</h3>
 
-              <Droppable droppableId={stage}>
+              <Droppable droppableId={etapa}>
                 {(provided) => (
                   <div
                     className={styles.cardList}
                     {...provided.droppableProps}
                     ref={provided.innerRef}
                   >
-                    {contacts
-                      .filter((c) => c.state === stage)
-                      .filter((c) =>
-                        c.client.toLowerCase().includes(searchValue.toLowerCase()) ||
-                        c.affair.toLowerCase().includes(searchValue.toLowerCase())
+                    {negotiations
+                      .filter((n) => n.estado === etapa)
+                      .filter((n) =>
+                        n.cliente.toLowerCase().includes(searchValue.toLowerCase()) ||
+                        n.asunto.toLowerCase().includes(searchValue.toLowerCase())
                       )
-                      .map((contact, i) => {
-                        const cardKey = `${contact.client}-${contact.user}-${contact.date}`;
+                      .map((negotiation, i) => {
+                        const cardKey = `${negotiation.cliente}-${negotiation.usuario}-${negotiation.fecha}`;
                         return (
                           <Draggable draggableId={cardKey} index={i} key={cardKey}>
                             {(provided) => (
@@ -510,80 +512,75 @@ return (
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                               >
+                                <div className="absolute top-2 right-2">
+                                  <div className="relative">
+                                    <HiOutlineDotsVertical
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveMenu((prevMenu) => (prevMenu === cardKey ? null : cardKey));  // Togglear el menú
+                                      }}
+                                      className="text-purple-300 hover:text-purple-400 cursor-pointer"
+                                    />
 
-                              <div className="absolute top-2 right-2">
-                                <div className="relative">
-                                <HiOutlineDotsVertical
-        onClick={(e) => {
-          e.stopPropagation();
-          setActiveMenu((prevMenu) => (prevMenu === cardKey ? null : cardKey));  // Togglear el menú
-        }}
-        className="text-purple-300 hover:text-purple-400 cursor-pointer"
-      />
-
-      {activeMenu === cardKey && (
-        <div className="menu-container absolute right-0 mt-2 w-32 bg-[#1e1b3a] text-white rounded shadow-md z-10">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditingNegotiation(contact);
-              setIsEditing(true);
-              setActiveMenu(null);  // Cerrar el menú después de editar
-            }}
-            className="block w-full text-left px-4 py-2 hover:bg-purple-700"
-          >
-            Edit
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setContactToDelete(cardKey);
-              setIsDeleteModalOpen(true);
-              setActiveMenu(null);  // Cerrar el menú después de eliminar
-            }}
-            className="block w-full text-left px-4 py-2 hover:bg-red-700 text-red-300"
-          >
-            Delete
-          </button>
-          {contact.state === "Close Won" && (
-      <button
-      onClick={(e) => {
-        e.stopPropagation();
-        handleGeneratePDF(); // Call the function to generate PDF
-        setActiveMenu(null);  // Close the menu after clicking "Invoice"
-      }}
-      className="block w-full text-left px-4 py-2 hover:bg-green-700 text-green-300"
-      disabled={loading} // Disable button if loading is true
-    >
-      {loading ? (
-        <span>Loading...</span>  // You can replace this with a spinner or text
-      ) : (
-        'Invoice'  // Button text when not loading
-      )}
-    </button>
-    )}
-        </div>
+                                    {activeMenu === cardKey && (
+                                      <div className="menu-container absolute right-0 mt-2 w-32 bg-[#1e1b3a] text-white rounded shadow-md z-10">
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOriginalNegotiation(negotiation);  // 🔥 Guarda copia original
+                                            setEditingNegotiation(negotiation);
+                                            setIsEditing(true);
+                                            setActiveMenu(null);  // Cerrar el menú después de editar
+                                          }}
+                                          className="block w-full text-left px-4 py-2 hover:bg-purple-700"
+                                        >
+                                          Edit
+                                        </button>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setNegotiationToDelete(cardKey);
+                                            setIsDeleteModalOpen(true);
+                                            setActiveMenu(null);  // Cerrar el menú después de eliminar
+                                          }}
+                                          className="block w-full text-left px-4 py-2 hover:bg-red-700 text-red-300"
+                                        >
+                                          Delete
+                                        </button>
+                                        {negotiation.estado === "Close Won" && (
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleGeneratePDF(negotiation.id!); // Call the function to generate PDF
+                                              setActiveMenu(null);  // Close the menu after clicking "Invoice"
+                                            }}
+                                            className="block w-full text-left px-4 py-2 hover:bg-green-700 text-green-300"
+                                            disabled={loading} // Disable button if loading is true
+                                          >
+                                            {loading ? (
+                                              <span>Loading...</span>  // You can replace this with a spinner or text
+                                            ) : (
+                                              'Invoice'  // Button text when not loading
+                                            )}
+                                          </button>
+                                        )}
+                                        </div>
                                   )}
                                 </div>
                               </div>
-
-
-
-                                <div className={styles.cardTitle}>{contact.affair}</div>
+                                <div className={styles.cardTitle}>{negotiation.asunto}</div>
                                 <div className={styles.cardDetails}>
-                                  <span className={styles.date}>{contact.client}</span>
-                                  
-    
+                                  <span className={styles.date}>{negotiation.cliente}</span>
                                 </div>
                                 <div className={styles.meta}>
-                                  <small>{contact.user} - {contact.date}</small>
+                                  <small>{negotiation.usuario} - {negotiation.fecha}</small>
                                 </div>
                            {expandedCard[cardKey] && (   
                             <div className="space-y-1 mt-6">
                         {/* Description */}
                         <div>
                           <small className="block font-semibold text-gray-400 mt:6">Description:</small>
-                          <small className={`${styles.date} mt-1 block`}>{contact.description}</small>
+                          <small className={`${styles.date} mt-1 block`}>{negotiation.descripcion}</small>
                         </div>
 
                         {/* Product and Amount */}
@@ -593,10 +590,10 @@ return (
                         </div>
 
                         
-                        {contact.products.map((item, index) => (
+                        {negotiation.productos.map((item, index) => (
                       <div key={index} className="flex justify-between mt-1">
-                        <small className={`${styles.product}`}>{item.product}</small>
-                        <small className="font-medium">{item.amount}</small>
+                        <small className={`${styles.product}`}>{item.nombre}</small>
+                        <small className="font-medium">{item.cantidad}</small>
                       </div>
                     ))}
                   </div>      
@@ -614,12 +611,12 @@ return (
                       })}
                     {provided.placeholder}
                     
-                    {/* EMPTY STAGE PLACEHOLDER */}
-                    {contacts
-                      .filter((c) => c.state === stage)
+                    {/* EMPTY etapa PLACEHOLDER */}
+                    {negotiations
+                      .filter((c) => c.estado === etapa)
                       .filter((c) =>
-                        c.client.toLowerCase().includes(searchValue.toLowerCase()) ||
-                        c.affair.toLowerCase().includes(searchValue.toLowerCase())
+                        c.cliente.toLowerCase().includes(searchValue.toLowerCase()) ||
+                        c.asunto.toLowerCase().includes(searchValue.toLowerCase())
                       ).length === 0 && (
                         <div className={styles.emptyDropArea}></div>
 
@@ -653,20 +650,22 @@ return (
   <h3 className="text-lg text-purple-300 mb-4">Edit Negotiation</h3>
 
   {(() => {
-    const stringFields: (keyof Omit<Negotiation, "products">)[] = [
-      "affair",
-      "description",
-      "date",
-      "commission",
-      "state",
-      "client",
-    ];
+const stringFields = [
+  "estado",
+  "asunto",
+  "descripcion",
+  "fecha",
+];
+
+// No pongas "productos" ni otros arrays aquí
+
     return stringFields.map((field) => (
       <div key={field} className="mb-4">
         <label className="block text-sm font-semibold mb-1 capitalize">{field}:</label>
         <input
           type="text"
           className="w-full p-2 rounded bg-gray-700 text-white"
+          
           value={editingNegotiation?.[field] ?? ""}
           onChange={(e) =>
             editingNegotiation &&
@@ -677,41 +676,69 @@ return (
     ));
   })()}
 
-  {/* Client select dropdown */}
-  <div className="mb-4">
-    <label className="block text-sm font-semibold mb-1">Client:</label>
-    <select
-      value={editingNegotiation?.client ?? ""}
-      onChange={(e) =>
-        editingNegotiation &&
-        setEditingNegotiation({ ...editingNegotiation, client: e.target.value })
-      }
-      className="w-full p-2 rounded bg-gray-700 text-white"
-    >
-      <option value="" disabled>Select Company</option>
-      {companies.map((company) => (
-        <option key={company.id} value={company.nombre}>
-          {company.nombre}
-        </option>
-      ))}
-    </select>
-  </div>
+
+<div className="mb-4">
+  <label className="block text-sm font-semibold mb-1">User:</label>
+  <select
+    value={editingNegotiation?.idUsuarios} // 👈 cambiamos a usuarioId
+    onChange={(e) => {
+      if (!editingNegotiation) return;
+      setEditingNegotiation({
+        ...editingNegotiation,
+        idUsuarios: Number(e.target.value), // 👈 guardamos el id, no el nombre
+      });
+    }}
+    className="w-full p-2 rounded bg-gray-700 text-white"
+  >
+    <option value="" disabled>Select User</option>
+    {usuarios.map((usuario) => (
+      <option key={usuario.id} value={usuario.id}>
+        {usuario.nombre}
+      </option>
+    ))}
+  </select>
+</div>
+
+
+{/* Client select dropdown */}
+<div className="mb-4">
+  <label className="block text-sm font-semibold mb-1">Client:</label>
+  <select
+    value={editingNegotiation?.idClientes} 
+    onChange={(e) => {
+      if (!editingNegotiation) return;
+      setEditingNegotiation({
+        ...editingNegotiation,
+        idClientes: Number(e.target.value), 
+      });
+    }}
+    className="w-full p-2 rounded bg-gray-700 text-white"
+  >
+    <option value="" disabled>Select Client</option>
+    {clients.map((client) => (
+      <option key={client.id} value={client.id}>
+        {client.nombre}
+      </option>
+    ))}
+  </select>
+</div>
+
 
   {/* Products Section */}
   <div className="space-y-4">
-    {editingNegotiation?.products.map((item, index) => (
+    {editingNegotiation?.productos.map((item, index) => (
       <div key={index} className="flex items-center justify-between space-x-4">
         
         {/* PRODUCT SELECT */}
         <div className="flex flex-col w-full">
           <label className="block text-sm font-semibold mb-1 text-gray-400">Product:</label>
           <select
-            value={item.product}
+            value={item.nombre}
             onChange={(e) => {
               if (!editingNegotiation) return;
-              const updatedProducts = [...editingNegotiation.products];
-              updatedProducts[index].product = e.target.value;
-              setEditingNegotiation({ ...editingNegotiation, products: updatedProducts });
+              const updatedProducts = [...editingNegotiation.productos];
+              updatedProducts[index].nombre = e.target.value;
+              setEditingNegotiation({ ...editingNegotiation, productos: updatedProducts });
             }}
             className="w-full p-2 rounded bg-gray-700 text-white"
           >
@@ -729,12 +756,12 @@ return (
           <label className="block text-sm font-semibold mb-1 text-gray-400">Amount:</label>
           <input
             type="number"
-            value={item.amount}
+            value={item.cantidad}
             onChange={(e) => {
               if (!editingNegotiation) return;
-              const updatedProducts = [...editingNegotiation.products];
-              updatedProducts[index].amount = Number(e.target.value);
-              setEditingNegotiation({ ...editingNegotiation, products: updatedProducts });
+              const updatedProducts = [...editingNegotiation.productos];
+              updatedProducts[index].cantidad = Number(e.target.value);
+              setEditingNegotiation({ ...editingNegotiation, productos: updatedProducts });
             }}
             className="w-full p-2 rounded bg-gray-700 text-white"
           />
@@ -745,8 +772,8 @@ return (
           type="button"
           onClick={() => {
             if (!editingNegotiation) return;
-            const updatedProducts = editingNegotiation.products.filter((_, i) => i !== index);
-            setEditingNegotiation({ ...editingNegotiation, products: updatedProducts });
+            const updatedProducts = editingNegotiation.productos.filter((_, i) => i !== index);
+            setEditingNegotiation({ ...editingNegotiation, productos: updatedProducts });
           }}
           className="text-red-500 text-sm"
         >
@@ -763,7 +790,7 @@ return (
         if (!editingNegotiation) return;
         setEditingNegotiation({
           ...editingNegotiation,
-          products: [...editingNegotiation.products, { product: "", amount: 0 }]
+          productos: [...editingNegotiation.productos, { nombre: "", cantidad: 0 }]
         });
       }}
       className="text-blue-500 text-sm"
@@ -781,19 +808,55 @@ return (
       Cancel
     </button>
     <button
-      onClick={() => {
-        if (isFormValid()) {
-          handleSaveEditedNegotiation(editingNegotiation);
-          setIsEditing(false);
-        } else {
-          alert("Please fill out all fields!");
-        }
-      }}
-      disabled={!isFormValid()}
-      className="bg-purple-600 px-4 py-2 rounded hover:bg-purple-500"
-    >
-      Save
-    </button>
+  onClick={() => {
+    if (isFormValid()) {
+      const invalidProduct = editingNegotiation?.productos.find((item) => {
+        const productInfo = products.find((p: Producto) => p.nombre === item.nombre);
+        return productInfo && item.cantidad > productInfo.stock;
+      });
+  
+      if (invalidProduct) {
+        alert(`The amount for "${invalidProduct.nombre}" exceeds available stock.`);
+        return;
+      }
+
+      const { productos, usuario, cliente, ...rest } = editingNegotiation;
+
+      // 🚀 TRANSFORMAMOS productos para que tengan cantidad y productData
+      const transformedProducts = productos.map((item) => {
+        const foundProduct = products.find((p: Producto) => p.nombre === item.nombre);
+        if (!foundProduct) throw new Error(`Product ${item.nombre} not found`);
+        
+        return {
+          cantidad: item.cantidad,
+          productData: foundProduct
+        };
+      });
+
+      fetch("http://localhost:8080/api/negociacion/" + editingNegotiation.id, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ negociacion: rest, productos: { products: transformedProducts } }),
+        //                ⬆️   OJO: debes mandar el objeto { products: [...] }
+      })
+      .then(res => res.json())
+      .then(data => setNegotiations(prev => [...prev, data]))
+      .catch(error => {
+        alert("There was an error saving the negotiation." + error);
+        setEditingNegotiation(originalNegotiation);
+      });
+
+      handleSaveEditedNegotiation(editingNegotiation);
+      setIsEditing(false);
+    }
+  }}
+  className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-500"
+>
+  Save
+</button>
+
   </div>
 </motion.div>
 
@@ -825,8 +888,8 @@ return (
         </button>
         <button
   onClick={() => {
-    if (contactToDelete) {
-      handleDeleteNegotiation(contactToDelete);
+    if (negotiationToDelete) {
+      handleDeleteNegotiation(negotiationToDelete);
     }
   }}
   className="bg-red-600 px-4 py-2 rounded hover:bg-red-500"
@@ -839,173 +902,171 @@ return (
   </div>
 )}
 
+{/* Modal */}
+{showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-[#1c1c2c] p-6 rounded-lg w-[400px] space-y-4">
+            <h2 className="text-2xl font-bold text-white mb-4">Add New Negotiation</h2>
 
-      {/* Modal */}
-      {showModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-[#1c1c2c] p-6 rounded-lg w-[400px] space-y-4">
-      <h2 className="text-2xl font-bold text-white mb-4">Add New Negotiation</h2>
-
-      {/* User Input */}
-      <input
-        type="text"
-        placeholder="User"
-        value={form.user}
-        onChange={(e) => setForm({ ...form, user: e.target.value })}
-        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-      />
-
-      {/* Select Company */}
-      <select
-        value={form.client}
-        onChange={(e) => setForm({ ...form, client: e.target.value })}
-        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-      >
-        <option value="" disabled>Select Company</option>
-        {companies.map((company) => (
-          <option key={company.id} value={company.nombre}>
-            {company.nombre}
-          </option>
-        ))}
-      </select>
-
-      {/* Select Stage */}
-      <select
-        value={form.state}
-        onChange={(e) => setForm({ ...form, state: e.target.value })}
-        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-      >
-        <option value="" disabled>Select State</option>
-        {stages.map((stage) => (
-          <option key={stage} value={stage}>
-            {stage}
-          </option>
-        ))}
-      </select>
-
-      {/* Affair */}
-      <input
-        type="text"
-        placeholder="Affair"
-        value={form.affair}
-        onChange={(e) => setForm({ ...form, affair: e.target.value })}
-        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-      />
-
-      {/* Description */}
-      <textarea
-        placeholder="Description"
-        value={form.description}
-        onChange={(e) => setForm({ ...form, description: e.target.value })}
-        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-      />
-
-      {/* Date */}
-      <input
-        type="date"
-        value={form.date}
-        onChange={(e) => setForm({ ...form, date: e.target.value })}
-        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-      />
-
-      {/* Commission */}
-      <input
-        type="number"
-        placeholder="Commission"
-        value={form.commission}
-        onChange={(e) => setForm({ ...form, commission: e.target.value })}
-        className="w-full p-2 rounded bg-[#2c2c3c] text-white"
-      />
-
-      {/* Products and Amounts */}
-      <div className="space-y-4">
-        {form.products.map((item, index) => (
-          <div key={index} className="flex items-center justify-between space-x-4">
-            <div className="flex flex-col w-full">
-              <label className="block font-semibold text-gray-400">Product:</label>
+            {/* User Select */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-1">User:</label>
               <select
-                value={item.product}
-                onChange={(e) => {
-                  const updatedProducts = [...form.products];
-                  updatedProducts[index].product = e.target.value;
-                  setForm({ ...form, products: updatedProducts });
-                }}
-                className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+                value={form.usuario}
+                onChange={(e) => setForm({ ...form, usuario: e.target.value })}
+                className="w-full p-2 rounded bg-gray-700 text-white"
               >
-                <option value="" disabled>Select Product</option>
-                {products.map((product) => (
-                  <option key={product.nombre} value={product.nombre}>
-                    {product.nombre}
+                <option value="" disabled>Select User</option>
+                {usuarios.map((usuario) => (
+                  <option key={usuario.id} value={usuario.id}>
+                    {usuario.nombre}
                   </option>
                 ))}
               </select>
             </div>
-            <div className="flex flex-col items-end w-full">
-              <label className="block font-semibold text-gray-400">Amount:</label>
-              <input
-                type="number"
-                value={item.amount}
-                onChange={(e) => {
-                  const updatedProducts = [...form.products];
-                  updatedProducts[index].amount = Number(e.target.value);
-                  setForm({ ...form, products: updatedProducts });
-                }}
-                className="p-2 rounded bg-[#2c2c3c] text-white"
-              />
+
+            {/* Client Select */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-1">Client:</label>
+              <select
+                value={form.cliente}
+                onChange={(e) => setForm({ ...form, cliente: e.target.value })}
+                className="w-full p-2 rounded bg-gray-700 text-white"
+              >
+                <option value="" disabled>Select Client</option>
+                {clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.nombre}
+                  </option>
+                ))}
+              </select>
             </div>
-            <button
-              onClick={() => {
-                const updatedProducts = form.products.filter((_, i) => i !== index);
-                setForm({ ...form, products: updatedProducts });
-              }}
-              className="text-red-500"
+
+            {/* Stage Select */}
+            <select
+              value={form.estado}
+              onChange={(e) => setForm({ ...form, estado: e.target.value })}
+              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
             >
-              Remove
-            </button>
-          </div>
-        ))}
+              <option value="" disabled>Select State</option>
+              {etapas.map((etapa) => (
+                <option key={etapa} value={etapa}>
+                  {etapa}
+                </option>
+              ))}
+            </select>
 
-        {/* Button to add a new product */}
-        <button
-          onClick={() => {
-            setForm({
-              ...form,
-              products: [...form.products, { product: "", amount: 0 }] // Add a new empty product
-            });
-          }}
-          className="text-blue-500"
-        >
-          Add Product
-        </button>
-      </div>
+            {/* Affair */}
+            <input
+              type="text"
+              placeholder="Affair"
+              value={form.asunto}
+              onChange={(e) => setForm({ ...form, asunto: e.target.value })}
+              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+            />
 
-      {/* Modal Buttons */}
-      <div className="flex justify-end space-x-2 mt-4">
-        <button
-          onClick={() => setShowModal(false)}
-          className="px-4 py-2 bg-gray-500 rounded text-white"
-        >
-          Cancel
-        </button>
+            {/* Description */}
+            <textarea
+              placeholder="Description"
+              value={form.descripcion}
+              onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+            />
+
+            {/* Date */}
+            <input
+              type="date"
+              value={form.fecha}
+              onChange={(e) => setForm({ ...form, fecha: e.target.value })}
+              className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+            />
+
+            {/* Products */}
+            <div className="space-y-4">
+              {form.productos.map((item, index) => (
+                <div key={index} className="flex items-center justify-between space-x-4">
+                  <div className="flex flex-col w-full">
+                    <label className="block font-semibold text-gray-400">Product:</label>
+                    <select
+                      value={item.nombre}
+                      onChange={(e) => {
+                        const updatedProducts = [...form.productos];
+                        updatedProducts[index].nombre = e.target.value;
+                        setForm({ ...form, productos: updatedProducts });
+                      }}
+                      className="w-full p-2 rounded bg-[#2c2c3c] text-white"
+                    >
+                      <option value="" disabled>Select Product</option>
+                      {products.map((product) => (
+                        <option key={product.nombre} value={product.nombre}>
+                          {product.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex flex-col items-end w-full">
+                    <label className="block font-semibold text-gray-400">Amount:</label>
+                    <input
+                      type="number"
+                      value={item.cantidad}
+                      onChange={(e) => {
+                        const updatedProducts = [...form.productos];
+                        updatedProducts[index].cantidad = Number(e.target.value);
+                        setForm({ ...form, productos: updatedProducts });
+                      }}
+                      className="p-2 rounded bg-[#2c2c3c] text-white"
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      const updatedProducts = form.productos.filter((_, i) => i !== index);
+                      setForm({ ...form, productos: updatedProducts });
+                    }}
+                    className="text-red-500"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+
               <button
-  onClick={() => {
-    if (isFormValid()) {
-      handleSaveNegotiation();
-      setShowModal(false);
-    } else {
-      alert("Please fill out all fields!");
-    }
-  }}
-  disabled={!isFormValid()}  // Disable if form is invalid
-  className="bg-purple-600 px-4 py-2 rounded hover:bg-purple-500 disabled:bg-gray-500"
->
-  Save
-</button>
+                onClick={() => {
+                  setForm({
+                    ...form,
+                    productos: [...form.productos, { nombre: '', cantidad: 0 }]
+                  });
+                }}
+                className="text-blue-500"
+              >
+                Add Product
+              </button>
+            </div>
 
-
+            {/* Modal Buttons */}
+            <div className="flex justify-end space-x-2 mt-4">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-gray-500 rounded text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (isFormValid()) {
+                    handleSaveNegotiation();
+                    setShowModal(false);
+                  } else {
+                    alert('Please fill out all fields!');
+                  }
+                }}
+                className="bg-purple-600 px-4 py-2 rounded hover:bg-purple-500 disabled:bg-gray-500"
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>
+      
       )}
 
       {/* Report Popup */}
