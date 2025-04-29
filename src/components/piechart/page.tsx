@@ -23,8 +23,6 @@ const NegotiationsChart = ({ closed, middle, starting }: NegotiationsChartProps)
     { name: 'Starting', value: starting, color: '#f472b6', percentage: (total > 0 ? ((starting / total) * 100).toFixed(0) : '0') },
   ];
 
-  const totalPercentage = total > 0 ? Math.round((closed / total) * 100) : 0;
-
   return (
     <div className="w-full h-80 flex items-center bg-[#202437] rounded-xl shadow-lg p-4">
       <div className="flex-shrink-0 mr-8">
