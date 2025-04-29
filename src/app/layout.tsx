@@ -1,6 +1,8 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import PlayUnityLink from "@/Unity/PlayUnityLink";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,15 +21,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#111827] min-h-screen`}
       >
-        {children}
+        <header style={{ padding: "1rem", background: "#1f2937" }}>
+          {/* your other nav items */}
+          <PlayUnityLink />
+        </header>
+
+        <main>{children}</main>
       </body>
     </html>
   );
