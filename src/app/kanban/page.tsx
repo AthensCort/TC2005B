@@ -256,7 +256,7 @@ const isFormValid = () => {
     },
     {
       user: "Maria magdalena",
-      client: "BTICH",
+      client: "START-UP",
       state: "Starting",
       affair: "Final Negotiations",
       description: "Discussing terms before closing",
