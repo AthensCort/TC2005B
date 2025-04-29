@@ -82,29 +82,61 @@
   border-radius: 10px;
 }
 
-/* Puedes agregar estilos más específicos para cada sección del contentGrid si es necesario */
-.chart {
-  /* Estilos para el gráfico */
+.productInfoContainer {
+  display: flex;
+  gap: 20px; /* Espacio entre los dos contenedores */
+  margin-top: 6px;
+  width: 100%; /* Asegúrate de que el contenedor padre ocupe todo el ancho */
 }
-
-.analytics {
-  /* Estilos para el área de analíticas */
-}
-
-.transactions {
-  /* Estilos para la tabla de transacciones */
-}
-
-.contacts {
-  /* Estilos para la lista de contactos */
-}
-
-
-.icon {
+.lowestStockContainer,
+.bestProductsContainer {
+  background-color: #252a41;
+  height: 250px;
   color: white;
-  font-size: 24px; /* Size of the icon */
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  flex: 1; /* Cada contenedor ocupará la misma proporción del ancho */
+  /* width: auto; Elimina esta línea */
+
+  
+}
+.lowestStockContainer h3,
+.bestProductsContainer h3 {
+  color: white;
+  margin-bottom: 10px;
+  width: auto;
 }
 
+.productCard {
+  background-color: #333851; /* Tono más claro del fondo oscuro */
+  color: white;
+  padding: 10px; /* Reducir el padding vertical para que sean más delgadas */
+  border-radius: 6px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  display: flex; /* Para alinear la información horizontalmente */
+  align-items: center; /* Centrar verticalmente los elementos */
+  gap: 10px; /* Espacio entre los elementos dentro de la tarjeta */
+}
+
+.productCard h4 {
+  font-size: 1em;
+  font-weight: bold;
+  margin: 0; /* Resetear márgenes para el diseño horizontal */
+  flex: 1; /* Ocupar el espacio disponible */
+}
+
+.productCard p {
+  font-size: 0.9em;
+  opacity: 0.8;
+  margin: 0; /* Resetear márgenes */
+  white-space: nowrap; /* Evitar que el texto se rompa */
+}
+
+.productCard p:not(:last-child) {
+  margin-right: 10px; /* Añadir espacio entre los párrafos */
+}
 .textWrapper {
   display: flex;
   flex-direction: column;

@@ -4,6 +4,7 @@ import styles from "./page.module.css";
 import Sidebar from "@/components/sidebar/page";
 import { useEffect, useState } from "react";
 import { FaClipboardList, FaBoxOpen, FaTasks, FaBuilding } from "react-icons/fa";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Area } from 'recharts';
 
 interface DashboardData {
   clientCount: number;
@@ -42,9 +43,14 @@ const Dashboard = () => {
           bestProducts: [
             { idProducto: 1, cantidadSumada: 5, nombre: "chihuahua" },
             { idProducto: 4, cantidadSumada: 2, nombre: "Rottweiler" },
+            { idProducto: 20, cantidadSumada: 9, nombre: "Salchichas" },
           ],
           negotiationsByWeek: [
-            { weekStart: "1969-12-29T00:00:00.000Z", negotiationCount: 1 },
+            { weekStart: "2025-03-24T00:00:00.000Z", negotiationCount: 2 },
+            { weekStart: "2025-03-31T00:00:00.000Z", negotiationCount: 4 },
+            { weekStart: "2025-04-07T00:00:00.000Z", negotiationCount: 5 },
+            { weekStart: "2025-04-14T00:00:00.000Z", negotiationCount: 3 },
+            { weekStart: "2025-04-21T00:00:00.000Z", negotiationCount: 6 },
           ],
         };
         setDashboardData(mockData);
@@ -59,6 +65,13 @@ const Dashboard = () => {
   if (!dashboardData) {
     return <div>Cargando...</div>; // Loading indicator
   }
+
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+    return date.toLocaleDateString('es-MX', options);
+  };
 
   return (
     <div className={styles.container}>
@@ -115,7 +128,36 @@ const Dashboard = () => {
 
         {/* --- Other Content Section --- */}
         <section className={styles.contentGrid}>
-          <div className={styles.chart}>Monthly Status Chart</div>
+          <div className={`${styles.chart} ml-10`}>
+            <h3 className= 'font-bold mb-6'>Negociaciones por Semana</h3>
+            <LineChart
+              width={700}
+              height={300}
+              data={dashboardData.negotiationsByWeek}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="weekStart" tickFormatter={formatDate} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Area
+                type="monotone"
+                dataKey="negotiationCount"
+                fill="#8884d8"
+                stroke="#8884d8"
+                fillOpacity={0.3}
+              />
+              <Line
+                type="monotone"
+                dataKey="negotiationCount"
+                stroke="#8884d8"
+                strokeWidth={2}
+                dot={{ r: 5 }}
+                activeDot={{ r: 8 }}
+              />
+            </LineChart>
+          </div>
           <div className={`${styles.analytics} mr-10`}>
             <NegotiationsChart
               closed={dashboardData.closedNegotiations}
@@ -123,8 +165,33 @@ const Dashboard = () => {
               starting={dashboardData.startingNegotiations}
             />
           </div>
-          <div className={styles.transactions}>Transaction Status Table</div>
-          <div className={styles.contacts}>Recent Contacts</div>
+          {/* Nuevo contenedor para los productos */}
+          <div className={`${styles.productInfoContainer} ml-10 mt-6 flex w-full`}>
+            {/* Contenedor para los 3 productos con menor stock */}
+            <div className={`${styles.lowestStockContainer} w-1/2 pr-2`}>
+              <h3 className="font-bold mb-4">Los 3 productos con menor stock:</h3>
+              {dashboardData.lowestStock.slice(0, 3).map(product => (
+                <div key={product.id} className={styles.productCard}>
+                  <h4 className="font-semibold">{product.nombre}</h4>
+                  <p>Stock: {product.stock}</p>
+                  <p>Precio: ${product.precio}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Contenedor para los 3 mejores productos */}
+            <div className={`${styles.bestProductsContainer} w-1/2 pl-2`}>
+              <h3 className="font-bold mb-4">Los 3 mejores productos:</h3>
+              {dashboardData.bestProducts.slice(0, 3).map(product => (
+                <div key={product.idProducto} className={styles.productCard}>
+                  <h4 className="font-semibold">{product.nombre}</h4>
+                  <p>Cantidad Vendida: {product.cantidadSumada}</p>
+                </div>
+              ))}
+            </div>
+    
+          </div>
+
         </section>
       </main>
     </div>

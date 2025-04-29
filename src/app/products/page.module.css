@@ -39,17 +39,6 @@
   font-size: 1rem;
 }
 
-/* Gender Badge */
-.genderBadge {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: bold;
-  text-align: center;
-  background: linear-gradient(to right, #8E24AA, #60a5fa);
-  color: white;
-  box-shadow: 0px 4px 12px rgba(0, 123, 255, 0.3);
-}
 
 /* More Options Button */
 .moreBtn {
