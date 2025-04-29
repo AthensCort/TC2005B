@@ -103,7 +103,10 @@ export default function SignUpForm() {
                 </button>
               </div>
             </div>
+            <Link href="/dashboard">
             <Button onClick={auth} className={styles["submit-button"]}>Create account</Button>
+            </Link>
+            
             <p className={styles["login-link"]}>
               Already have an account?{' '}
               <Link href="/login" className="text-blue-500 hover:underline">

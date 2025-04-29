@@ -77,7 +77,7 @@ const Dashboard = () => {
     <div className={styles.container}>
       <Sidebar />
       <main className={styles.main}>
-        <h1 className="text-6xl font-dangrek ml-10 mt-10">KANBAN</h1>
+        <h1 className="text-6xl font-dangrek ml-10 mt-10">DASHBOARD</h1>
 
         {/* --- Stats Section --- */}
         <section className={`${styles.statsGrid} mt-10`}>
