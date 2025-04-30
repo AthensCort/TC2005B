@@ -5,29 +5,50 @@ import { useState, useEffect } from "react";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 
 interface Product {
-  id?: number;
+  id: number;
+
   nombre: string;
   precio: number;
   stock: number;
   url?: string;
 }
 
+interface CreateProduct {
+  id?: number;
+  nombre: string;
+  precio: string;
+  stock: string;
+  photo?: File
+}
+
+
 export default function Home() {
   const [showModal, setShowModal] = useState(false);
   const [product, setProduct] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [form, setForm] = useState({
-    id: null as number | null, // Inicializa id como null
+  const token = localStorage.getItem("token");
+
+  const [form, setForm] = useState<CreateProduct>({
+    id: undefined,
+
     nombre: "",
     precio: "",
     stock: "",
-    photo: "",
+    photo: undefined,
   });
+
+
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false); // Track if we are editing a product or adding a new one
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/productoServicio")
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/productoServicio`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    })
       .then(res => res.json())
       .then(data => {
         setProduct(data);
@@ -61,77 +82,117 @@ export default function Home() {
   // Handle edit functionality
   const handleEdit = (item: Product) => {
     setForm({
-      id: item.id || null, // Asigna el ID del producto al formulario
+      id: item.id,
+
       nombre: item.nombre,
-      precio: item.precio.toString(),
-      stock: item.stock.toString(),
-      photo: item.url || "",
+      precio: String(item.precio),
+      stock: String(item.stock),
+      photo: undefined,
     });
-    setIsEditing(true);
+
+    setIsEditing(true); // Set editing mode
+
     setShowModal(true);
     setActiveMenu(null);
   };
   
   // Handle delete functionality
-  const handleDelete = async (item: Product) => {
-    const formData = new FormData();
-    formData.append("nombre", item.nombre);
-  
-    try {
-      const response = await fetch(`http://localhost:8080/api/productoServicio/${item.id}`, {
-        method: "DELETE",
-        body: formData,
-      });
-  
-      if (!response.ok) {
-        throw new Error("Failed to delete the product");
+  const handleDelete = (item: Product) => {
+    setProduct((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
+    setFilteredProducts((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/productoServicio/${item.id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
       }
-  
-      // Update the state after successful deletion
-      setProduct((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
-      setFilteredProducts((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
-      setActiveMenu(null);
-    } catch (error) {
-      console.error("Error deleting product:", error);
-      alert("An error occurred while deleting the product.");
-    }
+    })
+
+
+    setActiveMenu(null);
   };
 
-  const handleSaveEdit = () => {
-    if (form.nombre && form.precio && form.stock && form.photo) {
-      const updatedProductBase = {
-        nombre: form.nombre,
-        precio: parseFloat(form.precio),
-        stock: parseInt(form.stock),
-        url: form.photo,
-      };
-  
-      if (isEditing && form.id !== null) {
-        const updatedProduct: Product = { // Explicitly type updatedProduct
-          id: form.id,
-          ...updatedProductBase,
-        };
+  const handleSaveEdit = async () => { // FALTA ASIGNAR EL URL TEMPORAL
+
+    if (
+      form
+    ) {
+
+      // Concatenate prefix and number to form the full phone number
+      const formData = new FormData();
+      if (form.nombre) formData.append("nombre", form.nombre);
+      if (form.stock) formData.append("stock", form.stock);
+      if (form.precio) formData.append("precio", form.precio);
+      if (form.photo) {
+        formData.append("productoImagen", form.photo); // Add url if it exists
+      }
+
+      let res;
+      if (isEditing) {
+        res = await fetch(`http://localhost:8080/api/productoServicio/${form.id}`,
+          {
+            method: "PUT",
+            body: formData,
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
+          }
+        );
+      } else {
+        res = await fetch(`http://localhost:8080/api/productoServicio`,
+          {
+            method: "POST",
+            body: formData,
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
+          }
+        );
+      }
+
+      const data = await res.json();
+      setProduct((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === data.id
+            ? { ...data, ...(form.photo ? { url: URL.createObjectURL(form.photo) } : {}) }
+            : product)
+      )
+
+      if (isEditing) {
         const updatedProducts = product.map((p) =>
-          p.id === updatedProduct.id ? updatedProduct : p
+          p.id === data.id ? data : p
+
         );
         setProduct(updatedProducts);
         setFilteredProducts(updatedProducts);
       } else {
-        const newProduct: Omit<Product, 'id'> = { // Explicitly type newProduct (without id)
-          ...updatedProductBase,
-        };
-        const updatedProducts = [...product, { ...newProduct }]; // When adding, the ID will likely be generated by the backend
+        const updatedProducts = [...product, data];
+
         setProduct(updatedProducts);
         setFilteredProducts(updatedProducts);
       }
-  
+
       setShowModal(false);
       setIsEditing(false);
-      setForm({ id: null, nombre: "", precio: "", stock: "", photo: "" }); // Limpia el formulario, incluyendo el id
+
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/productoServicio`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      })
+        .then(res => res.json())
+        .then(data => {
+          setProduct(data);
+          setFilteredProducts(data);
+        });
     }
   };
+
+
   const handleAddNew = () => {
-    setForm({ id: null, nombre: "", precio: "", stock: "", photo: "" }); // Reset form for new product, incluyendo id: null
+    setForm({ nombre: "", precio: "", stock: "", photo: undefined }); // Reset form for new product
+
     setIsEditing(false); // Set to add mode
     setShowModal(true);
   };
@@ -208,7 +269,7 @@ export default function Home() {
 
               <div className="flex flex-col items-center space-y-3">
                 <img
-                  src={item.url || "default-image-url"} // Ensure we are using the actual product URL
+                  src={`${process.env.NEXT_PUBLIC_BASE_URL_S3}${item.url}`} // Ensure we are using the actual product URL
                   alt={item.nombre}
                   className="w-32 h-32 rounded-xl object-cover border-2 border-purple-500"
                 />
@@ -258,8 +319,7 @@ export default function Home() {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  const photoUrl = URL.createObjectURL(file);
-                  setForm({ ...form, photo: photoUrl });
+                  setForm({ ...form, photo: file });
                 }
               }}
               className="w-full p-3 rounded-lg bg-[#2c2e3f] placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -267,19 +327,28 @@ export default function Home() {
 
             <div className="flex justify-end space-x-4">
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false);
+                  setIsEditing(false);
+                  setForm({
+                    nombre: "",
+                    precio: "",
+                    stock: "",
+                    photo: undefined,
+                  });
+
+                }}
                 className="px-5 py-2 rounded-full bg-gray-600 hover:bg-gray-700 text-white transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
-                disabled={!form.nombre || !form.precio || !form.stock || !form.photo}
-                className={`px-5 py-2 rounded-full ${
-                  !form.nombre || !form.precio || !form.stock || !form.photo
-                    ? "bg-gray-600 cursor-not-allowed"
-                    : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                } text-white transition-all`}
+                disabled={!form.nombre || !form.precio || !form.stock}
+                className={`px-5 py-2 rounded-full ${!form.nombre || !form.precio || !form.stock
+                  ? "bg-gray-600 cursor-not-allowed"
+                  : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  } text-white transition-all`}
               >
                 Save
               </button>
