@@ -13,6 +13,7 @@ import SearchBar from "@/components/search_bar/page";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns"
+import ReactMarkdown from 'react-markdown';
 
 // Normal Form
 type Negociacion = {
@@ -48,15 +49,16 @@ interface Usuario {
   nombre: string;
   email: string;
 }
-
+let token;
 export default function LeadFlow() {
-  const token = localStorage.getItem("token");
-
   const [originalNegotiation, setOriginalNegotiation] = useState<Negociacion | null>(null);
 
   const [products, setProducts] = useState<Producto[]>([]);
 
   useEffect(() => {
+    token = localStorage.getItem("token");
+
+
     fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/productoServicio`, {
       method: "GET",
       headers: {
@@ -342,7 +344,7 @@ export default function LeadFlow() {
     const payload = {
       contents: [{
         parts: [{
-          text: `Summarize this data: ${JSON.stringify(negotiations)}`,
+          text: `Generate a short and professional CRM report using the following negotiation data:\n\n${JSON.stringify(negotiations, null, 2)}`,
         }],
       }],
     };
@@ -881,7 +883,7 @@ export default function LeadFlow() {
       {/* Floating Plus Button */}
       <button
         onClick={() => {
-          setIsEditing(true);
+          setIsEditing(false);
           openModal()
         }}
         className="fixed bottom-6 right-10 w-14 h-14 bg-purple-700 text-white text-3xl rounded-full shadow-lg flex items-center justify-center hover:bg-purple-800 transition-all z-50"
@@ -1118,9 +1120,14 @@ export default function LeadFlow() {
       {/* Report Popup */}
       {reportPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-[600px] h-[500px] space-y-4"> {/* Increased width and added height */}
-            <h2 className="text-2xl font-bold mb-4 text-black">AI Report</h2>
-            <p className="text-black">{reportPopup}</p> {/* Add the "text-black" class */}
+          <div className="bg-white p-6 rounded-lg w-[90%] max-w-[600px] max-h-[90vh] overflow-y-auto space-y-4 text-black">
+            <h2 className="text-2xl font-bold mb-4">AI Report</h2>
+
+            <div className="prose prose-sm max-w-none text-black">
+              <ReactMarkdown>{reportPopup}</ReactMarkdown>
+            </div>
+
+            {/* Botón de cierre */}
             <div className="flex justify-end">
               <button
                 onClick={() => setReportPopup(null)}
@@ -1132,6 +1139,7 @@ export default function LeadFlow() {
           </div>
         </div>
       )}
+
     </div>
   );
 }
