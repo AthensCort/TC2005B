@@ -154,7 +154,13 @@ export default function Home() {
         .then(data => setContacts(prev => [...prev, data]))
         .catch(error => console.log(error))
 
-      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/cliente`)
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/cliente`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        }
+      })
         .then(res => res.json())
         .then(data => setContacts(data));
 
@@ -337,7 +343,7 @@ export default function Home() {
       if (companyForm.photo) formData.append("empresaLogo", companyForm.photo);
 
       // Make a POST request to save the company
-      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/empresa/${companyForm}`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/empresa/`, {
         method: "PUT",
         body: formData,
         headers: {
