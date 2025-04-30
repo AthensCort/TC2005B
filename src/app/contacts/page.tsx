@@ -37,6 +37,8 @@ interface Empresa {
 type EditingEmpresa = Empresa & { nombreBeforeEdit: string };
 
 export default function Home() {
+  const token = localStorage.getItem("token");
+
   // Estados
   const [contacts, setContacts] = useState<Contacto[]>([]);
   const [companies, setCompanies] = useState<Empresa[]>([]);
@@ -75,11 +77,21 @@ export default function Home() {
 
   // Fetch de datos al montar el componente
   useEffect(() => {
-    fetch("http://localhost:8080/api/cliente")
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/cliente`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    })
       .then(res => res.json())
       .then(data => setContacts(data));
 
-    fetch("http://localhost:8080/api/empresa")
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/empresa`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      }
+    })
       .then(res => res.json())
       .then(data => setCompanies(data));
   }, []);
@@ -132,14 +144,14 @@ export default function Home() {
       }
 
       // Make a POST request to save the contact
-      fetch("http://localhost:8080/api/cliente", {
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/cliente`, {
         method: "POST",
         body: formData,
       }).then(res => res.json())
         .then(data => setContacts(prev => [...prev, data]))
         .catch(error => console.log(error))
 
-      fetch("http://localhost:8080/api/cliente")
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/cliente`)
         .then(res => res.json())
         .then(data => setContacts(data));
 
@@ -194,10 +206,13 @@ export default function Home() {
         formData.append("clienteFoto", editingContact.photo); // Add url if it exists
       }
 
-      fetch(`http://localhost:8080/api/cliente/${editingContact.id}`,
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/cliente/${editingContact.id}`,
         {
           method: "PUT",
-          body: formData
+          body: formData,
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
         }
       ).then(res => res.json())
         .then(data => setContacts((prevContacts) =>
@@ -218,7 +233,7 @@ export default function Home() {
         photo: undefined,
       });
 
-      fetch("http://localhost:8080/api/cliente")
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/cliente`)
         .then(res => res.json())
         .then(data => setContacts(data));
     }
@@ -231,8 +246,11 @@ export default function Home() {
 
     try {
       // Realiza una solicitud DELETE al backend
-      const response = await fetch(`http://localhost:8080/api/cliente/${editingContact.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/cliente/${editingContact.id}`, {
         method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {
@@ -277,9 +295,12 @@ export default function Home() {
       formData.append("empresaLogo", editingCompany.photo); // Add url if it exists
     }
 
-    fetch(`http://localhost:8080/api/empresa/${editingCompany.id}`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/empresa/${editingCompany.id}`, {
       method: "PUT",
-      body: formData
+      body: formData,
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
     })
 
       .then(res => res.json())
@@ -313,9 +334,12 @@ export default function Home() {
       if (companyForm.photo) formData.append("empresaLogo", companyForm.photo);
 
       // Make a POST request to save the company
-      fetch(`http://localhost:8080/api/empresa/${companyForm}`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/empresa/${companyForm}`, {
         method: "PUT",
-        body: formData
+        body: formData,
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
       })
         .then(res => res.json())
         .then(data => setCompanies((prev) => [...prev, data]))
@@ -344,8 +368,11 @@ export default function Home() {
 
     try {
       // Make a DELETE request to the backend
-      const response = await fetch(`http://localhost:8080/api/empresa/${editingCompany.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/empresa/${editingCompany.id}`, {
         method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {

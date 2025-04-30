@@ -20,10 +20,12 @@ interface CreateProduct {
   photo?: File
 }
 
+
 export default function Home() {
   const [showModal, setShowModal] = useState(false);
   const [product, setProduct] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const token = localStorage.getItem("token");
 
   const [form, setForm] = useState<CreateProduct>({
     id: undefined,
@@ -38,7 +40,13 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false); // Track if we are editing a product or adding a new one
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/productoServicio")
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/productoServicio`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    })
       .then(res => res.json())
       .then(data => {
         setProduct(data);
@@ -88,7 +96,12 @@ export default function Home() {
   const handleDelete = (item: Product) => {
     setProduct((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
     setFilteredProducts((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
-    fetch(`http://localhost:8080/api/productoServicio/${item.id}`, { method: "DELETE" })
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/productoServicio/${item.id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      }
+    })
 
 
     setActiveMenu(null);
@@ -114,14 +127,20 @@ export default function Home() {
         res = await fetch(`http://localhost:8080/api/productoServicio/${form.id}`,
           {
             method: "PUT",
-            body: formData
+            body: formData,
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
           }
         );
       } else {
         res = await fetch(`http://localhost:8080/api/productoServicio`,
           {
             method: "POST",
-            body: formData
+            body: formData,
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
           }
         );
       }
@@ -149,7 +168,13 @@ export default function Home() {
       setShowModal(false);
       setIsEditing(false);
 
-      fetch("http://localhost:8080/api/productoServicio")
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/productoServicio`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      })
         .then(res => res.json())
         .then(data => {
           setProduct(data);

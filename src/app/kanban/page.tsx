@@ -49,9 +49,9 @@ interface Usuario {
   email: string;
 }
 
-const token = localStorage.getItem("token");
-
 export default function LeadFlow() {
+  const token = localStorage.getItem("token");
+
   const [originalNegotiation, setOriginalNegotiation] = useState<Negociacion | null>(null);
 
   const [products, setProducts] = useState<Producto[]>([]);
@@ -71,7 +71,7 @@ export default function LeadFlow() {
   const [negotiations, setNegotiations] = useState<Negociacion[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/negociacion/", {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/negociacion/`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -84,7 +84,7 @@ export default function LeadFlow() {
 
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   useEffect(() => {
-    fetch("http://localhost:8080/api/usuario/", {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/usuario/`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -99,7 +99,7 @@ export default function LeadFlow() {
 
   const handleGeneratePDF = async (negotiationId: number) => {
     setLoading(true);
-    const res = await fetch(`http://localhost:8080/api/negociacion/factura/${negotiationId}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/negociacion/factura/${negotiationId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -243,7 +243,7 @@ export default function LeadFlow() {
   const [companies, setCompanies] = useState<Empresa[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/empresa", {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/empresa`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -257,7 +257,7 @@ export default function LeadFlow() {
   const [clients, setClients] = useState<Cliente[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/cliente", {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/cliente`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

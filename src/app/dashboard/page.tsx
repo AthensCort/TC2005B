@@ -20,16 +20,14 @@ interface DashboardData {
   negotiationsByWeek: { weekStart: string; negotiationCount: number }[];
 }
 
-const token = localStorage.getItem("token");
-
 const Dashboard = () => {
+  const token = localStorage.getItem("token");
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/dashboard", {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/dashboard`, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
       },
     })
