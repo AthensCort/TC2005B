@@ -26,35 +26,43 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false);
   const [product, setProduct] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const token = localStorage.getItem("token");
+  const [token, setToken] = useState<string | null>(null); // Token state
 
   const [form, setForm] = useState<CreateProduct>({
     id: undefined,
-
     nombre: "",
     precio: "",
     stock: "",
     photo: undefined,
   });
 
-
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false); // Track if we are editing a product or adding a new one
 
+  // Get the token only on the client side
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/productoServicio`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-    })
-      .then(res => res.json())
-      .then(data => {
-        setProduct(data);
-        setFilteredProducts(data);
-      });
-  }, []);
+    if (typeof window !== "undefined") {
+      const tok = localStorage.getItem("token");
+      setToken(tok);
+    }
+  }, []); // Runs only once after the component mounts
+
+  useEffect(() => {
+    if (token) {
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/productoServicio`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      })
+        .then(res => res.json())
+        .then(data => {
+          setProduct(data);
+          setFilteredProducts(data);
+        });
+    }
+  }, [token]); // Runs when the token is available
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
