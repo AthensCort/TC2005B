@@ -37,13 +37,19 @@ interface Empresa {
 type EditingEmpresa = Empresa & { nombreBeforeEdit: string };
 
 export default function Home() {
-  useEffect(()=>{  const tok = localStorage.getItem("token");
-    if (tok) setToken(tok);
-  },[])
+
   const [token, setToken] = useState<string>("")
   // Estados
   const [contacts, setContacts] = useState<Contacto[]>([]);
   const [companies, setCompanies] = useState<Empresa[]>([]);
+
+  useEffect(() => {
+    // Check if we're in the browser before accessing localStorage
+    if (typeof window !== "undefined") {
+      const tok = localStorage.getItem("token");
+      if (tok) setToken(tok);
+    }
+  }, []);
 
   const [showModal, setShowModal] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
