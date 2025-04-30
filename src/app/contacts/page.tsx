@@ -37,8 +37,10 @@ interface Empresa {
 type EditingEmpresa = Empresa & { nombreBeforeEdit: string };
 
 export default function Home() {
-  const token = localStorage.getItem("token");
-
+  useEffect(()=>{  const tok = localStorage.getItem("token");
+    if (tok) setToken(tok);
+  },[])
+  const [token, setToken] = useState<string>("")
   // Estados
   const [contacts, setContacts] = useState<Contacto[]>([]);
   const [companies, setCompanies] = useState<Empresa[]>([]);
