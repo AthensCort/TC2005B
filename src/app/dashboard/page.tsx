@@ -20,51 +20,21 @@ interface DashboardData {
   negotiationsByWeek: { weekStart: string; negotiationCount: number }[];
 }
 
+const token = localStorage.getItem("token");
+
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/dashboard")
+    fetch("http://localhost:8080/api/dashboard", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    })
       .then(res => res.json())
       .then(data => setDashboardData(data));
-
-    /*
-    const fetchData = async () => {
-      try {
-        const mockData: DashboardData = {
-          clientCount: 9,
-          productCount: 7,
-          enterpriseCount: 11,
-          negotiationCount: 1,
-          closedNegotiations: 3,
-          startingNegotiations: 6,
-          middleNegotiations: 4,
-          finishNegotiations: 0,
-          lowestStock: [
-            { id: 7, nombre: "Pug12", precio: 7, stock: -2 },
-            { id: 3, nombre: "Pug", precio: 5, stock: 0 },
-            { id: 2, nombre: "Xbox series X", precio: 10000, stock: 2 },
-          ],
-          bestProducts: [
-            { idProducto: 1, cantidadSumada: 5, nombre: "chihuahua" },
-            { idProducto: 4, cantidadSumada: 2, nombre: "Rottweiler" },
-            { idProducto: 20, cantidadSumada: 9, nombre: "Salchichas" },
-          ],
-          negotiationsByWeek: [
-            { weekStart: "2025-03-24T00:00:00.000Z", negotiationCount: 2 },
-            { weekStart: "2025-03-31T00:00:00.000Z", negotiationCount: 4 },
-            { weekStart: "2025-04-07T00:00:00.000Z", negotiationCount: 5 },
-            { weekStart: "2025-04-14T00:00:00.000Z", negotiationCount: 3 },
-            { weekStart: "2025-04-21T00:00:00.000Z", negotiationCount: 6 },
-          ],
-        };
-        setDashboardData(mockData);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      }
-    };
-
-    fetchData();*/
   }, []);
 
   if (!dashboardData) {

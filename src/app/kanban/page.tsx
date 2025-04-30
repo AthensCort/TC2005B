@@ -30,25 +30,6 @@ type Negociacion = {
   [key: string]: any;
 };
 
-/*
-interface Factura {
-  asunto: string;
-  fecha: string;
-  descripcion: string;
-  comision: number;
-  total: number;
-  usuario: string;
-  cliente: string;
-  estado: string;
-  productos: {
-    nombre: string;
-    precio: number;
-    cantidad: number;
-    id: number;
-  }[];
-}
-*/
-
 interface Empresa {
   id?: number;
   nombre: string;
@@ -68,13 +49,21 @@ interface Usuario {
   email: string;
 }
 
+const token = localStorage.getItem("token");
+
 export default function LeadFlow() {
   const [originalNegotiation, setOriginalNegotiation] = useState<Negociacion | null>(null);
 
   const [products, setProducts] = useState<Producto[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/productoServicio")
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/productoServicio`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((data) => setProducts(data));
   }, []);
@@ -82,14 +71,26 @@ export default function LeadFlow() {
   const [negotiations, setNegotiations] = useState<Negociacion[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/negociacion/")
+    fetch("http://localhost:8080/api/negociacion/", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    })
       .then(res => res.json())
       .then(data => setNegotiations(data))
   }, []);
 
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   useEffect(() => {
-    fetch("http://localhost:8080/api/usuario/")
+    fetch("http://localhost:8080/api/usuario/", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    })
       .then(res => res.json())
       .then(data => setUsuarios(data))
   }, []);
@@ -98,7 +99,13 @@ export default function LeadFlow() {
 
   const handleGeneratePDF = async (negotiationId: number) => {
     setLoading(true);
-    const res = await fetch(`http://localhost:8080/api/negociacion/factura/${negotiationId}`);
+    const res = await fetch(`http://localhost:8080/api/negociacion/factura/${negotiationId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    });
     const factura = await res.json();
 
     try {
@@ -236,7 +243,13 @@ export default function LeadFlow() {
   const [companies, setCompanies] = useState<Empresa[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/empresa")
+    fetch("http://localhost:8080/api/empresa", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((data) => setCompanies(data));
   }, []);
@@ -244,7 +257,13 @@ export default function LeadFlow() {
   const [clients, setClients] = useState<Cliente[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/cliente")
+    fetch("http://localhost:8080/api/cliente", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((data) => setClients(data));
   })
@@ -373,6 +392,7 @@ export default function LeadFlow() {
               method: "POST", // Método POST para enviar datos
               headers: {
                 "Content-Type": "application/json", // Especificar que los datos son en formato JSON
+                "Authorization": `Bearer ${token}`
               },
               body: JSON.stringify(updatedNegotiation), // Pasar los datos como un string JSON
             })

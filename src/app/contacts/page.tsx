@@ -139,6 +139,9 @@ export default function Home() {
         .then(data => setContacts(prev => [...prev, data]))
         .catch(error => console.log(error))
 
+      fetch("http://localhost:8080/api/cliente")
+        .then(res => res.json())
+        .then(data => setContacts(data));
 
       // Close the modal and reset the form
       setShowModal(false);
@@ -149,6 +152,7 @@ export default function Home() {
         telefonoPrefix: "",
         telefonoNumber: "",
         photo: undefined,
+
       });
     } catch (error) {
       console.error("Error saving contact:", error);
@@ -213,6 +217,10 @@ export default function Home() {
         telefonoNumber: "",
         photo: undefined,
       });
+
+      fetch("http://localhost:8080/api/cliente")
+        .then(res => res.json())
+        .then(data => setContacts(data));
     }
   };
 
