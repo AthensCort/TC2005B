@@ -21,25 +21,33 @@ interface DashboardData {
 }
 
 const Dashboard = () => {
-  const token = localStorage.getItem("token");
+  const [token, setToken] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 
+  // Only try to get the token on the client side
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/dashboard`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
-    })
-      .then(res => res.json())
-      .then(data => setDashboardData(data));
+    if (typeof window !== "undefined") {
+      const tok = localStorage.getItem("token");
+      setToken(tok);
+    }
+  }, []); // Run this once on mount
 
-  }, []);
+  useEffect(() => {
+    if (token) {
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/dashboard`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      })
+        .then(res => res.json())
+        .then(data => setDashboardData(data));
+    }
+  }, [token]); // Trigger when token is available
 
   if (!dashboardData) {
     return <div>Cargando...</div>; // Loading indicator
   }
-
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
