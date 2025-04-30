@@ -645,15 +645,16 @@ export default function LeadFlow() {
 
                                       {/* Product and Amount */}
                                       <div className="flex justify-between mt-4">
-                                        <small className="font-semibold text-gray-400">Product:</small>
-                                        <small className="font-semibold text-gray-400">Amount:</small>
-                                      </div>
-                                      {negotiation.productos.map((item, index) => (
-                                        <div key={index} className="flex justify-between mt-1">
-                                          <small className={`${styles.product}`}>{item.nombre}</small>
-                                          <small className="font-medium">{item.cantidad}</small>
-                                        </div>
-                                      ))}
+  <small className="font-semibold text-gray-400">Product:</small>
+  <small className="font-semibold text-gray-400">Amount:</small>
+</div>
+
+{(negotiation.productos ?? []).map((item, index) => (
+  <div key={index} className="flex justify-between mt-1">
+    <small className={`${styles.product}`}>{item.nombre}</small>
+    <small className="font-medium">{item.cantidad}</small>
+  </div>
+))}
                                     </div>
                                   )}
                                   <div className={`${styles.colorTags} mt-4`}>
