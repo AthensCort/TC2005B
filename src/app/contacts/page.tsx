@@ -147,6 +147,9 @@ export default function Home() {
       fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/cliente`, {
         method: "POST",
         body: formData,
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        }
       }).then(res => res.json())
         .then(data => setContacts(prev => [...prev, data]))
         .catch(error => console.log(error))
