@@ -33,6 +33,7 @@ const Dashboard = () => {
     })
       .then(res => res.json())
       .then(data => setDashboardData(data));
+
   }, []);
 
   if (!dashboardData) {
@@ -103,6 +104,7 @@ const Dashboard = () => {
         <section className={styles.contentGrid}>
           <div className={`${styles.chart} ml-10`}>
             <h3 className='font-bold mb-6'>Negociaciones por Semana</h3>
+
             <LineChart
               width={700}
               height={300}

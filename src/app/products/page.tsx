@@ -6,6 +6,7 @@ import { HiOutlineDotsVertical } from "react-icons/hi";
 
 interface Product {
   id: number;
+
   nombre: string;
   precio: number;
   stock: number;
@@ -29,6 +30,7 @@ export default function Home() {
 
   const [form, setForm] = useState<CreateProduct>({
     id: undefined,
+
     nombre: "",
     precio: "",
     stock: "",
@@ -81,6 +83,7 @@ export default function Home() {
   const handleEdit = (item: Product) => {
     setForm({
       id: item.id,
+
       nombre: item.nombre,
       precio: String(item.precio),
       stock: String(item.stock),
@@ -88,10 +91,11 @@ export default function Home() {
     });
 
     setIsEditing(true); // Set editing mode
+
     setShowModal(true);
     setActiveMenu(null);
   };
-
+  
   // Handle delete functionality
   const handleDelete = (item: Product) => {
     setProduct((prevProducts) => prevProducts.filter((p) => p.nombre !== item.nombre));
@@ -156,11 +160,13 @@ export default function Home() {
       if (isEditing) {
         const updatedProducts = product.map((p) =>
           p.id === data.id ? data : p
+
         );
         setProduct(updatedProducts);
         setFilteredProducts(updatedProducts);
       } else {
         const updatedProducts = [...product, data];
+
         setProduct(updatedProducts);
         setFilteredProducts(updatedProducts);
       }
@@ -186,10 +192,11 @@ export default function Home() {
 
   const handleAddNew = () => {
     setForm({ nombre: "", precio: "", stock: "", photo: undefined }); // Reset form for new product
+
     setIsEditing(false); // Set to add mode
     setShowModal(true);
   };
-
+  
   return (
     <div className="flex h-screen bg-[#0f111a] text-[#e5e7eb]">
       {/* Sidebar */}

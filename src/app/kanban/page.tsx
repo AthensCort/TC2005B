@@ -299,6 +299,7 @@ export default function LeadFlow() {
     url?: string,
   }
 
+
   // EXPANSIÓN DE CARDS
   const [expandedCard, setExpandedCard] = useState<{ [key: string]: boolean }>({});
 

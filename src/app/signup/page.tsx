@@ -109,6 +109,7 @@ export default function SignUpForm() {
                     {showPassword ? <EyeOff /> : <Eye />}
                   </button>
                 </div>
+
               </div>
               <Button onClick={auth} className={styles["submit-button"]}>Create account</Button>
               <p className={styles["login-link"]}>
@@ -121,6 +122,7 @@ export default function SignUpForm() {
             {error && <p className="text-red-500">{error}</p>}
           </CardContent>
         </Card>
+
       </div>
     </div>
   );
