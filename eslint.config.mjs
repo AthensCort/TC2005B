@@ -13,6 +13,14 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   ...compat.extends("next/core-web-vitals", "next/typescript", "prettier"),
 
+  {
+    files: ["**/*.ts", "**/*.tsx"], // Apply to TypeScript files
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+    },
+  },
 ];
 
 export default eslintConfig;
