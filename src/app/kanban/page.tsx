@@ -390,7 +390,7 @@ export default function LeadFlow() {
             negotiation.fecha === updatedNegotiation.fecha
           ) {
             // Hacer un POST al servidor para guardar la negociación editada
-            fetch("http://localhost:8080/api/negociacion/", {
+            fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/negociacion/`, {
               method: "POST", // Método POST para enviar datos
               headers: {
                 "Content-Type": "application/json", // Especificar que los datos son en formato JSON
@@ -447,10 +447,11 @@ export default function LeadFlow() {
         setShowModal(false);
         setIsEditing(false);
 
-        fetch("http://localhost:8080/api/negociacion/", {
+        fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/negociacion/`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json', // Especificar que los datos son en formato JSON
+            "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify({ negotiation: { newNegotiation }, productos: {} }),
         })
