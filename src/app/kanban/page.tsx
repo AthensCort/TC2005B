@@ -18,18 +18,37 @@ import ReactMarkdown from 'react-markdown';
 // Normal Form
 type Negociacion = {
   id?: number;
-  usuario: string;
-  cliente: string;
-  estado: string;
+  usuario?: string;
+  cliente?: string;
+  estado?: string;
+  idClientes?: number;
+  idUsuarios?: number;
+  idEstado?: number;
+  asunto?: string;
+  descripcion?: string;
+  fecha?: string;
+  comision?: number;
+  total?: number;
+  productos?: { nombre: string; cantidad: number }[];
+} & {
+  [key: string]: any;
+};
+
+type NegociacionReq = {
+  id?: number;
+  idUsuarios: string;
+  idClientes: string;
+  idEstado: string;
   asunto: string;
   descripcion: string;
   fecha: string;
   comision: number;
   total: number;
-  productos: { nombre: string; cantidad: number }[];
+  productos?: { nombre: string; cantidad: number }[];
 } & {
   [key: string]: any;
 };
+
 
 interface Empresa {
   id?: number;
@@ -54,7 +73,7 @@ export default function LeadFlow() {
   const [originalNegotiation, setOriginalNegotiation] = useState<Negociacion | null>(null);
 
   const [products, setProducts] = useState<Producto[]>([]);
-
+  const [reqNegotiation, setReqNegotiation] = useState<NegociacionReq>();
   useEffect(() => {
     token = localStorage.getItem("token");
 
@@ -200,12 +219,13 @@ export default function LeadFlow() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editingNegotiation, setEditingNegotiation] = useState<Negociacion | null>(null);
+  const [creatingNegotiation, setCreatingNegotation] = useState(false)
   const [showModal, setShowModal] = useState(false);
 
   const isFormValid = () => {
-    const targetForm = isEditing ? editingNegotiation : form;
+    const targetForm = (isEditing || creatingNegotiation) ? editingNegotiation : form;
     if (!targetForm) return false;
-    const areProductsValid = targetForm.productos.every(
+    const areProductsValid = targetForm.productos!.every(
       (item) => item.nombre !== "" && item.cantidad !== 0
     );
 
@@ -294,6 +314,15 @@ export default function LeadFlow() {
     "Close Lost",
   ];
 
+  const etapaMap = {
+    "Starting": 1,
+    "Middle Stage": 2,
+    "Finish Stage": 3,
+    "Close Won": 4,
+    "Close Lost": 5,
+  };
+
+
   // FUNCION PARA EXPANDIR UNA TARJETA
   const handleToggleCard = (key: string) => {
     setExpandedCard((prev) => ({
@@ -344,7 +373,7 @@ export default function LeadFlow() {
     const payload = {
       contents: [{
         parts: [{
-          text: `Generate a short and professional CRM report using the following negotiation data:\n\n${JSON.stringify(negotiations, null, 2)}`,
+          text: `Generate a short and professional CRM report using the following negotiation data:\n\n${JSON.stringify(negotiations)}`,
         }],
       }],
     };
@@ -432,37 +461,52 @@ export default function LeadFlow() {
   };
 
   const handleSaveNegotiation = () => {
-    if (isFormValid()) {
+    //if (isFormValid()) {
+
+    if (creatingNegotiation) {
+      const transformedProducts = form.productos!.map((item) => {
+        const foundProduct = products.find((p: Producto) => p.nombre === item.nombre);
+        if (!foundProduct) throw new Error(`Product ${item.nombre} not found`);
+
+        return {
+          cantidad: item.cantidad,
+          productData: foundProduct
+        };
+      });
+
+      setShowModal(false);
+      setIsEditing(false);
+      setCreatingNegotation(false);
+      resetForm();
+
+      fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/negociacion/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Especificar que los datos son en formato JSON
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          negociacion: editingNegotiation, productos: { products: transformedProducts }
+        }),
+      })
+        .then(res => res.json())
+        .then(data => setNegotiations((prev) => [...prev, data]))
+        .catch(error => console.log(error))
+
+    } else if (isEditing) {
       const newNegotiation = {
         ...form,
-        products: form.productos.map(product => ({
+        products: form.productos!.map(product => ({
           product: product.nombre,
           amount: product.cantidad,
         })),
       };
 
-      if (isEditing) {
-        handleSaveEditedNegotiation(newNegotiation);
-      } else {
-        setShowModal(false);
-        setIsEditing(false);
-
-        fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/negociacion/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json', // Especificar que los datos son en formato JSON
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({ negotiation: { newNegotiation }, productos: {} }),
-        })
-          .then(res => res.json())
-          .then(data => setNegotiations((prev) => [...prev, data]))
-          .catch(error => console.log(error))
-
-      }
-    } else {
-      alert("Please fill out all fields!");
+      handleSaveEditedNegotiation(newNegotiation);
     }
+    // } else {
+    //   alert("Please fill out all fields!");
+    // }
   };
 
   return (
@@ -512,8 +556,8 @@ export default function LeadFlow() {
                       {negotiations
                         .filter((n) => n.estado === etapa)
                         .filter((n) =>
-                          n.cliente.toLowerCase().includes(searchValue.toLowerCase()) ||
-                          n.asunto.toLowerCase().includes(searchValue.toLowerCase())
+                          n.cliente!.toLowerCase().includes(searchValue.toLowerCase()) ||
+                          n.asunto!.toLowerCase().includes(searchValue.toLowerCase())
                         )
                         .map((negotiation, i) => {
                           const cardKey = `${negotiation.cliente}-${negotiation.usuario}-${negotiation.fecha}`;
@@ -630,8 +674,8 @@ export default function LeadFlow() {
                       {negotiations
                         .filter((c) => c.estado === etapa)
                         .filter((c) =>
-                          c.cliente.toLowerCase().includes(searchValue.toLowerCase()) ||
-                          c.asunto.toLowerCase().includes(searchValue.toLowerCase())
+                          c.cliente!.toLowerCase().includes(searchValue.toLowerCase()) ||
+                          c.asunto!.toLowerCase().includes(searchValue.toLowerCase())
                         ).length === 0 && (
                           <div className={styles.emptyDropArea}></div>
 
@@ -741,7 +785,7 @@ export default function LeadFlow() {
 
                 {/* Products Section */}
                 <div className="space-y-4">
-                  {editingNegotiation?.productos.map((item, index) => (
+                  {editingNegotiation?.productos!.map((item, index) => (
                     <div key={index} className="flex items-center justify-between space-x-4">
 
                       {/* PRODUCT SELECT */}
@@ -751,7 +795,7 @@ export default function LeadFlow() {
                           value={item.nombre}
                           onChange={(e) => {
                             if (!editingNegotiation) return;
-                            const updatedProducts = [...editingNegotiation.productos];
+                            const updatedProducts = [...editingNegotiation.productos!];
                             updatedProducts[index].nombre = e.target.value;
                             setEditingNegotiation({ ...editingNegotiation, productos: updatedProducts });
                           }}
@@ -774,7 +818,7 @@ export default function LeadFlow() {
                           value={item.cantidad}
                           onChange={(e) => {
                             if (!editingNegotiation) return;
-                            const updatedProducts = [...editingNegotiation.productos];
+                            const updatedProducts = [...editingNegotiation.productos!];
                             updatedProducts[index].cantidad = Number(e.target.value);
                             setEditingNegotiation({ ...editingNegotiation, productos: updatedProducts });
                           }}
@@ -787,7 +831,7 @@ export default function LeadFlow() {
                         type="button"
                         onClick={() => {
                           if (!editingNegotiation) return;
-                          const updatedProducts = editingNegotiation.productos.filter((_, i) => i !== index);
+                          const updatedProducts = editingNegotiation.productos!.filter((_, i) => i !== index);
                           setEditingNegotiation({ ...editingNegotiation, productos: updatedProducts });
                         }}
                         className="text-red-500 text-sm"
@@ -805,7 +849,7 @@ export default function LeadFlow() {
                       if (!editingNegotiation) return;
                       setEditingNegotiation({
                         ...editingNegotiation,
-                        productos: [...editingNegotiation.productos, { nombre: "", cantidad: 0 }]
+                        productos: [...editingNegotiation.productos!, { nombre: "", cantidad: 0 }]
                       });
                     }}
                     className="text-blue-500 text-sm"
@@ -825,7 +869,7 @@ export default function LeadFlow() {
                   <button
                     onClick={() => {
                       if (isFormValid()) {
-                        const invalidProduct = editingNegotiation?.productos.find((item) => {
+                        const invalidProduct = editingNegotiation?.productos!.find((item) => {
                           const productInfo = products.find((p: Producto) => p.nombre === item.nombre);
                           return productInfo && item.cantidad > productInfo.stock;
                         });
@@ -838,7 +882,7 @@ export default function LeadFlow() {
                         const { productos, usuario, cliente, ...rest } = editingNegotiation;
 
                         // 🚀 TRANSFORMAMOS productos para que tengan cantidad y productData
-                        const transformedProducts = productos.map((item) => {
+                        const transformedProducts = productos!.map((item) => {
                           const foundProduct = products.find((p: Producto) => p.nombre === item.nombre);
                           if (!foundProduct) throw new Error(`Product ${item.nombre} not found`);
 
@@ -848,10 +892,12 @@ export default function LeadFlow() {
                           };
                         });
 
-                        fetch("http://localhost:8080/api/negociacion/" + editingNegotiation.id, {
+                        fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/negociacion/${editingNegotiation.id}`, {
                           method: "PUT",
                           headers: {
                             "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`,
+
                           },
                           body: JSON.stringify({ negociacion: rest, productos: { products: transformedProducts } }),
                           //                ⬆️   OJO: debes mandar el objeto { products: [...] }
@@ -884,6 +930,7 @@ export default function LeadFlow() {
       {/* Floating Plus Button */}
       <button
         onClick={() => {
+          setCreatingNegotation(true);
           setIsEditing(false);
           openModal()
         }}
@@ -930,12 +977,24 @@ export default function LeadFlow() {
             <div className="mb-4">
               <label className="block text-sm font-semibold mb-1">User:</label>
               <select
-                value={form.usuario}
+                value={
+                  usuarios.find((u) => u.nombre === form.usuario)?.id || "" // convertir nombre a id para que coincida con el value del <option>
+                }
                 onChange={(e) => {
-                  if (!editingNegotiation) return;
+                  if (!creatingNegotiation) return;
+
+                  const selectedUserId = Number(e.target.value);
+                  const selectedUser = usuarios.find(user => user.id === selectedUserId);
+                  if (!selectedUser) return;
+
                   setEditingNegotiation({
                     ...editingNegotiation,
-                    idClientes: Number(e.target.value),
+                    idUsuarios: selectedUserId,
+                  });
+
+                  setForm({
+                    ...form,
+                    usuario: selectedUser.nombre, // guardar el nombre
                   });
                 }}
                 className="w-full p-2 rounded bg-gray-700 text-white"
@@ -950,36 +1009,28 @@ export default function LeadFlow() {
             </div>
 
 
-            {/* Client select dropdown */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1">Client:</label>
-              <select
-                value={editingNegotiation?.idClientes}
-                onChange={(e) => {
-                  if (!editingNegotiation) return;
-                  setEditingNegotiation({
-                    ...editingNegotiation,
-                    idClientes: Number(e.target.value),
-                  });
-                }}
-                className="w-full p-2 rounded bg-gray-700 text-white"
-              >
-                <option value="" disabled>Select Client</option>
-                {clients.map((client) => (
-                  <option key={client.id} value={client.id}>
-                    {client.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-
             {/* Client Select */}
             <div className="mb-4">
               <label className="block text-sm font-semibold mb-1">Client:</label>
               <select
-                value={form.cliente}
-                onChange={(e) => setForm({ ...form, idClientes: Number(e.target.value) })}
+                value={editingNegotiation?.idClientes ?? ''}
+                onChange={(e) => {
+                  if (!creatingNegotiation) return;
+
+                  const selectedClientId = Number(e.target.value);
+                  const selectedClient = clients.find(client => client.id === selectedClientId);
+                  if (!selectedClient) return;
+
+                  setEditingNegotiation({
+                    ...editingNegotiation,
+                    idClientes: selectedClientId,
+                  });
+
+                  setForm({
+                    ...form,
+                    cliente: selectedClient.nombre,
+                  });
+                }}
                 className="w-full p-2 rounded bg-gray-700 text-white"
               >
                 <option value="" disabled>Select Client</option>
@@ -994,7 +1045,14 @@ export default function LeadFlow() {
             {/* Stage Select */}
             <select
               value={form.estado}
-              onChange={(e) => setForm({ ...form, estado: e.target.value })}
+              onChange={(e) => {
+                const nuevaEtapa = e.target.value;
+                setForm({ ...form, estado: nuevaEtapa });
+                setEditingNegotiation({
+                  ...editingNegotiation,
+                  idEstado: etapaMap[nuevaEtapa as keyof typeof etapaMap],
+                });
+              }}
               className="w-full p-2 rounded bg-[#2c2c3c] text-white"
             >
               <option value="" disabled>Select State</option>
@@ -1010,7 +1068,10 @@ export default function LeadFlow() {
               type="text"
               placeholder="Affair"
               value={form.asunto}
-              onChange={(e) => setForm({ ...form, asunto: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, asunto: e.target.value })
+                setEditingNegotiation({ ...editingNegotiation, asunto: e.target.value })
+              }}
               className="w-full p-2 rounded bg-[#2c2c3c] text-white"
             />
 
@@ -1018,7 +1079,10 @@ export default function LeadFlow() {
             <textarea
               placeholder="Description"
               value={form.descripcion}
-              onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, descripcion: e.target.value })
+                setEditingNegotiation({ ...editingNegotiation, descripcion: e.target.value })
+              }}
               className="w-full p-2 rounded bg-[#2c2c3c] text-white"
             />
 
@@ -1026,22 +1090,28 @@ export default function LeadFlow() {
             <input
               type="date"
               value={form.fecha}
-              onChange={(e) => setForm({ ...form, fecha: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, fecha: e.target.value })
+                setEditingNegotiation({ ...editingNegotiation, fecha: e.target.value })
+
+              }}
               className="w-full p-2 rounded bg-[#2c2c3c] text-white"
             />
 
             {/* Products */}
             <div className="space-y-4">
-              {form.productos.map((item, index) => (
+              {form.productos!.map((item, index) => (
                 <div key={index} className="flex items-center justify-between space-x-4">
                   <div className="flex flex-col w-full">
                     <label className="block font-semibold text-gray-400">Product:</label>
                     <select
                       value={item.nombre}
                       onChange={(e) => {
-                        const updatedProducts = [...form.productos];
+                        const updatedProducts = [...form.productos!];
                         updatedProducts[index].nombre = e.target.value;
                         setForm({ ...form, productos: updatedProducts });
+                        setEditingNegotiation({ ...editingNegotiation, productos: updatedProducts });
+
                       }}
                       className="w-full p-2 rounded bg-[#2c2c3c] text-white"
                     >
@@ -1059,17 +1129,21 @@ export default function LeadFlow() {
                       type="number"
                       value={item.cantidad}
                       onChange={(e) => {
-                        const updatedProducts = [...form.productos];
+                        const updatedProducts = [...form.productos!];
                         updatedProducts[index].cantidad = Number(e.target.value);
                         setForm({ ...form, productos: updatedProducts });
+                        setEditingNegotiation({ ...editingNegotiation, productos: updatedProducts });
+
                       }}
                       className="p-2 rounded bg-[#2c2c3c] text-white"
                     />
                   </div>
                   <button
                     onClick={() => {
-                      const updatedProducts = form.productos.filter((_, i) => i !== index);
+                      const updatedProducts = form.productos!.filter((_, i) => i !== index);
                       setForm({ ...form, productos: updatedProducts });
+                      const updatedProductsNeg = editingNegotiation!.productos!.filter((_, i) => i !== index);
+                      setForm({ ...editingNegotiation, productos: updatedProductsNeg });
                     }}
                     className="text-red-500"
                   >
@@ -1082,7 +1156,11 @@ export default function LeadFlow() {
                 onClick={() => {
                   setForm({
                     ...form,
-                    productos: [...form.productos, { nombre: '', cantidad: 0 }]
+                    productos: [...form.productos!, { nombre: '', cantidad: 0 }]
+                  });
+                  setEditingNegotiation({
+                    ...editingNegotiation,
+                    productos: [...editingNegotiation!.productos!, { nombre: '', cantidad: 0 }]
                   });
                 }}
                 className="text-blue-500"
@@ -1101,7 +1179,7 @@ export default function LeadFlow() {
               </button>
               <button
                 onClick={() => {
-                  if (isFormValid()) {
+                  if (/*isFormValid()*/ true) {
                     handleSaveNegotiation();
                     setShowModal(false);
                   } else {
