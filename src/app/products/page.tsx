@@ -182,7 +182,7 @@ export default function Home() {
 
               <div className="flex flex-col items-center space-y-3">
                 <img
-                  src={item.url || "default-image-url"} // Ensure we are using the actual product URL
+                  src={`${process.env.NEXT_PUBLIC_BASE_URL_S3}${item.url}`} // Ensure we are using the actual product URL
                   alt={item.nombre}
                   className="w-32 h-32 rounded-xl object-cover border-2 border-purple-500"
                 />
